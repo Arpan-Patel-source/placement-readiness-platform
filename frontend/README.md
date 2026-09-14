@@ -1,30 +1,36 @@
-# Welcome Hub
+# PlacementAI Frontend
 
-Based on this design 
+The modern React web application for **PlacementAI** — an AI-powered career and placement preparation platform.
 
-Generate landing page
+## Features
 
-Login page
+- **Landing & Discovery**: Overview of features, track progress, and placement guides.
+- **Authentication**: Secure Login, Registration, and Forgot / Reset Password flow connected to the Spring Boot backend.
+- **Dashboard & Career Modules**: Practice interviews, resume review, coding rounds, and aptitude preparation.
 
-Register page
+## Tech Stack
 
-This project was built with [Lovable](https://lovable.dev).
+- **Framework**: React 19 + TanStack Start / React Router
+- **State Management**: TanStack Query
+- **Styling**: Tailwind CSS v4 + Lucide React
+- **Build Tool**: Vite
 
-## Build with Lovable
+## Getting Started
 
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/f2a6572f-681a-4f50-980d-bec6ad91c232).
+### Prerequisites
 
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
+- Node.js (v20+ recommended)
+- npm / pnpm / bun
 
-## Development
-
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+### Installation & Run
 
 ```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
+# Install dependencies
+npm install
+
+# Run the local development server (proxies /api to backend at http://localhost:8080)
 npm run dev
+
+# Build for production
+npm run build
 ```

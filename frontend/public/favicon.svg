@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <rect width="256" height="256" rx="56" fill="#111827"/>
+  <!-- Stem of P -->
+  <rect x="64" y="56" width="32" height="144" rx="12" fill="#FFFFFF"/>
+  <!-- Loop of P -->
+  <path d="M 64 56 H 140 C 165 56 176 68 176 98 C 176 128 165 140 140 140 H 64 Z" fill="#FFFFFF"/>
+  <path d="M 96 80 H 136 C 146 80 152 86 152 98 C 152 110 146 116 136 116 H 96 Z" fill="#111827"/>
+  <!-- Accent Arrow -->
+  <line x1="160" y1="96" x2="204" y2="52" stroke="#FF6B4A" stroke-width="16" stroke-linecap="round"/>
+  <polygon points="208,48 172,48 208,84" fill="#FF6B4A"/>
+</svg>

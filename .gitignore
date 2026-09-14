@@ -13,3 +13,5 @@ Thumbs.db
 **/.output/
 **/.nitro/
 **/target/
+**/data/
+*.mv.db
