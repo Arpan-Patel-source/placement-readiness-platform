@@ -26,6 +26,9 @@ import org.springframework.transaction.annotation.Transactional;
  * 1. Delegates credential check to AuthenticationManager.
  * 2. Loads the user and generates a JWT.
  */
+import java.time.LocalDateTime;
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -83,4 +86,50 @@ public class AuthService {
                 .role(user.getRole().name())
                 .build();
     }
+
+    @Transactional
+    public ForgotPasswordResponse forgotPassword(ForgotPasswordRequest request) {
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new IllegalArgumentException("No account found with this email: " + request.getEmail()));
+
+        // Generate a 6-character random alphanumeric reset code
+        String resetToken = UUID.randomUUID().toString().substring(0, 6).toUpperCase();
+        user.setResetPasswordToken(resetToken);
+        user.setResetPasswordExpiresAt(LocalDateTime.now().plusMinutes(15));
+        userRepository.save(user);
+
+        return ForgotPasswordResponse.builder()
+                .message("Password reset token generated successfully. Valid for 15 minutes.")
+                .resetToken(resetToken)
+                .expiresInMinutes(15)
+                .build();
+    }
+
+    @Transactional
+    public AuthResponse resetPassword(ResetPasswordRequest request) {
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new IllegalArgumentException("No account found with this email: " + request.getEmail()));
+
+        if (user.getResetPasswordToken() == null || !user.getResetPasswordToken().equalsIgnoreCase(request.getToken().trim())) {
+            throw new IllegalArgumentException("Invalid password reset token.");
+        }
+
+        if (user.getResetPasswordExpiresAt() == null || user.getResetPasswordExpiresAt().isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("Password reset token has expired. Please request a new one.");
+        }
+
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        user.setResetPasswordToken(null);
+        user.setResetPasswordExpiresAt(null);
+        userRepository.save(user);
+
+        String token = jwtService.generateToken(user);
+
+        return AuthResponse.builder()
+                .token(token)
+                .email(user.getEmail())
+                .role(user.getRole().name())
+                .build();
+    }
 }
+

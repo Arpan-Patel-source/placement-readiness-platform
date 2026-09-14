@@ -42,6 +42,13 @@ public class User implements UserDetails {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @Column
+    private String resetPasswordToken;
+
+    @Column
+    private LocalDateTime resetPasswordExpiresAt;
+
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();

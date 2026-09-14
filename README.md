@@ -434,3 +434,43 @@ This project is intended for educational and portfolio purposes.
 - **Docker** — containerization
 - **Cloud deployment** — deployment of frontend, backend, and database services
 - **Environment variables** — safe storage of database credentials, JWT secrets, and API keys
+
+## Quick Start & Running Locally
+
+### 1. Prerequisites
+- **Node.js**: v18+ (v20+ recommended)
+- **Java**: JDK 21
+- **PostgreSQL**: Running locally on port 5432 (default DB: `placement_ai`)
+
+### 2. Run the Frontend
+The frontend is built with React, TanStack Start/Router, Tailwind CSS v4, Lucide icons, and shadcn/ui.
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+The frontend will be available at: **http://localhost:5173**
+
+Key application routes:
+- **`http://localhost:5173/`**: PlacementAI Landing Page (Hero, Features, Mission, CTA)
+- **`http://localhost:5173/login`**: Student Sign In (connected to `/api/auth/login`)
+- **`http://localhost:5173/register`**: Student Registration (connected to `/api/auth/register`)
+- **`http://localhost:5173/dashboard`**: Readiness score gauge, ATS snapshot, predictions & roadmap
+
+### 3. Run the Backend
+The backend is a Spring Boot REST application with Spring Security and JWT authentication.
+
+```bash
+cd backend
+./mvnw spring-boot:run
+```
+
+The backend server runs on: **http://localhost:8080**
+
+Active REST Endpoints:
+- `POST /api/auth/register` — Create student account
+- `POST /api/auth/login` — Sign in and obtain JWT
+- `GET  /api/profile` — Fetch student profile (Bearer token)
+- `PUT  /api/profile` — Update student profile (Bearer token)

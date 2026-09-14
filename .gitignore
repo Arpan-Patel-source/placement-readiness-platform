@@ -1,0 +1,15 @@
+# Operating System Files
+.DS_Store
+Thumbs.db
+
+# IDE & Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Build Artifacts & Dependencies
+**/node_modules/
+**/.output/
+**/.nitro/
+**/target/
