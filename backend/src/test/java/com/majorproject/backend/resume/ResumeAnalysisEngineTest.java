@@ -39,10 +39,12 @@ class ResumeAnalysisEngineTest {
                 Java, Spring Boot, SQL, Hibernate, Git, REST APIs, Docker, PostgreSQL
                 """;
 
+        assertDoesNotThrow(() -> engine.validateResumeDocument(sampleResume, "resume.pdf"));
+
         AnalysisResult result = engine.analyze(sampleResume, "Java Backend Developer");
 
         assertNotNull(result);
-        assertTrue(result.atsScore >= 75, "ATS score should be high for well-formatted resume");
+        assertTrue(result.atsScore >= 70, "ATS score should be high for well-formatted resume");
         assertTrue(result.strengthScore >= 70, "Strength score should be high due to metrics and strong action verbs");
         assertTrue(result.skillsFound.contains("Java"));
         assertTrue(result.skillsFound.contains("Spring Boot"));
@@ -52,6 +54,29 @@ class ResumeAnalysisEngineTest {
         assertTrue(result.sections.getStructureScore() >= 80);
         assertFalse(result.actionableSuggestions.isEmpty());
         assertNotNull(result.executiveSummary);
+    }
+
+    @Test
+    void testValidateResumeDocument_RejectsNonResume() {
+        String ptaMeetingDocument = """
+                Event: Parent-Teacher Association Meeting
+                Date: September 20, 2026
+                Location: Main Auditorium
+                
+                Agenda:
+                1. Review of annual school curriculum and performance.
+                2. Parent queries regarding bus transportation and cafeteria fees.
+                3. Discussion on upcoming sports day preparations.
+                
+                Contact: schooloffice@example.com | +91 9876543210
+                Signed by PTA President and Secretary.
+                """;
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
+                engine.validateResumeDocument(ptaMeetingDocument, "PTA_Meeting.pdf")
+        );
+
+        assertTrue(ex.getMessage().contains("not recognized as a resume") || ex.getMessage().contains("does not appear to be a resume"));
     }
 
     @Test
@@ -67,13 +92,15 @@ class ResumeAnalysisEngineTest {
                 - Helped with basic HTML and CSS website.
                 """;
 
+        assertDoesNotThrow(() -> engine.validateResumeDocument(minimalResume, "minimal_resume.txt"));
+
         AnalysisResult result = engine.analyze(minimalResume, "Java Backend Developer");
 
         assertNotNull(result);
         assertTrue(result.missingSkills.contains("Java"));
         assertTrue(result.missingSkills.contains("Spring Boot"));
         assertTrue(result.missingSkills.contains("SQL"));
-        assertTrue(result.strengthScore < 60, "Strength score should be low for minimal resume lacking metrics");
+        assertTrue(result.strengthScore < 50, "Strength score should be low for minimal resume lacking metrics");
         assertTrue(result.actionableSuggestions.stream().anyMatch(s -> s.contains("Java") || s.contains("Spring Boot")));
     }
 }

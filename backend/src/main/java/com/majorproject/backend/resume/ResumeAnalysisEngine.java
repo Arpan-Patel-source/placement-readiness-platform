@@ -49,44 +49,153 @@ public class ResumeAnalysisEngine {
         public String executiveSummary;
     }
 
+    /**
+     * Strictly verifies that the uploaded document contains structural pillars of a genuine resume.
+     * Prevents false positives on random files (meeting circulars, textbook pages, invoices, forms).
+     */
+    public void validateResumeDocument(String text, String fileName) {
+        if (text == null || text.trim().isEmpty()) {
+            throw new IllegalArgumentException("The uploaded file contains no readable text.");
+        }
+
+        String lower = text.toLowerCase();
+
+        // 1. Check for non-resume document markers
+        boolean hasNonResumeMarkers = lower.contains("parent-teacher") ||
+                lower.contains("meeting minutes") ||
+                lower.contains("agenda:") ||
+                lower.contains("meeting notice") ||
+                lower.contains("pta meeting") ||
+                lower.contains("attendance sheet") ||
+                lower.contains("invoice #") ||
+                lower.contains("bill to:") ||
+                lower.contains("receipt #") ||
+                lower.contains("terms and conditions") ||
+                lower.contains("homework assignment") ||
+                lower.contains("question paper") ||
+                lower.contains("syllabus copy");
+
+        // 2. Core Resume Pillar A: Education / Academics
+        boolean hasEducation = containsWord(lower, "education") ||
+                containsWord(lower, "academic") ||
+                containsWord(lower, "academics") ||
+                containsWord(lower, "b.tech") ||
+                containsWord(lower, "btech") ||
+                containsWord(lower, "b.e") ||
+                containsWord(lower, "bachelor") ||
+                containsWord(lower, "master") ||
+                containsWord(lower, "m.tech") ||
+                containsWord(lower, "degree") ||
+                containsWord(lower, "university") ||
+                containsWord(lower, "college") ||
+                containsWord(lower, "cgpa") ||
+                containsWord(lower, "gpa") ||
+                containsWord(lower, "coursework");
+
+        // 3. Core Resume Pillar B: Experience / Projects / Work History
+        boolean hasExperienceOrProjects = containsWord(lower, "experience") ||
+                containsWord(lower, "projects") ||
+                containsWord(lower, "project") ||
+                containsWord(lower, "internship") ||
+                containsWord(lower, "employment") ||
+                containsWord(lower, "work history") ||
+                containsWord(lower, "capstone") ||
+                containsWord(lower, "contributions");
+
+        // 4. Core Resume Pillar C: Technical or Professional Skills
+        boolean hasSkills = containsWord(lower, "skills") ||
+                containsWord(lower, "technical skills") ||
+                containsWord(lower, "technologies") ||
+                containsWord(lower, "programming languages") ||
+                containsWord(lower, "proficiencies") ||
+                containsWord(lower, "core competencies") ||
+                containsWord(lower, "tools");
+
+        // 5. Resume / CV identity headers
+        boolean hasResumeIdentity = containsWord(lower, "resume") ||
+                containsWord(lower, "curriculum vitae") ||
+                containsWord(lower, "cv") ||
+                containsWord(lower, "career objective") ||
+                containsWord(lower, "professional summary") ||
+                containsWord(lower, "summary of qualifications");
+
+        int pillarCount = (hasEducation ? 1 : 0) + (hasExperienceOrProjects ? 1 : 0) + (hasSkills ? 1 : 0);
+
+        String displayFile = (fileName != null && !fileName.isBlank()) ? fileName : "uploaded file";
+
+        // Non-resume markers present without all 3 pillars
+        if (hasNonResumeMarkers && pillarCount < 3) {
+            throw new IllegalArgumentException(
+                    "The file '" + displayFile + "' is not recognized as a resume or CV. " +
+                    "It appears to be a general notice, meeting document, or circular. " +
+                    "Please upload a valid resume containing Education, Projects, and Skills."
+            );
+        }
+
+        // Must satisfy at least two core pillars or have an explicit resume identity + one pillar
+        if (pillarCount < 2 && !hasResumeIdentity) {
+            throw new IllegalArgumentException(
+                    "The file '" + displayFile + "' does not appear to be a resume or CV. " +
+                    "A valid resume must contain standard sections such as Education, Projects/Experience, and Skills. " +
+                    "Please upload a valid student placement resume."
+            );
+        }
+    }
+
     public AnalysisResult analyze(String text, String targetRole) {
         if (text == null) text = "";
         String lowerText = text.toLowerCase();
 
         RoleBenchmark benchmark = roleSkillCatalog.findBenchmark(targetRole);
 
-        // 1. ATS Scoring & Section Analysis
+        // 1. Calibrated Section & ATS Scoring
         int contactScore = evaluateContact(text, lowerText);
         int structureScore = evaluateStructure(lowerText);
         int readabilityScore = evaluateReadability(text);
-        int rawAts = contactScore + structureScore + readabilityScore;
-        int atsScore = Math.max(10, Math.min(100, rawAts));
+
+        // Mathematically calibrated ATS Compatibility:
+        // Structure = 50%, Contact = 25%, Readability/Formatting = 25%
+        int rawAts = (int) Math.round((structureScore * 0.50) + (contactScore * 0.25) + (readabilityScore * 0.25));
+
+        // Penalty if structure is broken: If core sections are missing, standard ATS cannot parse it
+        if (structureScore == 0) {
+            rawAts = 0;
+        } else if (structureScore < 30) {
+            rawAts = Math.min(rawAts, 25);
+        }
+        int atsScore = Math.max(0, Math.min(100, rawAts));
 
         // 2. Skills Analysis
         List<String> skillsFound = new ArrayList<>();
         List<String> missingSkills = new ArrayList<>();
-        int skillMatchCount = 0;
+        int primarySkillMatches = 0;
 
         // Check primary skills
         for (String skill : benchmark.getPrimarySkills()) {
             if (containsWord(lowerText, skill.toLowerCase())) {
                 skillsFound.add(skill);
-                skillMatchCount++;
+                primarySkillMatches++;
             } else {
                 missingSkills.add(skill);
             }
         }
 
         // Check secondary skills
+        int secondarySkillMatches = 0;
         for (String skill : benchmark.getSecondarySkills()) {
             if (containsWord(lowerText, skill.toLowerCase())) {
                 skillsFound.add(skill);
+                secondarySkillMatches++;
             }
         }
 
-        int skillsScore = benchmark.getPrimarySkills().isEmpty() ? 70 :
-                (int) Math.round(((double) skillMatchCount / benchmark.getPrimarySkills().size()) * 100);
-        skillsScore = Math.min(100, Math.max(15, skillsScore));
+        int totalPrimary = benchmark.getPrimarySkills().size();
+        int skillsScore = 0;
+        if (totalPrimary > 0 && primarySkillMatches > 0) {
+            skillsScore = (int) Math.round(((double) primarySkillMatches / totalPrimary) * 85);
+            skillsScore += Math.min(15, secondarySkillMatches * 5); // secondary skill bonus
+            skillsScore = Math.min(100, skillsScore);
+        }
 
         // 3. Keywords Analysis
         List<String> missingKeywords = new ArrayList<>();
@@ -100,8 +209,10 @@ public class ResumeAnalysisEngine {
         int actionVerbScore = evaluateActionVerbs(lowerText);
         int impactScore = evaluateQuantifiableMetrics(lowerText);
         int projectDepthScore = evaluateProjectQuality(lowerText);
-        int rawStrength = (int) Math.round((actionVerbScore * 0.35) + (impactScore * 0.40) + (projectDepthScore * 0.25));
-        int strengthScore = Math.max(15, Math.min(100, rawStrength));
+
+        // Strength: Action verbs (40%), Measurable impact (35%), Project depth (25%)
+        int rawStrength = (int) Math.round((actionVerbScore * 0.40) + (impactScore * 0.35) + (projectDepthScore * 0.25));
+        int strengthScore = Math.max(0, Math.min(100, rawStrength));
 
         // 5. Grammar & Style Checks
         List<String> grammarIssues = checkGrammarAndStyle(text, lowerText);
@@ -112,7 +223,7 @@ public class ResumeAnalysisEngine {
 
         // 7. Overall Readiness Composite Score
         int readinessScore = (int) Math.round((atsScore * 0.35) + (strengthScore * 0.35) + (skillsScore * 0.30));
-        readinessScore = Math.max(20, Math.min(99, readinessScore));
+        readinessScore = Math.max(0, Math.min(99, readinessScore));
 
         // 8. Executive Summary (Local or Gemini)
         String executiveSummary = generateExecutiveSummary(benchmark.getRoleTitle(), atsScore, readinessScore, skillsFound, missingSkills, text);
@@ -140,42 +251,42 @@ public class ResumeAnalysisEngine {
 
     private int evaluateContact(String text, String lowerText) {
         int score = 0;
-        // Email check
+        // Email check: 30 pts
         Pattern emailPattern = Pattern.compile("[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}");
         if (emailPattern.matcher(text).find()) {
-            score += 35;
+            score += 30;
         }
-        // Phone check
+        // Phone check: 30 pts
         Pattern phonePattern = Pattern.compile("(\\+?[0-9]{1,3}[-.\\s]?)?\\(?\\d{3}\\)?[-.\\s]?\\d{3}[-.\\s]?\\d{4}");
         if (phonePattern.matcher(text).find()) {
-            score += 35;
+            score += 30;
         }
-        // LinkedIn check
+        // LinkedIn check: 20 pts
         if (lowerText.contains("linkedin.com") || lowerText.contains("linkedin")) {
-            score += 15;
+            score += 20;
         }
-        // GitHub check
+        // GitHub check: 20 pts
         if (lowerText.contains("github.com") || lowerText.contains("github")) {
-            score += 15;
+            score += 20;
         }
         return Math.min(100, score);
     }
 
     private int evaluateStructure(String lowerText) {
         int score = 0;
-        // Education section
-        if (lowerText.contains("education") || lowerText.contains("academic") || lowerText.contains("b.tech") || lowerText.contains("bachelor")) {
+        // Education section (30 pts)
+        if (lowerText.contains("education") || lowerText.contains("academic") || lowerText.contains("b.tech") || lowerText.contains("bachelor") || lowerText.contains("degree")) {
             score += 30;
         }
-        // Experience or Projects
-        if (lowerText.contains("experience") || lowerText.contains("projects") || lowerText.contains("internship") || lowerText.contains("employment")) {
-            score += 35;
+        // Experience or Projects (40 pts)
+        if (lowerText.contains("experience") || lowerText.contains("projects") || lowerText.contains("internship") || lowerText.contains("employment") || lowerText.contains("capstone")) {
+            score += 40;
         }
-        // Skills section
-        if (lowerText.contains("skills") || lowerText.contains("technologies") || lowerText.contains("technical proficiencies")) {
-            score += 25;
+        // Skills section (20 pts)
+        if (lowerText.contains("skills") || lowerText.contains("technologies") || lowerText.contains("technical proficiencies") || lowerText.contains("programming languages")) {
+            score += 20;
         }
-        // Summary or Objective
+        // Summary or Objective (10 pts)
         if (lowerText.contains("summary") || lowerText.contains("objective") || lowerText.contains("about me") || lowerText.contains("profile")) {
             score += 10;
         }
@@ -185,12 +296,12 @@ public class ResumeAnalysisEngine {
     private int evaluateReadability(String text) {
         String[] words = text.trim().split("\\s+");
         int count = words.length;
-        if (count >= 300 && count <= 900) {
-            return 20;
-        } else if (count >= 200 && count <= 1200) {
-            return 15;
-        } else if (count > 0) {
-            return 10;
+        if (count >= 250 && count <= 950) {
+            return 100; // Ideal length for college/entry level resume
+        } else if (count >= 150 && count <= 1300) {
+            return 70;
+        } else if (count > 50) {
+            return 35;
         }
         return 0;
     }
@@ -199,7 +310,8 @@ public class ResumeAnalysisEngine {
         String[] strongVerbs = {
                 "built", "developed", "engineered", "architected", "implemented", "designed",
                 "optimized", "spearheaded", "automated", "deployed", "scaled", "created",
-                "collaborated", "refactored", "integrated", "streamlined", "configured", "maintained"
+                "collaborated", "refactored", "integrated", "streamlined", "configured", "maintained",
+                "accelerated", "reduced", "increased"
         };
         int found = 0;
         for (String verb : strongVerbs) {
@@ -207,34 +319,36 @@ public class ResumeAnalysisEngine {
                 found++;
             }
         }
-        if (found >= 7) return 95;
-        if (found >= 5) return 82;
-        if (found >= 3) return 65;
-        if (found >= 1) return 45;
-        return 25;
+        if (found >= 6) return 100;
+        if (found >= 4) return 80;
+        if (found >= 2) return 55;
+        if (found == 1) return 30;
+        return 0;
     }
 
     private int evaluateQuantifiableMetrics(String lowerText) {
         int matches = 0;
-        // % signs or numbers
-        Pattern metricPattern = Pattern.compile("(\\d+%)|(\\d+x)|(reduced\\s+by)|(increased\\s+by)|(\\$\\d+)|(\\d+\\+?\\s*(users|clients|requests|ms|seconds|minutes))");
+        Pattern metricPattern = Pattern.compile("(\\d+%)|(\\d+x)|(reduced\\s+by)|(increased\\s+by)|(\\$\\d+)|(\\d+\\+?\\s*(users|clients|requests|ms|seconds|minutes|stars))");
         Matcher m = metricPattern.matcher(lowerText);
         while (m.find()) {
             matches++;
         }
-        if (matches >= 4) return 95;
-        if (matches >= 2) return 80;
-        if (matches == 1) return 60;
-        return 30;
+        if (matches >= 3) return 100;
+        if (matches == 2) return 70;
+        if (matches == 1) return 40;
+        return 0;
     }
 
     private int evaluateProjectQuality(String lowerText) {
-        int score = 50;
+        boolean hasProjects = lowerText.contains("project") || lowerText.contains("experience") || lowerText.contains("internship");
+        if (!hasProjects) return 0;
+
+        int score = 30;
         if (lowerText.contains("github.com") || lowerText.contains("gitlab") || lowerText.contains("bitbucket")) {
-            score += 25;
+            score += 35;
         }
         if (lowerText.contains("live demo") || lowerText.contains("deployed") || lowerText.contains("https://") || lowerText.contains("demo:")) {
-            score += 25;
+            score += 35;
         }
         return Math.min(100, score);
     }
@@ -270,9 +384,9 @@ public class ResumeAnalysisEngine {
 
         // 4. Length check
         String[] words = text.trim().split("\\s+");
-        if (words.length < 250) {
+        if (words.length < 200) {
             issues.add("Resume word count is low (" + words.length + " words). Expand project descriptions and add relevant coursework/certifications.");
-        } else if (words.length > 1100) {
+        } else if (words.length > 1200) {
             issues.add("Resume appears overly lengthy (" + words.length + " words). Keep entry-level resumes concise within 1 to 2 pages.");
         }
 
@@ -294,6 +408,11 @@ public class ResumeAnalysisEngine {
     ) {
         List<String> suggestions = new ArrayList<>();
 
+        // Structure suggestion
+        if (structureScore < 70) {
+            suggestions.add("Add missing core resume sections: Standardize your headers into Education, Technical Projects, Work Experience, and Technical Skills.");
+        }
+
         // Skill-gap suggestions
         if (!missingSkills.isEmpty()) {
             List<String> topMissing = missingSkills.subList(0, Math.min(3, missingSkills.size()));
@@ -302,21 +421,21 @@ public class ResumeAnalysisEngine {
 
         // Project recommendations
         if (benchmark.getRecommendedProjects() != null && !benchmark.getRecommendedProjects().isEmpty()) {
-            suggestions.add("Project Idea: " + benchmark.getRecommendedProjects().get(0));
+            suggestions.add("Project Recommendation: " + benchmark.getRecommendedProjects().get(0));
         }
 
         // Quantifiable metrics suggestion
-        if (impactScore < 70) {
+        if (impactScore < 60) {
             suggestions.add("Quantify your achievements: Use the STAR/XYZ method (e.g. 'Optimized database queries by 35%, reducing average API latency from 240ms to 90ms').");
         }
 
         // Action verbs suggestion
-        if (actionVerbScore < 70) {
+        if (actionVerbScore < 60) {
             suggestions.add("Elevate bullet point verbs: Start project bullets with punchy impact verbs like 'Architected', 'Automated', 'Deployed', or 'Refactored'.");
         }
 
         // Contact info suggestion
-        if (contactScore < 80) {
+        if (contactScore < 70) {
             suggestions.add("Enhance contact visibility: Make sure your GitHub profile, LinkedIn URL, phone, and professional email are clearly listed at the top.");
         }
 
@@ -338,23 +457,23 @@ public class ResumeAnalysisEngine {
     ) {
         List<String> strengths = new ArrayList<>();
 
-        if (contactScore >= 80) {
-            strengths.add("Complete and accessible contact header with direct social/portfolio links.");
+        if (contactScore >= 70) {
+            strengths.add("Complete and accessible contact header with professional contact channels.");
         }
-        if (structureScore >= 80) {
+        if (structureScore >= 70) {
             strengths.add("Clean section hierarchy (Education, Projects, Skills) easily parsed by standard ATS scanners.");
         }
         if (!skillsFound.isEmpty()) {
-            strengths.add("Strong foundational tech stack demonstrating " + String.join(", ", skillsFound.subList(0, Math.min(4, skillsFound.size()))) + ".");
+            strengths.add("Demonstrated competency in key technologies: " + String.join(", ", skillsFound.subList(0, Math.min(4, skillsFound.size()))) + ".");
         }
-        if (strengthScore >= 70) {
+        if (strengthScore >= 65) {
             strengths.add("Good utilization of active voice and technical project descriptions.");
         }
         if (atsScore >= 75) {
             strengths.add("High ATS compatibility profile suitable for campus and enterprise hiring portals.");
         }
         if (strengths.isEmpty()) {
-            strengths.add("Good baseline resume structure with clear room for targeted optimization.");
+            strengths.add("The document requires foundational additions (Education, Projects, Skills) to pass standard ATS screening.");
         }
         return strengths;
     }
@@ -379,7 +498,7 @@ public class ResumeAnalysisEngine {
             }
         }
 
-        // Deterministic Fallback Generator
+        // Deterministic Generator
         StringBuilder sb = new StringBuilder();
         sb.append("Your resume currently scores ").append(atsScore).append("/100 on ATS formatting and demonstrates a ")
                 .append(readinessScore).append("% overall placement readiness for the ").append(roleTitle).append(" profile. ");
@@ -431,7 +550,6 @@ public class ResumeAnalysisEngine {
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
             if (response.statusCode() == 200) {
                 String body = response.body();
-                // Simple parse of "text": "..."
                 int textIndex = body.indexOf("\"text\": \"");
                 if (textIndex != -1) {
                     int start = textIndex + 9;

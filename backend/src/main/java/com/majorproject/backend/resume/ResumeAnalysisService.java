@@ -47,6 +47,9 @@ public class ResumeAnalysisService {
         // Extract text
         String extractedText = textExtractor.extractText(file);
 
+        // Validate document authenticity (verify it is a resume, not a random document)
+        analysisEngine.validateResumeDocument(extractedText, file.getOriginalFilename());
+
         // Run engine
         AnalysisResult analysis = analysisEngine.analyze(extractedText, targetRole);
 

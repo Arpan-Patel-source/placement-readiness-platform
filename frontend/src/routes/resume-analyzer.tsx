@@ -253,9 +253,15 @@ function ResumeAnalyzerPage() {
 
     try {
       await api.deleteResumeAnalysis(id);
-      setHistory((prev) => prev.filter((h) => h.id !== id));
+      const remaining = history.filter((h) => h.id !== id);
+      setHistory(remaining);
       if (currentAnalysis?.id === id) {
-        setCurrentAnalysis(null);
+        if (remaining.length > 0) {
+          const nextScan = await api.getResumeById(remaining[0].id);
+          setCurrentAnalysis(nextScan);
+        } else {
+          setCurrentAnalysis(null);
+        }
       }
     } catch (err: any) {
       setErrorMsg(err.message || "Failed to delete scan.");
