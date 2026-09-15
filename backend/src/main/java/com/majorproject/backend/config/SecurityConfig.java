@@ -12,11 +12,16 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import org.springframework.http.HttpMethod;
+import org.springframework.web.cors.CorsConfigurationSource;
+
 /**
  * Spring Security configuration.
  *
  * Rules:
+ * - CORS enabled using CorsConfigurationSource
  * - CSRF disabled (we use stateless JWT, not sessions/cookies)
+ * - OPTIONS requests permitted for preflight checks
  * - /api/auth/** is public (register + login)
  * - All other endpoints require a valid JWT
  * - Session policy is STATELESS (no HttpSession created)
@@ -29,12 +34,15 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
+    private final CorsConfigurationSource corsConfigurationSource;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/auth/**", "/error").permitAll()
                         .anyRequest().authenticated()
                 )
