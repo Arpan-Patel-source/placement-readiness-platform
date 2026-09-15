@@ -52,6 +52,43 @@ export interface StudentProfile {
   githubUrl?: string;
 }
 
+export interface SectionScores {
+  contactScore: number;
+  structureScore: number;
+  skillsScore: number;
+  impactScore: number;
+}
+
+export interface ResumeAnalysisResult {
+  id: string;
+  fileName: string;
+  fileType: string;
+  fileSizeBytes: number;
+  targetRole: string;
+  atsScore: number;
+  strengthScore: number;
+  readinessScore: number;
+  sections: SectionScores;
+  skillsFound: string[];
+  missingSkills: string[];
+  criticalKeywords: string[];
+  actionableSuggestions: string[];
+  grammarSuggestions: string[];
+  strengths: string[];
+  executiveSummary: string;
+  createdAt: string;
+}
+
+export interface ResumeHistoryItem {
+  id: string;
+  fileName: string;
+  targetRole: string;
+  atsScore: number;
+  strengthScore: number;
+  readinessScore: number;
+  createdAt: string;
+}
+
 export interface UserSession {
   email: string;
   name: string;
@@ -103,6 +140,9 @@ export const authStorage = {
 };
 
 async function handleResponse<T>(response: Response): Promise<T> {
+  if (response.status === 204) {
+    return null as T;
+  }
   const isJson = response.headers.get("content-type")?.includes("application/json");
   const data = isJson ? await response.json() : null;
 
@@ -223,6 +263,100 @@ export const api = {
     });
 
     return handleResponse<StudentProfile>(response);
+  },
+
+  /**
+   * Upload and analyze a resume file (PDF or DOCX)
+   * POST /api/resume/analyze
+   */
+  async analyzeResume(file: File, targetRole?: string): Promise<ResumeAnalysisResult> {
+    const token = authStorage.getToken();
+    if (!token) throw new Error("Please log in to analyze your resume");
+
+    const formData = new FormData();
+    formData.append("file", file);
+    if (targetRole) {
+      formData.append("targetRole", targetRole);
+    }
+
+    const response = await fetch(`${API_BASE_URL}/api/resume/analyze`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    return handleResponse<ResumeAnalysisResult>(response);
+  },
+
+  /**
+   * Get the most recent resume analysis for the logged-in student
+   * GET /api/resume/latest
+   */
+  async getLatestResumeAnalysis(): Promise<ResumeAnalysisResult | null> {
+    const token = authStorage.getToken();
+    if (!token) return null;
+
+    const response = await fetch(`${API_BASE_URL}/api/resume/latest`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return handleResponse<ResumeAnalysisResult | null>(response);
+  },
+
+  /**
+   * Get previous resume scans history
+   * GET /api/resume/history
+   */
+  async getResumeHistory(): Promise<ResumeHistoryItem[]> {
+    const token = authStorage.getToken();
+    if (!token) return [];
+
+    const response = await fetch(`${API_BASE_URL}/api/resume/history`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return handleResponse<ResumeHistoryItem[]>(response);
+  },
+
+  /**
+   * Get detailed analysis by scan ID
+   * GET /api/resume/{id}
+   */
+  async getResumeById(id: string): Promise<ResumeAnalysisResult> {
+    const token = authStorage.getToken();
+    if (!token) throw new Error("No authentication token available");
+
+    const response = await fetch(`${API_BASE_URL}/api/resume/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return handleResponse<ResumeAnalysisResult>(response);
+  },
+
+  /**
+   * Delete a resume scan from history
+   * DELETE /api/resume/{id}
+   */
+  async deleteResumeAnalysis(id: string): Promise<void> {
+    const token = authStorage.getToken();
+    if (!token) throw new Error("No authentication token available");
+
+    const response = await fetch(`${API_BASE_URL}/api/resume/${id}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return handleResponse<void>(response);
   },
 };
 

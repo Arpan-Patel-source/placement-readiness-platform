@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 
 import { SiteHeader } from "@/components/SiteHeader";
-import { authStorage } from "@/lib/api";
+import { api, authStorage, ResumeAnalysisResult } from "@/lib/api";
 
 
 export const Route = createFileRoute("/dashboard")({
@@ -156,14 +156,29 @@ function Bar({ value, className = "" }: { value: number; className?: string }) {
 }
 
 function Dashboard() {
-  const [userName, setUserName] = useState("Azhar");
+  const [userName, setUserName] = useState("Student");
+  const [latestResume, setLatestResume] = useState<ResumeAnalysisResult | null>(null);
 
   useEffect(() => {
     const user = authStorage.getUser();
     if (user?.name) {
       setUserName(user.name);
     }
+
+    api
+      .getLatestResumeAnalysis()
+      .then((data) => {
+        if (data) setLatestResume(data);
+      })
+      .catch(() => {});
   }, []);
+
+  const readinessScore = latestResume ? latestResume.readinessScore : 64;
+  const atsScore = latestResume ? latestResume.atsScore : 78;
+
+  const activeBreakdown = readinessBreakdown.map((r) =>
+    r.label === "Resume" && latestResume ? { ...r, value: latestResume.atsScore } : r
+  );
 
   return (
     <div className="min-h-screen bg-background">
@@ -175,26 +190,30 @@ function Dashboard() {
           <div>
             <p className="text-xs font-semibold tracking-[0.22em] text-coral">YOUR DASHBOARD</p>
             <h1 className="mt-2 font-display text-3xl font-extrabold text-ink sm:text-4xl">
-              Hey {userName}, you're <span className="text-coral">64% placement ready</span>
+              Hey {userName}, you're <span className="text-coral">{readinessScore}% placement ready</span>
             </h1>
             <p className="mt-2 max-w-xl text-sm text-ink/70">
-              Keep practising interviews this week — it's your weakest area right now.
+              {latestResume
+                ? `Latest resume scan for ${latestResume.targetRole}: ATS score is ${atsScore}/100.`
+                : "Upload your resume to calculate your true ATS score and identify role skill gaps."}
             </p>
           </div>
-          <button className="inline-flex items-center gap-2 rounded-full bg-coral px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-coral/90">
-            <Upload className="size-4" /> Upload resume
-          </button>
+          <Link
+            to="/resume-analyzer"
+            className="inline-flex items-center gap-2 rounded-full bg-coral px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-coral/90"
+          >
+            <Upload className="size-4" /> {latestResume ? "Re-scan resume" : "Upload resume"}
+          </Link>
         </section>
-
 
         {/* Readiness + prediction */}
         <section className="mt-8 grid gap-5 lg:grid-cols-3">
           <div className="rounded-3xl border border-border bg-card p-6 shadow-sm">
             <h2 className="font-display text-lg font-bold text-ink">Placement Readiness</h2>
             <div className="mt-5 flex items-center gap-6">
-              <Ring value={64} />
+              <Ring value={readinessScore} />
               <div className="flex-1 space-y-3">
-                {readinessBreakdown.map((r) => (
+                {activeBreakdown.map((r) => (
                   <div key={r.label}>
                     <div className="flex justify-between text-xs text-ink/70">
                       <span>{r.label}</span>
@@ -207,27 +226,75 @@ function Dashboard() {
             </div>
           </div>
 
-          <div className="rounded-3xl border border-border bg-mint/50 p-6">
-            <div className="flex items-center gap-2">
-              <BarChart3 className="size-4 text-ink" />
-              <h2 className="font-display text-lg font-bold text-ink">Resume Snapshot</h2>
+          <div className="rounded-3xl border border-border bg-mint/50 p-6 flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <BarChart3 className="size-4 text-ink" />
+                  <h2 className="font-display text-lg font-bold text-ink">Resume Snapshot</h2>
+                </div>
+                <Link
+                  to="/resume-analyzer"
+                  className="text-xs font-semibold text-coral hover:underline"
+                >
+                  Open Analyzer →
+                </Link>
+              </div>
+
+              <p className="mt-4 font-display text-4xl font-extrabold text-ink">
+                {atsScore}
+                <span className="text-lg">/100</span>
+              </p>
+              <p className="text-xs text-ink/60">
+                {latestResume
+                  ? `ATS compatibility (${latestResume.targetRole})`
+                  : "ATS compatibility score (Baseline sample)"}
+              </p>
+
+              <div className="mt-5 space-y-2 text-sm">
+                {latestResume ? (
+                  <>
+                    {latestResume.strengths.slice(0, 1).map((s, idx) => (
+                      <p key={idx} className="flex items-start gap-2 text-ink/80 text-xs">
+                        <CheckCircle2 className="mt-0.5 size-3.5 shrink-0 text-emerald-700" />
+                        <span>{s}</span>
+                      </p>
+                    ))}
+                    {latestResume.missingSkills.length > 0 && (
+                      <p className="flex items-start gap-2 text-ink/80 text-xs">
+                        <AlertTriangle className="mt-0.5 size-3.5 shrink-0 text-coral" />
+                        <span>Missing: {latestResume.missingSkills.slice(0, 3).join(", ")}</span>
+                      </p>
+                    )}
+                    {latestResume.actionableSuggestions.slice(0, 1).map((sug, idx) => (
+                      <p key={idx} className="flex items-start gap-2 text-ink/80 text-xs">
+                        <AlertTriangle className="mt-0.5 size-3.5 shrink-0 text-coral" />
+                        <span className="line-clamp-2">{sug}</span>
+                      </p>
+                    ))}
+                  </>
+                ) : (
+                  <>
+                    <p className="flex items-start gap-2 text-ink/80 text-xs">
+                      <CheckCircle2 className="mt-0.5 size-3.5 shrink-0 text-ink" /> Strong project section & clear formatting
+                    </p>
+                    <p className="flex items-start gap-2 text-ink/80 text-xs">
+                      <AlertTriangle className="mt-0.5 size-3.5 shrink-0 text-coral" /> Missing keywords: REST API, Docker, SQL joins
+                    </p>
+                    <p className="flex items-start gap-2 text-ink/80 text-xs">
+                      <AlertTriangle className="mt-0.5 size-3.5 shrink-0 text-coral" /> Add measurable impact to internship bullets
+                    </p>
+                  </>
+                )}
+              </div>
             </div>
-            <p className="mt-4 font-display text-4xl font-extrabold text-ink">78<span className="text-lg">/100</span></p>
-            <p className="text-xs text-ink/60">ATS compatibility score</p>
-            <div className="mt-5 space-y-2 text-sm">
-              <p className="flex items-start gap-2 text-ink/80">
-                <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-ink" /> Strong project section & clear formatting
-              </p>
-              <p className="flex items-start gap-2 text-ink/80">
-                <AlertTriangle className="mt-0.5 size-4 shrink-0 text-coral" /> Missing keywords: REST API, Docker, SQL joins
-              </p>
-              <p className="flex items-start gap-2 text-ink/80">
-                <AlertTriangle className="mt-0.5 size-4 shrink-0 text-coral" /> Add measurable impact to internship bullets
-              </p>
-            </div>
+
             <div className="mt-5 flex flex-wrap gap-2">
-              {["Java", "DSA", "SQL", "React", "Aptitude"].map((s) => (
-                <span key={s} className="rounded-full bg-card px-3 py-1 text-xs font-medium text-ink">
+              {(latestResume && latestResume.skillsFound.length > 0
+                ? latestResume.skillsFound.slice(0, 5)
+                : ["Java", "DSA", "SQL", "React", "Aptitude"]
+              ).map((s) => (
+                <span key={s} className="rounded-full bg-card px-3 py-1 text-xs font-medium text-ink shadow-2xs">
                   {s}
                 </span>
               ))}
@@ -259,26 +326,35 @@ function Dashboard() {
         <section className="mt-12">
           <h2 className="font-display text-2xl font-extrabold text-ink">Your preparation modules</h2>
           <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {modules.map((m) => (
-              <article
-                key={m.title}
-                className="group rounded-3xl border border-border bg-card p-5 shadow-sm transition-shadow hover:shadow-md"
-              >
-                <div className={`grid size-11 place-items-center rounded-2xl ${m.bg}`}>
-                  <m.icon className="size-5 text-ink" />
-                </div>
-                <h3 className="mt-4 font-display text-base font-bold text-ink">{m.title}</h3>
-                <p className="mt-1 text-xs leading-relaxed text-ink/65">{m.text}</p>
-                <div className="mt-4 flex items-center justify-between text-xs text-ink/70">
-                  <span>{m.tag}</span>
-                  <span className="font-semibold text-ink">{m.progress}%</span>
-                </div>
-                <Bar value={m.progress} className="mt-2" />
-                <span className="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-coral">
-                  Open <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
-                </span>
-              </article>
-            ))}
+            {modules.map((m) => {
+              const linkTarget = m.title === "AI Resume Analyzer" ? "/resume-analyzer" : "/dashboard";
+              return (
+                <Link
+                  to={linkTarget}
+                  key={m.title}
+                  className="group rounded-3xl border border-border bg-card p-5 shadow-sm transition-all hover:shadow-md hover:border-coral/40"
+                >
+                  <div className={`grid size-11 place-items-center rounded-2xl ${m.bg}`}>
+                    <m.icon className="size-5 text-ink" />
+                  </div>
+                  <h3 className="mt-4 font-display text-base font-bold text-ink">{m.title}</h3>
+                  <p className="mt-1 text-xs leading-relaxed text-ink/65">{m.text}</p>
+                  <div className="mt-4 flex items-center justify-between text-xs text-ink/70">
+                    <span>{m.title === "AI Resume Analyzer" && latestResume ? `ATS ${latestResume.atsScore}/100` : m.tag}</span>
+                    <span className="font-semibold text-ink">
+                      {m.title === "AI Resume Analyzer" && latestResume ? latestResume.readinessScore : m.progress}%
+                    </span>
+                  </div>
+                  <Bar
+                    value={m.title === "AI Resume Analyzer" && latestResume ? latestResume.readinessScore : m.progress}
+                    className="mt-2"
+                  />
+                  <span className="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-coral">
+                    Open <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
+                  </span>
+                </Link>
+              );
+            })}
           </div>
         </section>
 
