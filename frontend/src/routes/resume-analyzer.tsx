@@ -105,6 +105,7 @@ function ResumeAnalyzerPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // States
+  const [isUploadingNew, setIsUploadingNew] = useState(false);
   const [targetRole, setTargetRole] = useState("Java Backend Developer");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -224,6 +225,7 @@ function ResumeAnalyzerPage() {
       setCurrentAnalysis(result);
       loadHistory();
       setSelectedFile(null);
+      setIsUploadingNew(false);
     } catch (err: any) {
       setErrorMsg(err.message || "Failed to analyze resume. Please try again.");
     } finally {
@@ -265,6 +267,15 @@ function ResumeAnalyzerPage() {
       <SiteHeader />
 
       <main className="mx-auto max-w-7xl px-5 py-8">
+        {/* Permanent file input so it is always accessible from any button */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".pdf,.docx,.txt"
+          className="hidden"
+          onChange={handleFileSelect}
+        />
+
         {/* Header Breadcrumbs */}
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <Link to="/dashboard" className="transition-colors hover:text-coral">
@@ -292,18 +303,23 @@ function ResumeAnalyzerPage() {
           {currentAnalysis && (
             <div className="flex items-center gap-2">
               <button
+                type="button"
                 onClick={() => window.print()}
-                className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-4 py-2 text-xs font-semibold text-ink shadow-sm transition-colors hover:bg-muted"
+                className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-4 py-2 text-xs font-semibold text-ink shadow-sm transition-colors hover:bg-muted cursor-pointer"
               >
                 <Printer className="size-3.5" /> Print Report
               </button>
               <button
+                type="button"
                 onClick={() => {
+                  setIsUploadingNew(true);
                   setSelectedFile(null);
-                  if (fileInputRef.current) fileInputRef.current.value = "";
-                  fileInputRef.current?.click();
+                  if (fileInputRef.current) {
+                    fileInputRef.current.value = "";
+                    fileInputRef.current.click();
+                  }
                 }}
-                className="inline-flex items-center gap-1.5 rounded-full bg-coral px-4 py-2 text-xs font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-coral/90"
+                className="inline-flex items-center gap-1.5 rounded-full bg-coral px-4 py-2 text-xs font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-coral/90 cursor-pointer"
               >
                 <Upload className="size-3.5" /> Upload New Version
               </button>
@@ -324,10 +340,28 @@ function ResumeAnalyzerPage() {
         )}
 
         {/* Upload Box (Visible if no current analysis OR when uploading a new one) */}
-        {(!currentAnalysis || selectedFile) && (
+        {(!currentAnalysis || selectedFile || isUploadingNew) && (
           <div className="mt-8 rounded-3xl border border-border bg-card p-6 shadow-sm sm:p-8">
-            <h2 className="font-display text-xl font-bold text-ink">Upload Your Resume for AI Scan</h2>
-            <p className="text-xs text-ink/65">Supported formats: PDF (.pdf), Microsoft Word (.docx), or Text (.txt)</p>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h2 className="font-display text-xl font-bold text-ink">
+                  {currentAnalysis ? "Upload a New Resume Version" : "Upload Your Resume for AI Scan"}
+                </h2>
+                <p className="text-xs text-ink/65">Supported formats: PDF (.pdf), Microsoft Word (.docx), or Text (.txt)</p>
+              </div>
+              {currentAnalysis && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsUploadingNew(false);
+                    setSelectedFile(null);
+                  }}
+                  className="rounded-full border border-border bg-background px-4 py-1.5 text-xs font-semibold text-ink/80 transition-colors hover:bg-muted hover:text-coral cursor-pointer"
+                >
+                  ✕ Keep Current Report
+                </button>
+              )}
+            </div>
 
             <div className="mt-6 grid gap-6 md:grid-cols-3">
               {/* Target Role Selector */}
@@ -364,14 +398,6 @@ function ResumeAnalyzerPage() {
                       : "border-border hover:border-coral/60 hover:bg-muted/30"
                   }`}
                 >
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept=".pdf,.docx,.txt"
-                    className="hidden"
-                    onChange={handleFileSelect}
-                  />
-
                   <div className="grid size-12 place-items-center rounded-2xl bg-peach/80 text-ink">
                     <Upload className="size-6 text-coral" />
                   </div>
@@ -399,8 +425,12 @@ function ResumeAnalyzerPage() {
                   <div className="mt-4 flex items-center justify-end gap-3">
                     <button
                       type="button"
-                      onClick={() => setSelectedFile(null)}
-                      className="text-xs font-semibold text-ink/70 hover:text-ink"
+                      onClick={() => {
+                        setSelectedFile(null);
+                        if (fileInputRef.current) fileInputRef.current.value = "";
+                        if (currentAnalysis) setIsUploadingNew(false);
+                      }}
+                      className="text-xs font-semibold text-ink/70 hover:text-ink cursor-pointer"
                     >
                       Clear
                     </button>
@@ -408,7 +438,7 @@ function ResumeAnalyzerPage() {
                       type="button"
                       onClick={handleStartAnalysis}
                       disabled={isAnalyzing}
-                      className="inline-flex items-center gap-2 rounded-full bg-coral px-6 py-2.5 text-sm font-bold text-primary-foreground shadow-sm transition-transform hover:bg-coral/90 active:scale-95 disabled:opacity-50"
+                      className="inline-flex items-center gap-2 rounded-full bg-coral px-6 py-2.5 text-sm font-bold text-primary-foreground shadow-sm transition-transform hover:bg-coral/90 active:scale-95 disabled:opacity-50 cursor-pointer"
                     >
                       {isAnalyzing ? (
                         <>
