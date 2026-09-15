@@ -25,10 +25,10 @@ import java.util.function.Function;
 @Service
 public class JwtService {
 
-    @Value("${jwt.secret}")
+    @Value("${jwt.secret:dGVzdHNlY3JldGtleXRlc3RzZWNyZXRrZXl0ZXN0c2VjcmV0a2V5MTI=}")
     private String secretKey;
 
-    @Value("${jwt.expiration}")
+    @Value("${jwt.expiration:86400000}")
     private long jwtExpiration;
 
     /** Extract the subject (email) from the token. */
