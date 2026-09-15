@@ -3,9 +3,7 @@ package com.majorproject.backend.resume;
 import com.majorproject.backend.profile.StudentProfile;
 import com.majorproject.backend.profile.StudentProfileRepository;
 import com.majorproject.backend.resume.ResumeAnalysisEngine.AnalysisResult;
-import com.majorproject.backend.resume.dto.ResumeAnalysisResponse;
-import com.majorproject.backend.resume.dto.ResumeHistoryItemResponse;
-import com.majorproject.backend.resume.dto.SectionScoreDto;
+import com.majorproject.backend.resume.dto.*;
 import com.majorproject.backend.user.User;
 import com.majorproject.backend.user.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -134,6 +132,74 @@ public class ResumeAnalysisService {
                 .orElseThrow(() -> new IllegalArgumentException("Resume analysis not found or access denied"));
 
         resumeRepository.delete(entity);
+    }
+
+    public BulletRewriteResponse rewriteBullet(BulletRewriteRequest request) {
+        return analysisEngine.rewriteBullet(request);
+    }
+
+    @Transactional(readOnly = true)
+    public JdMatchResponse matchJobDescription(String userEmail, JdMatchRequest request) {
+        String resumeText = null;
+
+        if (request.getResumeId() != null) {
+            User user = userRepository.findByEmail(userEmail)
+                    .orElseThrow(() -> new UsernameNotFoundException("User not found: " + userEmail));
+            ResumeAnalysis analysis = resumeRepository.findByIdAndUserId(request.getResumeId(), user.getId())
+                    .orElseThrow(() -> new IllegalArgumentException("Resume analysis not found for ID: " + request.getResumeId()));
+            resumeText = analysis.getRawTextSnippet();
+        } else if (request.getResumeText() != null && !request.getResumeText().isBlank()) {
+            resumeText = request.getResumeText();
+        } else {
+            User user = userRepository.findByEmail(userEmail)
+                    .orElseThrow(() -> new UsernameNotFoundException("User not found: " + userEmail));
+            ResumeAnalysis latest = resumeRepository.findFirstByUserIdOrderByCreatedAtDesc(user.getId())
+                    .orElseThrow(() -> new IllegalArgumentException("No resume scans found. Please upload a resume first before running JD match."));
+            resumeText = latest.getRawTextSnippet();
+        }
+
+        return analysisEngine.matchJobDescription(resumeText, request);
+    }
+
+    @Transactional(readOnly = true)
+    public CrossRoleComparisonResponse getCrossRoleComparison(String userEmail, UUID resumeId) {
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + userEmail));
+
+        ResumeAnalysis analysis;
+        if (resumeId != null) {
+            analysis = resumeRepository.findByIdAndUserId(resumeId, user.getId())
+                    .orElseThrow(() -> new IllegalArgumentException("Resume scan not found"));
+        } else {
+            analysis = resumeRepository.findFirstByUserIdOrderByCreatedAtDesc(user.getId())
+                    .orElseThrow(() -> new IllegalArgumentException("No resume scans found. Please upload a resume first."));
+        }
+
+        String studentName = "Student";
+        StudentProfile profile = profileRepository.findByUser(user).orElse(null);
+        if (profile != null && profile.getFullName() != null && !profile.getFullName().isBlank()) {
+            studentName = profile.getFullName();
+        } else if (user.getEmail() != null) {
+            studentName = user.getEmail().split("@")[0];
+        }
+        return analysisEngine.compareAcrossAllRoles(studentName, analysis.getRawTextSnippet(), analysis.getTargetRole());
+    }
+
+    @Transactional(readOnly = true)
+    public AtsParsedTreeDto getAtsParsedTree(String userEmail, UUID resumeId) {
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + userEmail));
+
+        ResumeAnalysis analysis;
+        if (resumeId != null) {
+            analysis = resumeRepository.findByIdAndUserId(resumeId, user.getId())
+                    .orElseThrow(() -> new IllegalArgumentException("Resume scan not found"));
+        } else {
+            analysis = resumeRepository.findFirstByUserIdOrderByCreatedAtDesc(user.getId())
+                    .orElseThrow(() -> new IllegalArgumentException("No resume scans found. Please upload a resume first."));
+        }
+
+        return analysisEngine.extractAtsParsedTree(analysis.getRawTextSnippet(), analysis.getFileName());
     }
 
     private ResumeAnalysisResponse mapToResponse(ResumeAnalysis r) {

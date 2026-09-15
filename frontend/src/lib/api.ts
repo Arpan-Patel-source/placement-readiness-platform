@@ -89,6 +89,112 @@ export interface ResumeHistoryItem {
   createdAt: string;
 }
 
+export interface BulletRewriteRequest {
+  bulletText: string;
+  roleTitle?: string;
+  targetMetric?: string;
+  projectContext?: string;
+}
+
+export interface RewriteOption {
+  title: string;
+  text: string;
+  formula: string;
+  highlightMetric: string;
+  keywordsEmbedded: string[];
+}
+
+export interface BulletRewriteResponse {
+  originalBullet: string;
+  quantifiedXyz: RewriteOption;
+  enterpriseStack: RewriteOption;
+  leadershipImpact: RewriteOption;
+  improvementsApplied: string[];
+}
+
+export interface JdMatchRequest {
+  resumeId?: string;
+  resumeText?: string;
+  jobDescriptionText: string;
+  targetRole?: string;
+  companyName?: string;
+}
+
+export interface JdMatchResponse {
+  matchScore: number;
+  matchVerdict: string;
+  companyName: string;
+  targetRole: string;
+  totalJdKeywordsFound: number;
+  totalJdKeywordsExtracted: number;
+  matchedSkills: string[];
+  missingMustHaveSkills: string[];
+  missingGoodToHaveKeywords: string[];
+  tailoringTips: string[];
+}
+
+export interface RoleScoreItem {
+  roleTitle: string;
+  atsScore: number;
+  readinessScore: number;
+  matchedSkillCount: number;
+  totalPrimarySkillCount: number;
+  matchedSkills: string[];
+  topMissingSkills: string[];
+  suitabilityBadge: string;
+  transitionAdvice: string;
+}
+
+export interface CrossRoleComparisonResponse {
+  candidateName: string;
+  primaryRoleAnalyzed: string;
+  roleScores: RoleScoreItem[];
+}
+
+export interface ParsedEducation {
+  degree: string;
+  institution: string;
+  gradYear: string;
+  grade: string;
+}
+
+export interface ParsedProject {
+  title: string;
+  role: string;
+  duration: string;
+  bulletPoints: string[];
+  hasLiveUrl: boolean;
+  hasMetrics: boolean;
+}
+
+export interface SkillCategory {
+  categoryName: string;
+  skills: string[];
+}
+
+export interface ParserHealth {
+  status: "EXCELLENT" | "GOOD" | "WARNING" | "POOR";
+  totalWordCount: number;
+  singlePageFit: boolean;
+  hasUnparseableCharacters: boolean;
+  hasLegacyBiodataClutter: boolean;
+  warnings: string[];
+}
+
+export interface AtsParsedTreeDto {
+  candidateName: string;
+  detectedEmail: string;
+  detectedPhone: string;
+  detectedLinkedIn: string;
+  detectedGitHub: string;
+  detectedLocation: string;
+  educationSummary: ParsedEducation;
+  parsedProjects: ParsedProject[];
+  skillCategories: SkillCategory[];
+  health: ParserHealth;
+  rawTextSample: string;
+}
+
 export interface UserSession {
   email: string;
   name: string;
@@ -358,5 +464,391 @@ export const api = {
 
     return handleResponse<void>(response);
   },
+
+  /**
+   * AI Bullet Point Rewriter Studio (STAR / Google XYZ method)
+   * POST /api/resume/rewrite-bullet
+   */
+  async rewriteBulletPoint(request: BulletRewriteRequest): Promise<BulletRewriteResponse> {
+    const token = authStorage.getToken();
+    const response = await fetch(`${API_BASE_URL}/api/resume/rewrite-bullet`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(request),
+    });
+    return handleResponse<BulletRewriteResponse>(response);
+  },
+
+  /**
+   * Match resume against a recruiter job description
+   * POST /api/resume/match-jd
+   */
+  async matchJobDescription(request: JdMatchRequest): Promise<JdMatchResponse> {
+    const token = authStorage.getToken();
+    const response = await fetch(`${API_BASE_URL}/api/resume/match-jd`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(request),
+    });
+    return handleResponse<JdMatchResponse>(response);
+  },
+
+  /**
+   * Get cross-role fit scores across all 6 engineering tracks
+   * GET /api/resume/cross-role
+   */
+  async getCrossRoleComparison(resumeId?: string): Promise<CrossRoleComparisonResponse> {
+    const token = authStorage.getToken();
+    const url = resumeId
+      ? `${API_BASE_URL}/api/resume/cross-role?resumeId=${resumeId}`
+      : `${API_BASE_URL}/api/resume/cross-role`;
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return handleResponse<CrossRoleComparisonResponse>(response);
+  },
+
+  /**
+   * Get parsed ATS recruiter bot tree view & parser health
+   * GET /api/resume/parser-tree
+   */
+  async getAtsParsedTree(resumeId?: string): Promise<AtsParsedTreeDto> {
+    const token = authStorage.getToken();
+    const url = resumeId
+      ? `${API_BASE_URL}/api/resume/parser-tree?resumeId=${resumeId}`
+      : `${API_BASE_URL}/api/resume/parser-tree`;
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return handleResponse<AtsParsedTreeDto>(response);
+  },
+
+  // ═════════════════════════════════════════════════════════════════════════════
+  // MODULE 5: APTITUDE TRAINING API
+  // ═════════════════════════════════════════════════════════════════════════════
+
+  /**
+   * Get categories and topics summary
+   * GET /api/aptitude/categories
+   */
+  async getAptitudeCategories(): Promise<AptitudeCategorySummary[]> {
+    const token = authStorage.getToken();
+    const response = await fetch(`${API_BASE_URL}/api/aptitude/categories`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return handleResponse<AptitudeCategorySummary[]>(response);
+  },
+
+  /**
+   * Get filtered questions for practice
+   * GET /api/aptitude/questions
+   */
+  async getAptitudeQuestions(params?: {
+    category?: string;
+    topic?: string;
+    difficulty?: string;
+    limit?: number;
+  }): Promise<AptitudeQuestion[]> {
+    const token = authStorage.getToken();
+    const q = new URLSearchParams();
+    if (params?.category) q.set("category", params.category);
+    if (params?.topic) q.set("topic", params.topic);
+    if (params?.difficulty) q.set("difficulty", params.difficulty);
+    if (params?.limit) q.set("limit", params.limit.toString());
+
+    const url = `${API_BASE_URL}/api/aptitude/questions${q.toString() ? `?${q.toString()}` : ""}`;
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return handleResponse<AptitudeQuestion[]>(response);
+  },
+
+  /**
+   * Generate a timed mock test set
+   * GET /api/aptitude/mock-test
+   */
+  async getAptitudeMockTest(category?: string, count: number = 10): Promise<AptitudeQuestion[]> {
+    const token = authStorage.getToken();
+    const q = new URLSearchParams();
+    if (category) q.set("category", category);
+    q.set("count", count.toString());
+
+    const response = await fetch(`${API_BASE_URL}/api/aptitude/mock-test?${q.toString()}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return handleResponse<AptitudeQuestion[]>(response);
+  },
+
+  /**
+   * Submit and grade aptitude test answers
+   * POST /api/aptitude/submit
+   */
+  async submitAptitudeTest(request: AptitudeSubmitRequest): Promise<AptitudeResultResponse> {
+    const token = authStorage.getToken();
+    const response = await fetch(`${API_BASE_URL}/api/aptitude/submit`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(request),
+    });
+    return handleResponse<AptitudeResultResponse>(response);
+  },
+
+  /**
+   * Get placement formula cheat sheets
+   * GET /api/aptitude/cheatsheet
+   */
+  async getAptitudeCheatsheet(): Promise<FormulaCard[]> {
+    const token = authStorage.getToken();
+    const response = await fetch(`${API_BASE_URL}/api/aptitude/cheatsheet`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return handleResponse<FormulaCard[]>(response);
+  },
+
+  // ═════════════════════════════════════════════════════════════════════════════
+  // MODULE 6: HR TRAINING & STAR EVALUATOR API
+  // ═════════════════════════════════════════════════════════════════════════════
+
+  /**
+   * Get HR interview prompts
+   * GET /api/hr/prompts
+   */
+  async getHrPrompts(category?: string): Promise<HrPrompt[]> {
+    const token = authStorage.getToken();
+    const url = category
+      ? `${API_BASE_URL}/api/hr/prompts?category=${category}`
+      : `${API_BASE_URL}/api/hr/prompts`;
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return handleResponse<HrPrompt[]>(response);
+  },
+
+  /**
+   * Get a specific prompt by ID
+   * GET /api/hr/prompts/{id}
+   */
+  async getHrPromptById(id: string): Promise<HrPrompt> {
+    const token = authStorage.getToken();
+    const response = await fetch(`${API_BASE_URL}/api/hr/prompts/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return handleResponse<HrPrompt>(response);
+  },
+
+  /**
+   * Submit response for AI STAR evaluation
+   * POST /api/hr/evaluate
+   */
+  async evaluateHrResponse(request: HrEvaluationRequest): Promise<HrEvaluationResponse> {
+    const token = authStorage.getToken();
+    const response = await fetch(`${API_BASE_URL}/api/hr/evaluate`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(request),
+    });
+    return handleResponse<HrEvaluationResponse>(response);
+  },
+
+  /**
+   * Get user's past evaluated HR answers
+   * GET /api/hr/history
+   */
+  async getHrHistory(): Promise<HrHistoryItem[]> {
+    const token = authStorage.getToken();
+    const response = await fetch(`${API_BASE_URL}/api/hr/history`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return handleResponse<HrHistoryItem[]>(response);
+  },
 };
+
+// ── Types for Module 5: Aptitude Training ──────────────────────────────────
+export interface AptitudeTopicSummary {
+  topicId: string;
+  topicName: string;
+  questionCount: number;
+  keyConcept: string;
+}
+
+export interface AptitudeCategorySummary {
+  category: "QUANTITATIVE" | "LOGICAL_REASONING" | "VERBAL_ABILITY";
+  title: string;
+  description: string;
+  totalQuestions: number;
+  topics: AptitudeTopicSummary[];
+}
+
+export interface AptitudeQuestion {
+  id: string;
+  category: "QUANTITATIVE" | "LOGICAL_REASONING" | "VERBAL_ABILITY";
+  topic: string;
+  difficulty: "EASY" | "MEDIUM" | "HARD";
+  question: string;
+  options: string[];
+  correctOptionIndex?: number;
+  explanation?: string;
+  formulaTip?: string;
+  companiesAsked?: string[];
+}
+
+export interface AptitudeAnswerSubmission {
+  questionId: string;
+  selectedOptionIndex: number | null;
+  timeSpentSeconds: number;
+}
+
+export interface AptitudeSubmitRequest {
+  testId?: string;
+  category?: string;
+  topic?: string;
+  totalTimeSpentSeconds: number;
+  answers: AptitudeAnswerSubmission[];
+}
+
+export interface AptitudeTopicBreakdown {
+  topic: string;
+  total: number;
+  correct: number;
+  accuracy: number;
+}
+
+export interface AptitudeQuestionReview {
+  questionId: string;
+  topic: string;
+  question: string;
+  options: string[];
+  selectedOptionIndex: number | null;
+  correctOptionIndex: number;
+  isCorrect: boolean;
+  isAttempted: boolean;
+  explanation: string;
+  formulaTip?: string;
+}
+
+export interface AptitudeResultResponse {
+  testId: string;
+  totalQuestions: number;
+  correctCount: number;
+  incorrectCount: number;
+  unattemptedCount: number;
+  scorePercentage: number;
+  totalTimeSpentSeconds: number;
+  performanceVerdict: string;
+  performanceFeedback: string;
+  topicBreakdowns: AptitudeTopicBreakdown[];
+  questionReviews: AptitudeQuestionReview[];
+}
+
+export interface FormulaCard {
+  category: string;
+  topic: string;
+  title: string;
+  formula: string;
+  tip: string;
+  example: string;
+}
+
+// ── Types for Module 6: HR Training ────────────────────────────────────────
+export type HrCategoryType =
+  | "SELF_INTRODUCTION"
+  | "LEADERSHIP"
+  | "CONFLICT_RESOLUTION"
+  | "TEAMWORK"
+  | "FAILURE_RESILIENCE"
+  | "CAREER_VISION";
+
+export interface HrPrompt {
+  id: string;
+  category: HrCategoryType;
+  categoryTitle: string;
+  question: string;
+  recruiterIntent: string;
+  keyPointsToInclude: string[];
+  commonPitfalls: string[];
+  sampleModelAnswer: string;
+  companyTags: string[];
+}
+
+export interface HrEvaluationRequest {
+  promptId?: string;
+  category?: HrCategoryType;
+  questionText?: string;
+  userResponse: string;
+}
+
+export interface HrComponentScore {
+  score: number;
+  detected: boolean;
+  status: string;
+  feedback: string;
+}
+
+export interface HrStarBreakdown {
+  situation: HrComponentScore;
+  task: HrComponentScore;
+  action: HrComponentScore;
+  result: HrComponentScore;
+}
+
+export interface HrEvaluationResponse {
+  id: string;
+  overallScore: number;
+  situationScore: number;
+  taskScore: number;
+  actionScore: number;
+  resultScore: number;
+  clarityScore: number;
+  verdict: string;
+  executiveSummary: string;
+  starBreakdown: HrStarBreakdown;
+  strengths: string[];
+  areasForImprovement: string[];
+  barRaiserModelAnswer: string;
+  wordCount: number;
+  metricsDetected: string[];
+  actionVerbsDetected: string[];
+}
+
+export interface HrHistoryItem {
+  id: string;
+  promptId: string;
+  category: string;
+  categoryTitle: string;
+  questionText: string;
+  userResponseSnippet: string;
+  overallScore: number;
+  verdict: string;
+  createdAt: string;
+}
 

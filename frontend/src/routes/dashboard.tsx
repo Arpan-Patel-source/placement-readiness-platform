@@ -327,7 +327,14 @@ function Dashboard() {
           <h2 className="font-display text-2xl font-extrabold text-ink">Your preparation modules</h2>
           <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {modules.map((m) => {
-              const linkTarget = m.title === "AI Resume Analyzer" ? "/resume-analyzer" : "/dashboard";
+              const linkTarget =
+                m.title === "AI Resume Analyzer"
+                  ? "/resume-analyzer"
+                  : m.title === "Aptitude Training"
+                  ? "/aptitude"
+                  : m.title === "HR Training"
+                  ? "/hr-training"
+                  : "/dashboard";
               return (
                 <Link
                   to={linkTarget}

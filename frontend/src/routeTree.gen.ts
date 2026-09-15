@@ -10,8 +10,10 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AptitudeRouteImport } from './routes/aptitude'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
+import { Route as HrTrainingRouteImport } from './routes/hr-training'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as ResumeAnalyzerRouteImport } from './routes/resume-analyzer'
@@ -19,6 +21,11 @@ import { Route as ResumeAnalyzerRouteImport } from './routes/resume-analyzer'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AptitudeRoute = AptitudeRouteImport.update({
+  id: '/aptitude',
+  path: '/aptitude',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -29,6 +36,11 @@ const DashboardRoute = DashboardRouteImport.update({
 const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
   id: '/forgot-password',
   path: '/forgot-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HrTrainingRoute = HrTrainingRouteImport.update({
+  id: '/hr-training',
+  path: '/hr-training',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -49,16 +61,20 @@ const ResumeAnalyzerRoute = ResumeAnalyzerRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/aptitude': typeof AptitudeRoute
   '/dashboard': typeof DashboardRoute
   '/forgot-password': typeof ForgotPasswordRoute
+  '/hr-training': typeof HrTrainingRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/resume-analyzer': typeof ResumeAnalyzerRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/aptitude': typeof AptitudeRoute
   '/dashboard': typeof DashboardRoute
   '/forgot-password': typeof ForgotPasswordRoute
+  '/hr-training': typeof HrTrainingRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/resume-analyzer': typeof ResumeAnalyzerRoute
@@ -66,8 +82,10 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/aptitude': typeof AptitudeRoute
   '/dashboard': typeof DashboardRoute
   '/forgot-password': typeof ForgotPasswordRoute
+  '/hr-training': typeof HrTrainingRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/resume-analyzer': typeof ResumeAnalyzerRoute
@@ -76,24 +94,30 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/aptitude'
     | '/dashboard'
     | '/forgot-password'
+    | '/hr-training'
     | '/login'
     | '/register'
     | '/resume-analyzer'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/aptitude'
     | '/dashboard'
     | '/forgot-password'
+    | '/hr-training'
     | '/login'
     | '/register'
     | '/resume-analyzer'
   id:
     | '__root__'
     | '/'
+    | '/aptitude'
     | '/dashboard'
     | '/forgot-password'
+    | '/hr-training'
     | '/login'
     | '/register'
     | '/resume-analyzer'
@@ -101,8 +125,10 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AptitudeRoute: typeof AptitudeRoute
   DashboardRoute: typeof DashboardRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
+  HrTrainingRoute: typeof HrTrainingRoute
   LoginRoute: typeof LoginRoute
   RegisterRoute: typeof RegisterRoute
   ResumeAnalyzerRoute: typeof ResumeAnalyzerRoute
@@ -117,6 +143,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/aptitude': {
+      id: '/aptitude'
+      path: '/aptitude'
+      fullPath: '/aptitude'
+      preLoaderRoute: typeof AptitudeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dashboard': {
       id: '/dashboard'
       path: '/dashboard'
@@ -129,6 +162,13 @@ declare module '@tanstack/react-router' {
       path: '/forgot-password'
       fullPath: '/forgot-password'
       preLoaderRoute: typeof ForgotPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/hr-training': {
+      id: '/hr-training'
+      path: '/hr-training'
+      fullPath: '/hr-training'
+      preLoaderRoute: typeof HrTrainingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -157,8 +197,10 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AptitudeRoute: AptitudeRoute,
   DashboardRoute: DashboardRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
+  HrTrainingRoute: HrTrainingRoute,
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
   ResumeAnalyzerRoute: ResumeAnalyzerRoute,

@@ -1,7 +1,7 @@
 package com.majorproject.backend.resume;
 
-import com.majorproject.backend.resume.dto.ResumeAnalysisResponse;
-import com.majorproject.backend.resume.dto.ResumeHistoryItemResponse;
+import com.majorproject.backend.resume.dto.*;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -76,5 +76,56 @@ public class ResumeAnalysisController {
     ) {
         resumeAnalysisService.deleteAnalysis(principal.getName(), id);
         return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * ENHANCEMENT 1: AI Bullet Point Rewriter Studio
+     * Rewrites project bullet points into Google XYZ and STAR high-impact formats.
+     */
+    @PostMapping("/rewrite-bullet")
+    public ResponseEntity<BulletRewriteResponse> rewriteBullet(
+            @Valid @RequestBody BulletRewriteRequest request
+    ) {
+        BulletRewriteResponse response = resumeAnalysisService.rewriteBullet(request);
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * ENHANCEMENT 2: Custom Job Description (JD) Matcher
+     * Compares resume against a pasted recruiter job posting.
+     */
+    @PostMapping("/match-jd")
+    public ResponseEntity<JdMatchResponse> matchJobDescription(
+            Principal principal,
+            @Valid @RequestBody JdMatchRequest request
+    ) {
+        JdMatchResponse response = resumeAnalysisService.matchJobDescription(principal.getName(), request);
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * ENHANCEMENT 3: Cross-Role Readiness Benchmark
+     * Compares resume suitability across all 6 engineering tracks.
+     */
+    @GetMapping("/cross-role")
+    public ResponseEntity<CrossRoleComparisonResponse> getCrossRoleComparison(
+            Principal principal,
+            @RequestParam(value = "resumeId", required = false) UUID resumeId
+    ) {
+        CrossRoleComparisonResponse response = resumeAnalysisService.getCrossRoleComparison(principal.getName(), resumeId);
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * ENHANCEMENT 4: ATS Parser Inspector (Recruiter Bot View)
+     * Returns structured parsed ATS tree (contact, education, projects, health warnings).
+     */
+    @GetMapping("/parser-tree")
+    public ResponseEntity<AtsParsedTreeDto> getAtsParsedTree(
+            Principal principal,
+            @RequestParam(value = "resumeId", required = false) UUID resumeId
+    ) {
+        AtsParsedTreeDto response = resumeAnalysisService.getAtsParsedTree(principal.getName(), resumeId);
+        return ResponseEntity.ok(response);
     }
 }
