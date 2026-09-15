@@ -16,10 +16,9 @@ This guide walks you through deploying **PlacementAI Assistant** with:
    - **Name**: `placement-ai-backend` (or your choice)
    - **Region**: Select your preferred region (e.g., *Oregon (US West)* or *Frankfurt (EU)*)
    - **Branch**: `main`
-   - **Root Directory**: Leave blank (or set to `backend` if deploying without Docker)
+   - **Root Directory**: Leave blank (default)
    - **Environment**: **Docker**
-   - **Dockerfile Path**: `backend/Dockerfile`
-   - **Docker Context**: `backend`
+   - **Dockerfile Path**: `Dockerfile` (or leave default)
    - **Instance Type**: **Free**
 
 ### Step 2: Configure Environment Variables on Render
