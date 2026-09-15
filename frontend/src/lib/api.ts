@@ -1,6 +1,63 @@
 // API Service for PlacementAI Spring Boot Backend
-const RAW_API_BASE_URL = import.meta.env.VITE_API_URL || "";
-const API_BASE_URL = RAW_API_BASE_URL.replace(/\/+$/, "");
+export function getApiBaseUrl(): string {
+  if (typeof window !== "undefined") {
+    const custom = localStorage.getItem("placement_custom_api_url");
+    if (custom && custom.trim()) {
+      return custom.trim().replace(/\/+$/, "");
+    }
+  }
+  const envObj = import.meta.env as Record<string, string | undefined>;
+  const envUrl = (envObj["VITE_API_URL"] || "").trim();
+  return envUrl.replace(/\/+$/, "");
+}
+
+export function setCustomApiUrl(url: string): void {
+  if (typeof window === "undefined") return;
+  if (!url || !url.trim()) {
+    localStorage.removeItem("placement_custom_api_url");
+  } else {
+    localStorage.setItem("placement_custom_api_url", url.trim().replace(/\/+$/, ""));
+  }
+}
+
+// Global fallback for any `${API_BASE_URL}/...` legacy usages
+export const API_BASE_URL = "";
+
+// Timeout helper: 45s to accommodate Render free-tier cold boot
+const DEFAULT_API_TIMEOUT_MS = 45000;
+
+export async function apiFetch(
+  endpointOrUrl: string,
+  init?: RequestInit,
+  timeoutMs: number = DEFAULT_API_TIMEOUT_MS
+): Promise<Response> {
+  const base = getApiBaseUrl();
+  let url = endpointOrUrl;
+  if (!endpointOrUrl.startsWith("http://") && !endpointOrUrl.startsWith("https://")) {
+    const cleanPath = endpointOrUrl.startsWith("/") ? endpointOrUrl : `/${endpointOrUrl}`;
+    url = `${base}${cleanPath}`;
+  }
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const response = await fetch(url, {
+      ...init,
+      signal: controller.signal,
+    });
+    return response;
+  } catch (err: any) {
+    if (err.name === "AbortError") {
+      throw new Error(
+        "Request timed out. The backend server may still be waking up (Render free tier can take 40–60s on cold start). Please try again or switch to Demo Mode."
+      );
+    }
+    throw err;
+  } finally {
+    clearTimeout(timer);
+  }
+}
 
 export interface RegisterRequest {
   name: string;
@@ -225,14 +282,17 @@ export const authStorage = {
   setSession(data: AuthResponse, name?: string): void {
     if (typeof window === "undefined") return;
     localStorage.setItem(TOKEN_KEY, data.token);
+    const fallbackName = data.email ? data.email.split("@")[0] : "Student";
     const session: UserSession = {
       token: data.token,
       email: data.email,
       role: data.role,
-      name: name || data.email.split("@")[0],
+      name: name || fallbackName || "Student",
     };
     localStorage.setItem(USER_KEY, JSON.stringify(session));
+
   },
+
 
   clearSession(): void {
     if (typeof window === "undefined") return;
@@ -249,12 +309,19 @@ async function handleResponse<T>(response: Response): Promise<T> {
   if (response.status === 204) {
     return null as T;
   }
-  const isJson = response.headers.get("content-type")?.includes("application/json");
-  const data = isJson ? await response.json() : null;
+  const contentType = response.headers.get("content-type") || "";
+  const isJson = contentType.includes("application/json");
+  const data = isJson ? await response.json().catch(() => null) : null;
+
+  if (!isJson && response.ok) {
+    throw new Error(
+      "Received HTML from server instead of JSON. If deployed on Vercel, please check that VITE_API_URL is configured in your Vercel Project Settings to point to your live backend."
+    );
+  }
 
   if (!response.ok) {
     const errorMessage =
-      (data && (data.message || data.error)) ||
+      (data && (data.error || data.message)) ||
       (typeof data === "string" ? data : `Request failed with status ${response.status}`);
     throw new Error(errorMessage);
   }
@@ -268,7 +335,7 @@ export const api = {
    * POST /api/auth/register
    */
   async register(request: RegisterRequest): Promise<AuthResponse> {
-    const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
+    const response = await apiFetch(`${API_BASE_URL}/api/auth/register`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -286,7 +353,7 @@ export const api = {
    * POST /api/auth/login
    */
   async login(request: LoginRequest): Promise<AuthResponse> {
-    const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+    const response = await apiFetch(`${API_BASE_URL}/api/auth/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -307,7 +374,7 @@ export const api = {
     const token = authStorage.getToken();
     if (!token) throw new Error("No authentication token available");
 
-    const response = await fetch(`${API_BASE_URL}/api/profile`, {
+    const response = await apiFetch(`${API_BASE_URL}/api/profile`, {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
@@ -322,7 +389,7 @@ export const api = {
    * POST /api/auth/forgot-password
    */
   async forgotPassword(email: string): Promise<ForgotPasswordResponse> {
-    const response = await fetch(`${API_BASE_URL}/api/auth/forgot-password`, {
+    const response = await apiFetch(`${API_BASE_URL}/api/auth/forgot-password`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -338,7 +405,7 @@ export const api = {
    * POST /api/auth/reset-password
    */
   async resetPassword(request: ResetPasswordRequest): Promise<AuthResponse> {
-    const response = await fetch(`${API_BASE_URL}/api/auth/reset-password`, {
+    const response = await apiFetch(`${API_BASE_URL}/api/auth/reset-password`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -359,7 +426,7 @@ export const api = {
     const token = authStorage.getToken();
     if (!token) throw new Error("No authentication token available");
 
-    const response = await fetch(`${API_BASE_URL}/api/profile`, {
+    const response = await apiFetch(`${API_BASE_URL}/api/profile`, {
       method: "PUT",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -385,7 +452,7 @@ export const api = {
       formData.append("targetRole", targetRole);
     }
 
-    const response = await fetch(`${API_BASE_URL}/api/resume/analyze`, {
+    const response = await apiFetch(`${API_BASE_URL}/api/resume/analyze`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -404,7 +471,7 @@ export const api = {
     const token = authStorage.getToken();
     if (!token) return null;
 
-    const response = await fetch(`${API_BASE_URL}/api/resume/latest`, {
+    const response = await apiFetch(`${API_BASE_URL}/api/resume/latest`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -421,7 +488,7 @@ export const api = {
     const token = authStorage.getToken();
     if (!token) return [];
 
-    const response = await fetch(`${API_BASE_URL}/api/resume/history`, {
+    const response = await apiFetch(`${API_BASE_URL}/api/resume/history`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -438,7 +505,7 @@ export const api = {
     const token = authStorage.getToken();
     if (!token) throw new Error("No authentication token available");
 
-    const response = await fetch(`${API_BASE_URL}/api/resume/${id}`, {
+    const response = await apiFetch(`${API_BASE_URL}/api/resume/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -455,7 +522,7 @@ export const api = {
     const token = authStorage.getToken();
     if (!token) throw new Error("No authentication token available");
 
-    const response = await fetch(`${API_BASE_URL}/api/resume/${id}`, {
+    const response = await apiFetch(`${API_BASE_URL}/api/resume/${id}`, {
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -471,7 +538,7 @@ export const api = {
    */
   async rewriteBulletPoint(request: BulletRewriteRequest): Promise<BulletRewriteResponse> {
     const token = authStorage.getToken();
-    const response = await fetch(`${API_BASE_URL}/api/resume/rewrite-bullet`, {
+    const response = await apiFetch(`${API_BASE_URL}/api/resume/rewrite-bullet`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -488,7 +555,7 @@ export const api = {
    */
   async matchJobDescription(request: JdMatchRequest): Promise<JdMatchResponse> {
     const token = authStorage.getToken();
-    const response = await fetch(`${API_BASE_URL}/api/resume/match-jd`, {
+    const response = await apiFetch(`${API_BASE_URL}/api/resume/match-jd`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -508,7 +575,7 @@ export const api = {
     const url = resumeId
       ? `${API_BASE_URL}/api/resume/cross-role?resumeId=${resumeId}`
       : `${API_BASE_URL}/api/resume/cross-role`;
-    const response = await fetch(url, {
+    const response = await apiFetch(url, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -525,7 +592,7 @@ export const api = {
     const url = resumeId
       ? `${API_BASE_URL}/api/resume/parser-tree?resumeId=${resumeId}`
       : `${API_BASE_URL}/api/resume/parser-tree`;
-    const response = await fetch(url, {
+    const response = await apiFetch(url, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -543,7 +610,7 @@ export const api = {
    */
   async getAptitudeCategories(): Promise<AptitudeCategorySummary[]> {
     const token = authStorage.getToken();
-    const response = await fetch(`${API_BASE_URL}/api/aptitude/categories`, {
+    const response = await apiFetch(`${API_BASE_URL}/api/aptitude/categories`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -569,7 +636,7 @@ export const api = {
     if (params?.limit) q.set("limit", params.limit.toString());
 
     const url = `${API_BASE_URL}/api/aptitude/questions${q.toString() ? `?${q.toString()}` : ""}`;
-    const response = await fetch(url, {
+    const response = await apiFetch(url, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -587,7 +654,7 @@ export const api = {
     if (category) q.set("category", category);
     q.set("count", count.toString());
 
-    const response = await fetch(`${API_BASE_URL}/api/aptitude/mock-test?${q.toString()}`, {
+    const response = await apiFetch(`${API_BASE_URL}/api/aptitude/mock-test?${q.toString()}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -601,7 +668,7 @@ export const api = {
    */
   async submitAptitudeTest(request: AptitudeSubmitRequest): Promise<AptitudeResultResponse> {
     const token = authStorage.getToken();
-    const response = await fetch(`${API_BASE_URL}/api/aptitude/submit`, {
+    const response = await apiFetch(`${API_BASE_URL}/api/aptitude/submit`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -618,7 +685,7 @@ export const api = {
    */
   async getAptitudeCheatsheet(): Promise<FormulaCard[]> {
     const token = authStorage.getToken();
-    const response = await fetch(`${API_BASE_URL}/api/aptitude/cheatsheet`, {
+    const response = await apiFetch(`${API_BASE_URL}/api/aptitude/cheatsheet`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -639,7 +706,7 @@ export const api = {
     const url = category
       ? `${API_BASE_URL}/api/hr/prompts?category=${category}`
       : `${API_BASE_URL}/api/hr/prompts`;
-    const response = await fetch(url, {
+    const response = await apiFetch(url, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -653,7 +720,7 @@ export const api = {
    */
   async getHrPromptById(id: string): Promise<HrPrompt> {
     const token = authStorage.getToken();
-    const response = await fetch(`${API_BASE_URL}/api/hr/prompts/${id}`, {
+    const response = await apiFetch(`${API_BASE_URL}/api/hr/prompts/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -667,7 +734,7 @@ export const api = {
    */
   async evaluateHrResponse(request: HrEvaluationRequest): Promise<HrEvaluationResponse> {
     const token = authStorage.getToken();
-    const response = await fetch(`${API_BASE_URL}/api/hr/evaluate`, {
+    const response = await apiFetch(`${API_BASE_URL}/api/hr/evaluate`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -684,13 +751,16 @@ export const api = {
    */
   async getHrHistory(): Promise<HrHistoryItem[]> {
     const token = authStorage.getToken();
-    const response = await fetch(`${API_BASE_URL}/api/hr/history`, {
+    const response = await apiFetch(`${API_BASE_URL}/api/hr/history`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
     return handleResponse<HrHistoryItem[]>(response);
   },
+
+  getApiBaseUrl,
+  setCustomApiUrl,
 };
 
 // ── Types for Module 5: Aptitude Training ──────────────────────────────────
