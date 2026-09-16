@@ -8,13 +8,30 @@ export function getApiBaseUrl(): string {
     }
   }
 
-  // 2. Vite build-time static replacement (dot notation enables AST replacement)
-  const envUrl = import.meta.env.VITE_API_URL;
+  // 2. Vite build-time static replacement (check multiple common env naming conventions)
+  const envUrl =
+    import.meta.env.VITE_API_URL ||
+    (import.meta.env as any).VITE_BACKEND_URL ||
+    (import.meta.env as any).VITE_API_BASE_URL ||
+    (import.meta.env as any).API_URL;
   if (typeof envUrl === "string" && envUrl.trim()) {
     return envUrl.trim().replace(/\/+$/, "");
   }
 
-  // 3. Automatic production fallback on Vercel or any remote cloud domain
+  // 3. Node/SSR fallback if running in Nitro serverless function
+  if (typeof process !== "undefined" && process.env) {
+    const procEnv = process.env as Record<string, string | undefined>;
+    const procUrl =
+      procEnv["VITE_API_URL"] ||
+      procEnv["VITE_BACKEND_URL"] ||
+      procEnv["API_URL"] ||
+      procEnv["BACKEND_URL"];
+    if (typeof procUrl === "string" && procUrl.trim()) {
+      return procUrl.trim().replace(/\/+$/, "");
+    }
+  }
+
+  // 4. Automatic production fallback on Vercel or any remote cloud domain
   if (typeof window !== "undefined") {
     const host = window.location.hostname;
     if (host && host !== "localhost" && host !== "127.0.0.1" && !host.startsWith("192.168.")) {
@@ -22,10 +39,9 @@ export function getApiBaseUrl(): string {
     }
   }
 
-  // 4. In local development on localhost, empty string uses Vite dev proxy
+  // 5. In local development on localhost, empty string uses Vite dev proxy
   return "";
 }
-
 
 export function setCustomApiUrl(url: string): void {
   if (typeof window === "undefined") return;
@@ -36,11 +52,26 @@ export function setCustomApiUrl(url: string): void {
   }
 }
 
+/**
+ * Pre-warms the backend container if it is asleep on Render's free tier.
+ * Safe fire-and-forget ping to /health.
+ */
+export function prewarmBackend(): void {
+  if (typeof window === "undefined") return;
+  const base = getApiBaseUrl();
+  if (!base) return;
+  try {
+    fetch(`${base}/health`, { method: "GET", mode: "no-cors" }).catch(() => {});
+  } catch {
+    // Ignore prewarm error
+  }
+}
+
 // Global fallback for any `${API_BASE_URL}/...` legacy usages
 export const API_BASE_URL = "";
 
-// Timeout helper: 45s to accommodate Render free-tier cold boot
-const DEFAULT_API_TIMEOUT_MS = 45000;
+// Timeout helper: 90s to accommodate Render free-tier cold boot (takes ~50–75s on spin-up)
+const DEFAULT_API_TIMEOUT_MS = 90000;
 
 export async function apiFetch(
   endpointOrUrl: string,
@@ -66,7 +97,7 @@ export async function apiFetch(
   } catch (err: any) {
     if (err.name === "AbortError") {
       throw new Error(
-        "Request timed out. The backend server may still be waking up (Render free tier can take 40–60s on cold start). Please try again or switch to Demo Mode."
+        "Request timed out. The backend server may still be waking up (Render free tier can take up to 60–80s on cold start). Please try again or switch to Demo Mode."
       );
     }
     throw err;
@@ -775,6 +806,113 @@ export const api = {
     return handleResponse<HrHistoryItem[]>(response);
   },
 
+  // ═════════════════════════════════════════════════════════════════════════════
+  // MODULE 7: TECHNICAL TRAINING API
+  // ═════════════════════════════════════════════════════════════════════════════
+
+  /**
+   * Get technical training categories and topic summaries
+   * GET /api/technical/categories
+   */
+  async getTechCategories(): Promise<TechCategorySummary[]> {
+    const token = authStorage.getToken();
+    const response = await apiFetch(`${API_BASE_URL}/api/technical/categories`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return handleResponse<TechCategorySummary[]>(response);
+  },
+
+  /**
+   * Get filtered technical questions for practice
+   * GET /api/technical/questions
+   */
+  async getTechQuestions(params?: {
+    category?: string;
+    topic?: string;
+    difficulty?: string;
+    limit?: number;
+  }): Promise<TechQuestion[]> {
+    const token = authStorage.getToken();
+    const q = new URLSearchParams();
+    if (params?.category) q.set("category", params.category);
+    if (params?.topic) q.set("topic", params.topic);
+    if (params?.difficulty) q.set("difficulty", params.difficulty);
+    if (params?.limit) q.set("limit", params.limit.toString());
+
+    const url = `${API_BASE_URL}/api/technical/questions${q.toString() ? `?${q.toString()}` : ""}`;
+    const response = await apiFetch(url, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return handleResponse<TechQuestion[]>(response);
+  },
+
+  /**
+   * Generate a timed technical mock test
+   * GET /api/technical/mock-test
+   */
+  async getTechMockTest(category?: string, count: number = 10): Promise<TechQuestion[]> {
+    const token = authStorage.getToken();
+    const q = new URLSearchParams();
+    if (category) q.set("category", category);
+    q.set("count", count.toString());
+
+    const response = await apiFetch(`${API_BASE_URL}/api/technical/mock-test?${q.toString()}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return handleResponse<TechQuestion[]>(response);
+  },
+
+  /**
+   * Submit and grade a technical test
+   * POST /api/technical/submit
+   */
+  async submitTechTest(request: TechSubmitRequest): Promise<TechResultResponse> {
+    const token = authStorage.getToken();
+    const response = await apiFetch(`${API_BASE_URL}/api/technical/submit`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(request),
+    });
+    return handleResponse<TechResultResponse>(response);
+  },
+
+  /**
+   * Get technical concept cheat sheets
+   * GET /api/technical/cheatsheet
+   */
+  async getTechCheatsheet(): Promise<TechFormulaCard[]> {
+    const token = authStorage.getToken();
+    const response = await apiFetch(`${API_BASE_URL}/api/technical/cheatsheet`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return handleResponse<TechFormulaCard[]>(response);
+  },
+
+  /**
+   * Get user's technical test history
+   * GET /api/technical/history
+   */
+  async getTechHistory(): Promise<TechHistoryItem[]> {
+    const token = authStorage.getToken();
+    const response = await apiFetch(`${API_BASE_URL}/api/technical/history`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return handleResponse<TechHistoryItem[]>(response);
+  },
+
   getApiBaseUrl,
   setCustomApiUrl,
 };
@@ -938,3 +1076,108 @@ export interface HrHistoryItem {
   createdAt: string;
 }
 
+// ── Types for Module 7: Technical Training ─────────────────────────────────
+export type TechCategoryType =
+  | "OOP"
+  | "DBMS"
+  | "OPERATING_SYSTEMS"
+  | "COMPUTER_NETWORKS"
+  | "DSA"
+  | "WEB_TECHNOLOGIES";
+
+export interface TechTopicSummary {
+  topicId: string;
+  topicName: string;
+  questionCount: number;
+  keyConcept: string;
+}
+
+export interface TechCategorySummary {
+  category: TechCategoryType;
+  title: string;
+  description: string;
+  totalQuestions: number;
+  topics: TechTopicSummary[];
+}
+
+export interface TechQuestion {
+  id: string;
+  category: TechCategoryType;
+  topic: string;
+  difficulty: "EASY" | "MEDIUM" | "HARD";
+  question: string;
+  options: string[];
+  correctOptionIndex?: number;
+  explanation?: string;
+  conceptTip?: string;
+  companiesAsked?: string[];
+}
+
+export interface TechAnswerSubmission {
+  questionId: string;
+  selectedOptionIndex: number | null;
+  timeSpentSeconds: number;
+}
+
+export interface TechSubmitRequest {
+  testId?: string;
+  category?: string;
+  topic?: string;
+  totalTimeSpentSeconds: number;
+  answers: TechAnswerSubmission[];
+}
+
+export interface TechTopicBreakdown {
+  topic: string;
+  total: number;
+  correct: number;
+  accuracy: number;
+}
+
+export interface TechQuestionReview {
+  questionId: string;
+  topic: string;
+  question: string;
+  options: string[];
+  selectedOptionIndex: number | null;
+  correctOptionIndex: number;
+  isCorrect: boolean;
+  isAttempted: boolean;
+  explanation: string;
+  conceptTip?: string;
+}
+
+export interface TechResultResponse {
+  testId: string;
+  totalQuestions: number;
+  correctCount: number;
+  incorrectCount: number;
+  unattemptedCount: number;
+  scorePercentage: number;
+  totalTimeSpentSeconds: number;
+  performanceVerdict: string;
+  performanceFeedback: string;
+  topicBreakdowns: TechTopicBreakdown[];
+  questionReviews: TechQuestionReview[];
+}
+
+export interface TechFormulaCard {
+  category: string;
+  topic: string;
+  title: string;
+  formula: string;
+  tip: string;
+  example: string;
+}
+
+export interface TechHistoryItem {
+  id: string;
+  testId: string;
+  category: TechCategoryType;
+  categoryTitle: string;
+  totalQuestions: number;
+  correctCount: number;
+  scorePercentage: number;
+  verdict: string;
+  createdAt: string;
+}

@@ -334,6 +334,8 @@ function Dashboard() {
                   ? "/aptitude"
                   : m.title === "HR Training"
                   ? "/hr-training"
+                  : m.title === "Technical Training"
+                  ? "/technical-training"
                   : "/dashboard";
               return (
                 <Link

@@ -17,6 +17,7 @@ import { Route as HrTrainingRouteImport } from './routes/hr-training'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as ResumeAnalyzerRouteImport } from './routes/resume-analyzer'
+import { Route as TechnicalTrainingRouteImport } from './routes/technical-training'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -58,6 +59,11 @@ const ResumeAnalyzerRoute = ResumeAnalyzerRouteImport.update({
   path: '/resume-analyzer',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TechnicalTrainingRoute = TechnicalTrainingRouteImport.update({
+  id: '/technical-training',
+  path: '/technical-training',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -68,6 +74,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/resume-analyzer': typeof ResumeAnalyzerRoute
+  '/technical-training': typeof TechnicalTrainingRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -78,6 +85,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/resume-analyzer': typeof ResumeAnalyzerRoute
+  '/technical-training': typeof TechnicalTrainingRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -89,6 +97,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/resume-analyzer': typeof ResumeAnalyzerRoute
+  '/technical-training': typeof TechnicalTrainingRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -101,6 +110,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/resume-analyzer'
+    | '/technical-training'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -111,6 +121,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/resume-analyzer'
+    | '/technical-training'
   id:
     | '__root__'
     | '/'
@@ -121,6 +132,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/resume-analyzer'
+    | '/technical-training'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -132,6 +144,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   RegisterRoute: typeof RegisterRoute
   ResumeAnalyzerRoute: typeof ResumeAnalyzerRoute
+  TechnicalTrainingRoute: typeof TechnicalTrainingRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -192,6 +205,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ResumeAnalyzerRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/technical-training': {
+      id: '/technical-training'
+      path: '/technical-training'
+      fullPath: '/technical-training'
+      preLoaderRoute: typeof TechnicalTrainingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -204,6 +224,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
   ResumeAnalyzerRoute: ResumeAnalyzerRoute,
+  TechnicalTrainingRoute: TechnicalTrainingRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 
-import { api, authStorage } from "@/lib/api";
+import { api, authStorage, prewarmBackend } from "@/lib/api";
 import { AuthLayout } from "@/components/AuthLayout";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -36,6 +36,10 @@ function LoginPage() {
   const [offlineNotice, setOfflineNotice] = useState(false);
   const [showServerConfig, setShowServerConfig] = useState(false);
   const [customBackendUrl, setCustomBackendUrl] = useState(() => api.getApiBaseUrl());
+
+  useEffect(() => {
+    prewarmBackend();
+  }, []);
 
   useEffect(() => {
     let interval: any;
@@ -212,22 +216,24 @@ function LoginPage() {
             <div className="flex items-center justify-between font-medium text-coral text-xs">
               <span className="flex items-center gap-1.5">
                 <Loader2 className="size-3.5 animate-spin" />
-                Connecting to backend server...
+                {loadingSeconds > 25
+                  ? "Spring Boot backend is booting up..."
+                  : "Connecting to backend server..."}
               </span>
               <span className="font-mono bg-coral/10 px-2 py-0.5 rounded-full">{loadingSeconds}s</span>
             </div>
             <p className="text-[11px] text-ink/75 leading-relaxed">
-              Render free tier spins down after inactivity. Cold start takes ~30–50s on first request.
+              Render free tier spins down after 15m of inactivity. First cold start takes ~50–70s to boot. Please wait, or click below for instant Demo Mode!
             </p>
             {loadingSeconds >= 5 && (
               <div className="pt-2 border-t border-coral/20 flex items-center justify-between">
-                <span className="text-[11px] text-ink/60">Taking too long?</span>
+                <span className="text-[11px] text-ink/60">Don't want to wait?</span>
                 <button
                   type="button"
                   onClick={handleDemoLogin}
                   className="inline-flex items-center gap-1 rounded-full bg-coral px-3 py-1 text-[11px] font-semibold text-primary-foreground shadow-sm hover:bg-coral/90 transition"
                 >
-                  Skip to Demo Mode <ArrowRight className="size-3" />
+                  Instant Demo Mode <ArrowRight className="size-3" />
                 </button>
               </div>
             )}
