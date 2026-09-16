@@ -1,15 +1,31 @@
 // API Service for PlacementAI Spring Boot Backend
 export function getApiBaseUrl(): string {
+  // 1. Check local storage override if user configured one
   if (typeof window !== "undefined") {
     const custom = localStorage.getItem("placement_custom_api_url");
     if (custom && custom.trim()) {
       return custom.trim().replace(/\/+$/, "");
     }
   }
-  const envObj = import.meta.env as Record<string, string | undefined>;
-  const envUrl = (envObj["VITE_API_URL"] || "").trim();
-  return envUrl.replace(/\/+$/, "");
+
+  // 2. Vite build-time static replacement (dot notation enables AST replacement)
+  const envUrl = import.meta.env.VITE_API_URL;
+  if (typeof envUrl === "string" && envUrl.trim()) {
+    return envUrl.trim().replace(/\/+$/, "");
+  }
+
+  // 3. Automatic production fallback on Vercel or any remote cloud domain
+  if (typeof window !== "undefined") {
+    const host = window.location.hostname;
+    if (host && host !== "localhost" && host !== "127.0.0.1" && !host.startsWith("192.168.")) {
+      return "https://placement-ai-assistant.onrender.com";
+    }
+  }
+
+  // 4. In local development on localhost, empty string uses Vite dev proxy
+  return "";
 }
+
 
 export function setCustomApiUrl(url: string): void {
   if (typeof window === "undefined") return;
