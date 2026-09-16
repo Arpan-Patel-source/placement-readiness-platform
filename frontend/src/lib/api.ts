@@ -913,6 +913,222 @@ export const api = {
     return handleResponse<TechHistoryItem[]>(response);
   },
 
+  // ═════════════════════════════════════════════════════════════════════════════
+  // MODULE 3 & 4: COMPETITIVE CODING ARENA & AI CODING MENTOR API
+  // ═════════════════════════════════════════════════════════════════════════════
+
+  /**
+   * Get coding categories and problem counts
+   * GET /api/coding/categories
+   */
+  async getCodingCategories(): Promise<CodingCategorySummary[]> {
+    const token = authStorage.getToken();
+    const response = await apiFetch(`${API_BASE_URL}/api/coding/categories`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return handleResponse<CodingCategorySummary[]>(response);
+  },
+
+  /**
+   * Get problems list with optional category, difficulty, or search filters
+   * GET /api/coding/problems
+   */
+  async getCodingProblems(params?: {
+    category?: string;
+    difficulty?: string;
+    search?: string;
+  }): Promise<CodingProblem[]> {
+    const token = authStorage.getToken();
+    const q = new URLSearchParams();
+    if (params?.category) q.set("category", params.category);
+    if (params?.difficulty) q.set("difficulty", params.difficulty);
+    if (params?.search) q.set("search", params.search);
+
+    const url = `${API_BASE_URL}/api/coding/problems${q.toString() ? `?${q.toString()}` : ""}`;
+    const response = await apiFetch(url, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return handleResponse<CodingProblem[]>(response);
+  },
+
+  /**
+   * Get single problem by ID
+   * GET /api/coding/problems/{id}
+   */
+  async getCodingProblem(id: string): Promise<CodingProblem> {
+    const token = authStorage.getToken();
+    const response = await apiFetch(`${API_BASE_URL}/api/coding/problems/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return handleResponse<CodingProblem>(response);
+  },
+
+  /**
+   * Submit solution for automated evaluation
+   * POST /api/coding/submit
+   */
+  async submitCodingSolution(request: CodingSubmitRequest): Promise<CodingResultResponse> {
+    const token = authStorage.getToken();
+    const response = await apiFetch(`${API_BASE_URL}/api/coding/submit`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(request),
+    });
+    return handleResponse<CodingResultResponse>(response);
+  },
+
+  /**
+   * Get user's coding submission history
+   * GET /api/coding/history
+   */
+  async getCodingHistory(): Promise<CodingHistoryItem[]> {
+    const token = authStorage.getToken();
+    const response = await apiFetch(`${API_BASE_URL}/api/coding/history`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return handleResponse<CodingHistoryItem[]>(response);
+  },
+
+  /**
+   * Get coding arena stats
+   * GET /api/coding/stats
+   */
+  async getCodingStats(): Promise<Record<string, any>> {
+    const token = authStorage.getToken();
+    const response = await apiFetch(`${API_BASE_URL}/api/coding/stats`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return handleResponse<Record<string, any>>(response);
+  },
+
+  /**
+   * Analyze code with AI Mentor
+   * POST /api/coding-mentor/analyze
+   */
+  async analyzeCodingSolution(request: MentorAnalysisRequest): Promise<MentorAnalysisResponse> {
+    const token = authStorage.getToken();
+    const response = await apiFetch(`${API_BASE_URL}/api/coding-mentor/analyze`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(request),
+    });
+    return handleResponse<MentorAnalysisResponse>(response);
+  },
+
+  // ═════════════════════════════════════════════════════════════════════════════
+  // MODULE 7: AI MOCK INTERVIEW API
+  // ═════════════════════════════════════════════════════════════════════════════
+
+  /**
+   * Start a new mock interview session
+   * POST /api/interview/start
+   */
+  async startMockInterview(request: StartInterviewRequest): Promise<StartInterviewResponse> {
+    const token = authStorage.getToken();
+    const response = await apiFetch(`${API_BASE_URL}/api/interview/start`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(request),
+    });
+    return handleResponse<StartInterviewResponse>(response);
+  },
+
+  /**
+   * Submit interview answers for evaluation
+   * POST /api/interview/submit
+   */
+  async submitMockInterview(request: SubmitInterviewRequest): Promise<InterviewResultResponse> {
+    const token = authStorage.getToken();
+    const response = await apiFetch(`${API_BASE_URL}/api/interview/submit`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(request),
+    });
+    return handleResponse<InterviewResultResponse>(response);
+  },
+
+  /**
+   * Get interview history
+   * GET /api/interview/history
+   */
+  async getMockInterviewHistory(): Promise<InterviewHistoryItem[]> {
+    const token = authStorage.getToken();
+    const response = await apiFetch(`${API_BASE_URL}/api/interview/history`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return handleResponse<InterviewHistoryItem[]>(response);
+  },
+
+  // ═════════════════════════════════════════════════════════════════════════════
+  // MODULE 10, 11, 12: DASHBOARD, ROADMAP, PREDICTION API
+  // ═════════════════════════════════════════════════════════════════════════════
+
+  /**
+   * Get placement readiness scores
+   * GET /api/dashboard/readiness
+   */
+  async getReadinessScore(): Promise<ReadinessScoreResponse> {
+    const token = authStorage.getToken();
+    const response = await apiFetch(`${API_BASE_URL}/api/dashboard/readiness`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return handleResponse<ReadinessScoreResponse>(response);
+  },
+
+  /**
+   * Generate personalized roadmap based on weak areas
+   * GET /api/roadmap/generate
+   */
+  async getRoadmap(): Promise<RoadmapResponse> {
+    const token = authStorage.getToken();
+    const response = await apiFetch(`${API_BASE_URL}/api/roadmap/generate`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return handleResponse<RoadmapResponse>(response);
+  },
+
+  /**
+   * Get company-specific placement predictions
+   * GET /api/prediction/companies
+   */
+  async getCompanyPredictions(): Promise<CompanyPredictionDto[]> {
+    const token = authStorage.getToken();
+    const response = await apiFetch(`${API_BASE_URL}/api/prediction/companies`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return handleResponse<CompanyPredictionDto[]>(response);
+  },
+
   getApiBaseUrl,
   setCustomApiUrl,
 };
@@ -1181,3 +1397,215 @@ export interface TechHistoryItem {
   verdict: string;
   createdAt: string;
 }
+
+// ── Types for Module 3 & 4: Coding Arena & Mentor ─────────────────────────────
+export type CodingCategoryType =
+  | "ARRAYS"
+  | "STRINGS"
+  | "LINKED_LIST"
+  | "TREES"
+  | "GRAPHS"
+  | "DP"
+  | "GREEDY";
+
+export type CodingDifficultyType = "EASY" | "MEDIUM" | "HARD";
+export type CodingLanguageType = "JAVA" | "PYTHON" | "CPP" | "C";
+
+export interface CodingCategorySummary {
+  category: CodingCategoryType;
+  displayName: string;
+  problemCount: number;
+  description: string;
+}
+
+export interface CodingTestCaseDto {
+  input: string;
+  expectedOutput: string;
+}
+
+export interface CodingProblem {
+  id: string;
+  title: string;
+  description: string;
+  category: CodingCategoryType;
+  difficulty: CodingDifficultyType;
+  constraints: string;
+  inputFormat: string;
+  outputFormat: string;
+  sampleTestCases: CodingTestCaseDto[];
+  totalTestCases: number;
+  starterCodeJava: string;
+  starterCodePython: string;
+  starterCodeCpp: string;
+  starterCodeC: string;
+  hints: string[];
+  timeComplexity: string;
+  spaceComplexity: string;
+  companiesAsked: string[];
+}
+
+export interface CodingSubmitRequest {
+  problemId: string;
+  language: CodingLanguageType;
+  code: string;
+  runSampleOnly?: boolean;
+}
+
+export interface CodingTestCaseResult {
+  testCaseIndex: number;
+  passed: boolean;
+  input: string;
+  expectedOutput: string;
+  actualOutput: string;
+  isHidden: boolean;
+}
+
+export interface CodingResultResponse {
+  submissionId: string;
+  problemId: string;
+  status:
+    | "ACCEPTED"
+    | "WRONG_ANSWER"
+    | "TIME_LIMIT_EXCEEDED"
+    | "RUNTIME_ERROR"
+    | "COMPILATION_ERROR";
+  passedTestCases: number;
+  totalTestCases: number;
+  runtimeMs: number;
+  memoryKb: number;
+  testCaseResults: CodingTestCaseResult[];
+  verdict: string;
+  feedback: string;
+}
+
+export interface CodingHistoryItem {
+  id: string;
+  problemId: string;
+  problemTitle: string;
+  language: string;
+  status: string;
+  runtimeMs: number;
+  memoryKb: number;
+  createdAt: string;
+}
+
+export interface MentorAnalysisRequest {
+  problemId: string;
+  language: string;
+  code: string;
+}
+
+export interface MentorAnalysisResponse {
+  problemId: string;
+  problemTitle: string;
+  detectedApproach: string;
+  timeComplexity: string;
+  spaceComplexity: string;
+  optimalTimeComplexity: string;
+  optimalSpaceComplexity: string;
+  isOptimal: boolean;
+  betterApproach: string;
+  betterApproachExplanation: string;
+  codeQualitySuggestions: string[];
+  optimizationTips: string[];
+  overallVerdict: string;
+  codeQualityScore: number;
+}
+
+// ── Types for Module 7: AI Mock Interview ─────────────────────────────────────
+export type InterviewRoundType = "HR" | "TECHNICAL" | "CODING";
+
+export interface StartInterviewRequest {
+  roundType: InterviewRoundType;
+  questionCount?: number;
+  skills?: string[];
+}
+
+export interface StartInterviewResponse {
+  sessionId: string;
+  roundType: string;
+  questions: Array<Record<string, string>>;
+  totalQuestions: number;
+}
+
+export interface InterviewAnswerEntry {
+  questionId: string;
+  question: string;
+  answer: string;
+}
+
+export interface SubmitInterviewRequest {
+  sessionId: string;
+  answers: InterviewAnswerEntry[];
+}
+
+export interface InterviewQuestionResult {
+  questionId: string;
+  question: string;
+  answer: string;
+  score: number;
+  verdict: string;
+  feedback: string[];
+}
+
+export interface InterviewResultResponse {
+  sessionId: string;
+  roundType: string;
+  overallScore: number;
+  verdict: string;
+  executiveSummary: string;
+  questionResults: InterviewQuestionResult[];
+  strengths: string[];
+  areasForImprovement: string[];
+}
+
+export interface InterviewHistoryItem {
+  sessionId: string;
+  roundType: string;
+  overallScore: number;
+  verdict: string;
+  totalQuestions: number;
+  createdAt: string;
+}
+
+// ── Types for Module 10, 11, 12: Dashboard, Roadmap, Prediction ───────────────
+export interface ReadinessScoreResponse {
+  resumeScore: number;
+  codingScore: number;
+  aptitudeScore: number;
+  hrScore: number;
+  technicalScore: number;
+  interviewScore: number;
+  overallScore: number;
+  weakAreas: string[];
+  strongAreas: string[];
+  totalCodingSubmissions: number;
+  solvedProblems: number;
+  readinessVerdict: string;
+}
+
+export interface WeekPlan {
+  week: string;
+  focus: string;
+  rationale: string;
+  tasks: string[];
+}
+
+export interface RoadmapResponse {
+  studentName: string;
+  currentReadiness: number;
+  weeks: WeekPlan[];
+}
+
+export interface CompanyPredictionDto {
+  companyName: string;
+  placementProbability: number;
+  interviewSuccessRate: number;
+  prepAdvice: string;
+  focusAreas: string[];
+  previousQuestionTopics: string[];
+  aptitudePattern: string;
+  codingDifficulty: string;
+  interviewStyle: string;
+}
+

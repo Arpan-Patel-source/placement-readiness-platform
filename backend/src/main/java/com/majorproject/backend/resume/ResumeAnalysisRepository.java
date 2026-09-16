@@ -15,4 +15,6 @@ public interface ResumeAnalysisRepository extends JpaRepository<ResumeAnalysis, 
     Optional<ResumeAnalysis> findFirstByUserIdOrderByCreatedAtDesc(UUID userId);
 
     Optional<ResumeAnalysis> findByIdAndUserId(UUID id, UUID userId);
+
+    List<ResumeAnalysis> findByUserEmailOrderByCreatedAtDesc(String email);
 }

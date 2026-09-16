@@ -11,13 +11,16 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AptitudeRouteImport } from './routes/aptitude'
+import { Route as CodingArenaRouteImport } from './routes/coding-arena'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as HrTrainingRouteImport } from './routes/hr-training'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as MockInterviewRouteImport } from './routes/mock-interview'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as ResumeAnalyzerRouteImport } from './routes/resume-analyzer'
 import { Route as TechnicalTrainingRouteImport } from './routes/technical-training'
+import { Route as VoiceInterviewRouteImport } from './routes/voice-interview'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -27,6 +30,11 @@ const IndexRoute = IndexRouteImport.update({
 const AptitudeRoute = AptitudeRouteImport.update({
   id: '/aptitude',
   path: '/aptitude',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CodingArenaRoute = CodingArenaRouteImport.update({
+  id: '/coding-arena',
+  path: '/coding-arena',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -49,6 +57,11 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MockInterviewRoute = MockInterviewRouteImport.update({
+  id: '/mock-interview',
+  path: '/mock-interview',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
   path: '/register',
@@ -64,87 +77,113 @@ const TechnicalTrainingRoute = TechnicalTrainingRouteImport.update({
   path: '/technical-training',
   getParentRoute: () => rootRouteImport,
 } as any)
+const VoiceInterviewRoute = VoiceInterviewRouteImport.update({
+  id: '/voice-interview',
+  path: '/voice-interview',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/aptitude': typeof AptitudeRoute
+  '/coding-arena': typeof CodingArenaRoute
   '/dashboard': typeof DashboardRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/hr-training': typeof HrTrainingRoute
   '/login': typeof LoginRoute
+  '/mock-interview': typeof MockInterviewRoute
   '/register': typeof RegisterRoute
   '/resume-analyzer': typeof ResumeAnalyzerRoute
   '/technical-training': typeof TechnicalTrainingRoute
+  '/voice-interview': typeof VoiceInterviewRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/aptitude': typeof AptitudeRoute
+  '/coding-arena': typeof CodingArenaRoute
   '/dashboard': typeof DashboardRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/hr-training': typeof HrTrainingRoute
   '/login': typeof LoginRoute
+  '/mock-interview': typeof MockInterviewRoute
   '/register': typeof RegisterRoute
   '/resume-analyzer': typeof ResumeAnalyzerRoute
   '/technical-training': typeof TechnicalTrainingRoute
+  '/voice-interview': typeof VoiceInterviewRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/aptitude': typeof AptitudeRoute
+  '/coding-arena': typeof CodingArenaRoute
   '/dashboard': typeof DashboardRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/hr-training': typeof HrTrainingRoute
   '/login': typeof LoginRoute
+  '/mock-interview': typeof MockInterviewRoute
   '/register': typeof RegisterRoute
   '/resume-analyzer': typeof ResumeAnalyzerRoute
   '/technical-training': typeof TechnicalTrainingRoute
+  '/voice-interview': typeof VoiceInterviewRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/aptitude'
+    | '/coding-arena'
     | '/dashboard'
     | '/forgot-password'
     | '/hr-training'
     | '/login'
+    | '/mock-interview'
     | '/register'
     | '/resume-analyzer'
     | '/technical-training'
+    | '/voice-interview'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/aptitude'
+    | '/coding-arena'
     | '/dashboard'
     | '/forgot-password'
     | '/hr-training'
     | '/login'
+    | '/mock-interview'
     | '/register'
     | '/resume-analyzer'
     | '/technical-training'
+    | '/voice-interview'
   id:
     | '__root__'
     | '/'
     | '/aptitude'
+    | '/coding-arena'
     | '/dashboard'
     | '/forgot-password'
     | '/hr-training'
     | '/login'
+    | '/mock-interview'
     | '/register'
     | '/resume-analyzer'
     | '/technical-training'
+    | '/voice-interview'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AptitudeRoute: typeof AptitudeRoute
+  CodingArenaRoute: typeof CodingArenaRoute
   DashboardRoute: typeof DashboardRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   HrTrainingRoute: typeof HrTrainingRoute
   LoginRoute: typeof LoginRoute
+  MockInterviewRoute: typeof MockInterviewRoute
   RegisterRoute: typeof RegisterRoute
   ResumeAnalyzerRoute: typeof ResumeAnalyzerRoute
   TechnicalTrainingRoute: typeof TechnicalTrainingRoute
+  VoiceInterviewRoute: typeof VoiceInterviewRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -161,6 +200,13 @@ declare module '@tanstack/react-router' {
       path: '/aptitude'
       fullPath: '/aptitude'
       preLoaderRoute: typeof AptitudeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/coding-arena': {
+      id: '/coding-arena'
+      path: '/coding-arena'
+      fullPath: '/coding-arena'
+      preLoaderRoute: typeof CodingArenaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -191,6 +237,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/mock-interview': {
+      id: '/mock-interview'
+      path: '/mock-interview'
+      fullPath: '/mock-interview'
+      preLoaderRoute: typeof MockInterviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/register': {
       id: '/register'
       path: '/register'
@@ -212,19 +265,29 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TechnicalTrainingRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/voice-interview': {
+      id: '/voice-interview'
+      path: '/voice-interview'
+      fullPath: '/voice-interview'
+      preLoaderRoute: typeof VoiceInterviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AptitudeRoute: AptitudeRoute,
+  CodingArenaRoute: CodingArenaRoute,
   DashboardRoute: DashboardRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
   HrTrainingRoute: HrTrainingRoute,
   LoginRoute: LoginRoute,
+  MockInterviewRoute: MockInterviewRoute,
   RegisterRoute: RegisterRoute,
   ResumeAnalyzerRoute: ResumeAnalyzerRoute,
   TechnicalTrainingRoute: TechnicalTrainingRoute,
+  VoiceInterviewRoute: VoiceInterviewRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

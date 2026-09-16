@@ -37,6 +37,142 @@ const CATEGORIES: { id: HrCategoryType; label: string }[] = [
   { id: "CAREER_VISION", label: "Career Goals & Fit" },
 ];
 
+const FALLBACK_HR_PROMPTS: Record<HrCategoryType, HrPrompt[]> = {
+  SELF_INTRODUCTION: [
+    {
+      id: "HR_INTRO_01",
+      category: "SELF_INTRODUCTION",
+      question: "Tell me about yourself and walk me through your engineering journey.",
+      recruiterIntent: "Testing communication clarity, storytelling ability, relevance to the position, and enthusiasm for technology.",
+      keyPointsToInclude: [
+        "Present education & core technical stack.",
+        "Key achievement or high-impact project you engineered.",
+        "Why this specific company & role aligns with your career trajectory."
+      ],
+      commonPitfalls: [
+        "Reading your resume chronologically line-by-line.",
+        "Focusing on unrelated hobbies or childhood stories.",
+        "Talking continuously for more than 2 minutes without pausing."
+      ],
+      sampleModelAnswer: "I am an aspiring Software Engineer graduating in Computer Science with deep focus on Java backend ecosystems, distributed systems, and Spring Boot. Over the past two years, I built and deployed scalable services, including a full-featured microservices-based order processing engine that handles over 1,500 concurrent requests with Redis caching. What excites me most about joining your engineering team is your dedication to high-throughput platforms and architectural excellence.",
+      companyTags: ["Amazon", "Google", "TCS", "Infosys", "Microsoft"]
+    },
+    {
+      id: "HR_INTRO_02",
+      category: "SELF_INTRODUCTION",
+      question: "Why should our organization hire you over other qualified candidates?",
+      recruiterIntent: "Evaluating self-awareness, unique value proposition, and understanding of the company tech stack.",
+      keyPointsToInclude: [
+        "Direct match between technical competencies and team requirements.",
+        "Proven problem-solving agility and rapid learning curve.",
+        "Ownership mindset and proactive collaboration."
+      ],
+      commonPitfalls: [
+        "Claiming to be 'the hardest worker' without concrete examples.",
+        "Putting down other candidates or sounding overly arrogant."
+      ],
+      sampleModelAnswer: "You should consider me because I bridge the gap between solid foundational theory and hands-on system building. In my capstone project, when our database hit write bottlenecks, I profiled slow queries, introduced indexing, and re-architected the connection pool, reducing response latency by 42%. I bring that proactive ownership to your backend engineering team from day one.",
+      companyTags: ["Accenture", "Goldman Sachs", "Wipro", "Deloitte"]
+    }
+  ],
+  LEADERSHIP: [
+    {
+      id: "HR_LEAD_01",
+      category: "LEADERSHIP",
+      question: "Describe a situation where you took the initiative to lead a project or resolve an unforeseen roadblock.",
+      recruiterIntent: "Assessing ownership, proactivity, crisis handling, and ability to influence without formal authority.",
+      keyPointsToInclude: [
+        "Situation: The unexpected technical or organizational roadblock.",
+        "Task: The objective and your self-assigned responsibility.",
+        "Action: The specific analytical steps, trade-offs, and decisions you executed.",
+        "Result: The tangible impact, metric improvement, and team outcome."
+      ],
+      commonPitfalls: [
+        "Using 'we did this' without clarifying your personal contribution.",
+        "Describing a trivial scenario with no genuine stakes."
+      ],
+      sampleModelAnswer: "During our final year hackathon, 18 hours before final judging, our primary payment gateway API suffered an outage. Seeing the team panic, I stepped up as project coordinator. I organized a 10-minute huddle, divided tasks between frontend mocking and backend refactoring, and personally engineered a resilient fallback mock gateway. We secured 2nd place out of 60 teams.",
+      companyTags: ["Amazon", "Flipkart", "Oracle", "Uber"]
+    }
+  ],
+  CONFLICT_RESOLUTION: [
+    {
+      id: "HR_CONF_01",
+      category: "CONFLICT_RESOLUTION",
+      question: "Tell me about a time you had a technical disagreement with a team member. How did you resolve it?",
+      recruiterIntent: "Testing intellectual humility, objectivity, reliance on data/metrics, and maintaining strong professional relationships.",
+      keyPointsToInclude: [
+        "The technical disagreement (e.g. SQL vs NoSQL, architectural style).",
+        "How you depersonalized the disagreement and moved to empirical evidence/benchmarking.",
+        "The collaborative resolution and how mutual respect was preserved."
+      ],
+      commonPitfalls: [
+        "Portraying yourself as 100% right and the other person as foolish.",
+        "Resolving conflict by simply 'agreeing to disagree' with no resolution."
+      ],
+      sampleModelAnswer: "In our microservices project, a fellow engineer advocated for MongoDB for rapid prototyping, while I favored PostgreSQL due to ACID transaction requirements in checkout. I suggested building a rapid POC to benchmark write consistency under concurrent load. The benchmarks showed relational constraints prevented data corruption, so we aligned on PostgreSQL with full team buy-in.",
+      companyTags: ["Google", "Atlassian", "Amazon", "Salesforce"]
+    }
+  ],
+  TEAMWORK: [
+    {
+      id: "HR_TEAM_01",
+      category: "TEAMWORK",
+      question: "Describe a time when you worked on a diverse team to deliver a project under tight deadlines.",
+      recruiterIntent: "Assessing active listening, adaptability, cross-functional communication, and team-first orientation.",
+      keyPointsToInclude: [
+        "Context of the diverse team (e.g. designers, frontend, backend).",
+        "How you established communication rhythms (daily standups, clear contracts).",
+        "Delivery outcome and appreciation of peers' contributions."
+      ],
+      commonPitfalls: [
+        "Minimizing others' contributions and claiming solo glory.",
+        "Lack of specific details on communication tools or methodologies."
+      ],
+      sampleModelAnswer: "In an inter-departmental capstone with UI designers and IoT engineers, the biggest challenge was aligning API request formats. I created an OpenAPI contract upfront so the frontend team could develop concurrently with mocked endpoints while I finalized backend logic. This clear contract cut debugging time in half and we launched 3 days early.",
+      companyTags: ["Infosys", "Cisco", "Deloitte", "Capgemini"]
+    }
+  ],
+  FAILURE_RESILIENCE: [
+    {
+      id: "HR_FAIL_01",
+      category: "FAILURE_RESILIENCE",
+      question: "Can you describe a significant mistake you made or a project that failed? What did you learn?",
+      recruiterIntent: "Evaluating self-honesty, resilience, psychological safety, and growth mindset.",
+      keyPointsToInclude: [
+        "Honest admission of an actual mistake without deflecting blame.",
+        "Immediate remediation steps taken to minimize damage.",
+        "Systemic preventative measures established so the error never recurs."
+      ],
+      commonPitfalls: [
+        "Claiming 'I have never really failed' (red flag).",
+        "Blaming circumstances or team members."
+      ],
+      sampleModelAnswer: "Early in my internship, I accidentally pushed database migration scripts with unindexed foreign keys directly into staging, which spiked query latency to over 2.4 seconds. I immediately owned up in our engineering channel, rolled back the migration, and instituted an automated CI check that rejects migration scripts lacking explicit indexing.",
+      companyTags: ["Amazon", "Meta", "Adobe", "Goldman Sachs"]
+    }
+  ],
+  CAREER_VISION: [
+    {
+      id: "HR_VISN_01",
+      category: "CAREER_VISION",
+      question: "Where do you envision yourself professionally over the next 3 to 5 years?",
+      recruiterIntent: "Checking retention probability, career ambition, realistic expectations, and alignment with engineering growth ladders.",
+      keyPointsToInclude: [
+        "Mastering foundational engineering practices in the first 1-2 years.",
+        "Taking on architectural responsibility and mentoring junior developers in years 3-5.",
+        "Deep domain mastery aligned with high-performance software systems."
+      ],
+      commonPitfalls: [
+        "Saying 'I want to be CEO' or 'I want an MBA in 1 year' (attrition signals).",
+        "Vague cliches like 'I just want to be happy'."
+      ],
+      sampleModelAnswer: "In the next 2 years, my primary goal is to become an indispensable backend engineer on your core product, achieving deep mastery of distributed microservices. By years 3 to 5, I aspire to take technical ownership of end-to-end service architectures and mentor upcoming graduate recruits, driving measurable reliability and business velocity.",
+      companyTags: ["Microsoft", "Google", "TCS", "Accenture", "Infosys"]
+    }
+  ]
+};
+
 function HrTrainingModule() {
   const [prompts, setPrompts] = useState<HrPrompt[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<HrCategoryType>("SELF_INTRODUCTION");
@@ -54,14 +190,23 @@ function HrTrainingModule() {
       try {
         setLoadingPrompts(true);
         const data = await api.getHrPrompts(selectedCategory);
-        setPrompts(data);
-        if (data.length > 0) {
+        if (data && data.length > 0) {
+          setPrompts(data);
           setSelectedPrompt(data[0]);
           setUserAnswer("");
           setEvaluationResult(null);
+          return;
         }
+        throw new Error("Empty HR prompts response");
       } catch (err) {
-        console.error("Failed to load HR questions:", err);
+        console.warn("Using fallback HR prompts:", err);
+        const fb = FALLBACK_HR_PROMPTS[selectedCategory] || FALLBACK_HR_PROMPTS.SELF_INTRODUCTION;
+        setPrompts(fb);
+        if (fb.length > 0) {
+          setSelectedPrompt(fb[0]);
+          setUserAnswer("");
+          setEvaluationResult(null);
+        }
       } finally {
         setLoadingPrompts(false);
       }

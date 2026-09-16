@@ -16,11 +16,21 @@ import {
   Upload,
   CheckCircle2,
   AlertTriangle,
+  Sparkles,
+  TrendingUp,
+  ShieldAlert,
+  HelpCircle,
 } from "lucide-react";
 
 import { SiteHeader } from "@/components/SiteHeader";
-import { api, authStorage, ResumeAnalysisResult } from "@/lib/api";
-
+import {
+  api,
+  authStorage,
+  ResumeAnalysisResult,
+  ReadinessScoreResponse,
+  RoadmapResponse,
+  CompanyPredictionDto,
+} from "@/lib/api";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
@@ -41,94 +51,71 @@ export const Route = createFileRoute("/dashboard")({
   component: Dashboard,
 });
 
-const modules = [
+const MODULE_DEFINITIONS = [
   {
     icon: FileText,
     title: "AI Resume Analyzer",
     text: "Upload, ATS score, skill gaps, keywords & suggestions",
     bg: "bg-mint",
-    progress: 78,
-    tag: "ATS 78/100",
+    route: "/resume-analyzer",
+    scoreKey: "resumeScore",
   },
   {
     icon: Code2,
     title: "Competitive Coding Arena",
     text: "Question bank, compiler, test cases, auto-evaluation",
     bg: "bg-sky",
-    progress: 62,
-    tag: "124 solved",
+    route: "/coding-arena",
+    scoreKey: "codingScore",
   },
   {
     icon: Bot,
     title: "AI Coding Mentor",
     text: "Code analysis, optimization & complexity feedback",
     bg: "bg-blush",
-    progress: 54,
-    tag: "18 reviews",
+    route: "/coding-arena",
+    scoreKey: "codingScore",
   },
   {
     icon: Calculator,
     title: "Aptitude Training",
     text: "Quant, reasoning & verbal with scoring",
     bg: "bg-peach",
-    progress: 71,
-    tag: "Avg 71%",
+    route: "/aptitude",
+    scoreKey: "aptitudeScore",
   },
   {
     icon: Users,
     title: "HR Training",
     text: "HR question sets with instant AI feedback",
     bg: "bg-sage",
-    progress: 45,
-    tag: "9 answers",
+    route: "/hr-training",
+    scoreKey: "hrScore",
   },
   {
     icon: Mic,
     title: "AI Mock Interview",
     text: "HR, technical and coding interview rounds",
     bg: "bg-mint",
-    progress: 38,
-    tag: "3 rounds",
+    route: "/mock-interview",
+    scoreKey: "interviewScore",
   },
   {
     icon: AudioLines,
     title: "Voice-Based Interview",
     text: "Speech-to-text with fluency & confidence analysis",
     bg: "bg-sky",
-    progress: 30,
-    tag: "Fluency 6.8",
+    route: "/voice-interview",
+    scoreKey: "interviewScore",
   },
   {
     icon: BookOpen,
     title: "Technical Training",
     text: "Personalised tracks, notes, MCQs & assignments",
     bg: "bg-blush",
-    progress: 66,
-    tag: "4 tracks",
+    route: "/technical-training",
+    scoreKey: "technicalScore",
   },
-];
-
-const readinessBreakdown = [
-  { label: "Resume", value: 78 },
-  { label: "Coding", value: 62 },
-  { label: "Aptitude", value: 71 },
-  { label: "HR", value: 45 },
-  { label: "Interview", value: 38 },
-  { label: "Technical", value: 66 },
-];
-
-const roadmap = [
-  { week: "Week 1", focus: "Interview confidence", items: ["2 HR mock rounds", "Voice fluency drills", "STAR answer bank"] },
-  { week: "Week 2", focus: "Coding depth", items: ["15 medium DP problems", "Complexity review with mentor", "1 timed contest"] },
-  { week: "Week 3", focus: "Aptitude speed", items: ["Time & work sets", "Verbal reasoning daily 20", "Full mock aptitude test"] },
-  { week: "Week 4", focus: "Company sprint", items: ["Resume ATS re-check", "TCS + Infosys pattern papers", "Full technical mock"] },
-];
-
-const companies = [
-  { name: "TCS", chance: 82, note: "Aptitude aligned, keep coding steady" },
-  { name: "Infosys", chance: 74, note: "Strengthen verbal reasoning" },
-  { name: "Wipro", chance: 69, note: "More HR practice needed" },
-  { name: "Amazon", chance: 41, note: "Focus on DSA + system basics" },
 ];
 
 function Ring({ value }: { value: number }) {
@@ -140,7 +127,7 @@ function Ring({ value }: { value: number }) {
       }}
     >
       <div className="grid size-28 place-items-center rounded-full bg-card">
-        <span className="font-display text-3xl font-extrabold text-ink">{value}</span>
+        <span className="font-display text-3xl font-extrabold text-ink">{Math.round(value)}</span>
         <span className="text-[0.6rem] tracking-[0.2em] text-muted-foreground">READY</span>
       </div>
     </div>
@@ -148,9 +135,10 @@ function Ring({ value }: { value: number }) {
 }
 
 function Bar({ value, className = "" }: { value: number; className?: string }) {
+  const safeVal = Math.min(100, Math.max(0, value));
   return (
     <div className={`h-2 w-full overflow-hidden rounded-full bg-muted ${className}`}>
-      <div className="h-full rounded-full bg-coral" style={{ width: `${value}%` }} />
+      <div className="h-full rounded-full bg-coral transition-all duration-500" style={{ width: `${safeVal}%` }} />
     </div>
   );
 }
@@ -158,6 +146,10 @@ function Bar({ value, className = "" }: { value: number; className?: string }) {
 function Dashboard() {
   const [userName, setUserName] = useState("Student");
   const [latestResume, setLatestResume] = useState<ResumeAnalysisResult | null>(null);
+  const [readinessData, setReadinessData] = useState<ReadinessScoreResponse | null>(null);
+  const [roadmapData, setRoadmapData] = useState<RoadmapResponse | null>(null);
+  const [companyPredictions, setCompanyPredictions] = useState<CompanyPredictionDto[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const user = authStorage.getUser();
@@ -165,67 +157,161 @@ function Dashboard() {
       setUserName(user.name);
     }
 
-    api
-      .getLatestResumeAnalysis()
-      .then((data) => {
-        if (data) setLatestResume(data);
-      })
-      .catch(() => {});
+    async function loadDashboardData() {
+      setLoading(true);
+      try {
+        const [resumeRes, readinessRes, roadmapRes, predictionsRes] = await Promise.all([
+          api.getLatestResumeAnalysis().catch(() => null),
+          api.getReadinessScore().catch(() => null),
+          api.getRoadmap().catch(() => null),
+          api.getCompanyPredictions().catch(() => []),
+        ]);
+
+        if (resumeRes) setLatestResume(resumeRes);
+        if (readinessRes) setReadinessData(readinessRes);
+        if (roadmapRes) setRoadmapData(roadmapRes);
+        if (predictionsRes && predictionsRes.length > 0) {
+          setCompanyPredictions(predictionsRes);
+        }
+      } catch (err) {
+        console.error("Dashboard fetch error:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadDashboardData();
   }, []);
 
-  const readinessScore = latestResume ? latestResume.readinessScore : 64;
-  const atsScore = latestResume ? latestResume.atsScore : 78;
+  // 100% Dynamic Scores — No static numbers
+  const overallScore = readinessData?.overallScore
+    ? Math.round(readinessData.overallScore)
+    : latestResume
+    ? latestResume.readinessScore
+    : 0;
 
-  const activeBreakdown = readinessBreakdown.map((r) =>
-    r.label === "Resume" && latestResume ? { ...r, value: latestResume.atsScore } : r
-  );
+  const atsScore = latestResume
+    ? latestResume.atsScore
+    : readinessData?.resumeScore
+    ? Math.round(readinessData.resumeScore)
+    : 0;
+
+  const breakdownItems = [
+    { label: "Resume ATS", value: atsScore },
+    { label: "Coding Arena", value: readinessData ? Math.round(readinessData.codingScore) : 0 },
+    { label: "Aptitude", value: readinessData ? Math.round(readinessData.aptitudeScore) : 0 },
+    { label: "HR Training", value: readinessData ? Math.round(readinessData.hrScore) : 0 },
+    { label: "Mock Interview", value: readinessData ? Math.round(readinessData.interviewScore) : 0 },
+    { label: "Technical", value: readinessData ? Math.round(readinessData.technicalScore) : 0 },
+  ];
+
+  const getModuleTag = (title: string, score: number) => {
+    switch (title) {
+      case "AI Resume Analyzer":
+        return atsScore > 0 ? `ATS ${atsScore}/100` : "Not scanned yet";
+      case "Competitive Coding Arena":
+        return `${readinessData?.solvedProblems || 0} Solved`;
+      case "AI Coding Mentor":
+        return `${readinessData?.totalCodingSubmissions || 0} Submissions`;
+      case "Aptitude Training":
+        return score > 0 ? `${score}% Score` : "0% Completed";
+      case "HR Training":
+        return score > 0 ? `${score}% Score` : "0% Completed";
+      case "AI Mock Interview":
+        return score > 0 ? `${score}% Avg` : "0 Rounds";
+      case "Voice-Based Interview":
+        return score > 0 ? `${score}% Fluency` : "0 Sessions";
+      case "Technical Training":
+        return score > 0 ? `${score}% Score` : "0% Completed";
+      default:
+        return `${score}%`;
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
 
       <main className="mx-auto max-w-7xl px-5 py-8">
-        {/* Greeting */}
+        {/* Dynamic Greeting */}
         <section className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <p className="text-xs font-semibold tracking-[0.22em] text-coral">YOUR DASHBOARD</p>
             <h1 className="mt-2 font-display text-3xl font-extrabold text-ink sm:text-4xl">
-              Hey {userName}, you're <span className="text-coral">{readinessScore}% placement ready</span>
+              Hey {userName}, you're <span className="text-coral">{overallScore}% placement ready</span>
             </h1>
             <p className="mt-2 max-w-xl text-sm text-ink/70">
-              {latestResume
-                ? `Latest resume scan for ${latestResume.targetRole}: ATS score is ${atsScore}/100.`
-                : "Upload your resume to calculate your true ATS score and identify role skill gaps."}
+              {readinessData?.readinessVerdict ? (
+                <>
+                  <span className="font-semibold text-ink">{readinessData.readinessVerdict}</span> · {readinessData.solvedProblems} coding problems solved.
+                </>
+              ) : latestResume ? (
+                `Latest resume scan for ${latestResume.targetRole}: ATS score is ${atsScore}/100.`
+              ) : (
+                "Complete practice questions, coding problems, and mock interviews to dynamically increase your placement readiness score."
+              )}
             </p>
           </div>
-          <Link
-            to="/resume-analyzer"
-            className="inline-flex items-center gap-2 rounded-full bg-coral px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-coral/90"
-          >
-            <Upload className="size-4" /> {latestResume ? "Re-scan resume" : "Upload resume"}
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link
+              to="/coding-arena"
+              className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-slate-800"
+            >
+              <Code2 className="size-3.5 text-coral" /> Practice Coding
+            </Link>
+            <Link
+              to="/resume-analyzer"
+              className="inline-flex items-center gap-2 rounded-full bg-coral px-4 py-2 text-xs font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-coral/90"
+            >
+              <Upload className="size-3.5" /> {latestResume ? "Re-scan resume" : "Upload resume"}
+            </Link>
+          </div>
         </section>
 
         {/* Readiness + prediction */}
         <section className="mt-8 grid gap-5 lg:grid-cols-3">
-          <div className="rounded-3xl border border-border bg-card p-6 shadow-sm">
-            <h2 className="font-display text-lg font-bold text-ink">Placement Readiness</h2>
-            <div className="mt-5 flex items-center gap-6">
-              <Ring value={readinessScore} />
-              <div className="flex-1 space-y-3">
-                {activeBreakdown.map((r) => (
-                  <div key={r.label}>
-                    <div className="flex justify-between text-xs text-ink/70">
-                      <span>{r.label}</span>
-                      <span className="font-semibold text-ink">{r.value}%</span>
+          {/* Placement Readiness Ring Card */}
+          <div className="rounded-3xl border border-border bg-card p-6 shadow-sm flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between">
+                <h2 className="font-display text-lg font-bold text-ink">Placement Readiness</h2>
+                <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-coral/10 text-coral border border-coral/30">
+                  {readinessData?.readinessVerdict || (overallScore > 0 ? "In Progress" : "Getting Started")}
+                </span>
+              </div>
+              <div className="mt-5 flex items-center gap-6">
+                <Ring value={overallScore} />
+                <div className="flex-1 space-y-2.5">
+                  {breakdownItems.map((r) => (
+                    <div key={r.label}>
+                      <div className="flex justify-between text-xs text-ink/70">
+                        <span>{r.label}</span>
+                        <span className="font-semibold text-ink">{r.value}%</span>
+                      </div>
+                      <Bar value={r.value} className="mt-1" />
                     </div>
-                    <Bar value={r.value} className="mt-1" />
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             </div>
+
+            {readinessData?.weakAreas && readinessData.weakAreas.length > 0 && (
+              <div className="mt-5 pt-4 border-t border-border/60">
+                <span className="text-[11px] font-bold text-coral flex items-center gap-1">
+                  <AlertTriangle className="size-3" /> Areas Requiring Practice:
+                </span>
+                <div className="flex flex-wrap gap-1.5 mt-1.5">
+                  {readinessData.weakAreas.map((w, idx) => (
+                    <span key={idx} className="text-[10px] px-2 py-0.5 rounded bg-peach/70 text-ink font-medium">
+                      {w}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
+          {/* Resume Snapshot Card */}
           <div className="rounded-3xl border border-border bg-mint/50 p-6 flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between">
@@ -243,18 +329,20 @@ function Dashboard() {
 
               <p className="mt-4 font-display text-4xl font-extrabold text-ink">
                 {atsScore}
-                <span className="text-lg">/100</span>
+                <span className="text-lg font-normal text-muted-foreground">/100</span>
               </p>
               <p className="text-xs text-ink/60">
                 {latestResume
-                  ? `ATS compatibility (${latestResume.targetRole})`
-                  : "ATS compatibility score (Baseline sample)"}
+                  ? `ATS score (${latestResume.targetRole})`
+                  : atsScore > 0
+                  ? "ATS compatibility score"
+                  : "No resume scanned yet"}
               </p>
 
               <div className="mt-5 space-y-2 text-sm">
                 {latestResume ? (
                   <>
-                    {latestResume.strengths.slice(0, 1).map((s, idx) => (
+                    {latestResume.strengths.slice(0, 2).map((s, idx) => (
                       <p key={idx} className="flex items-start gap-2 text-ink/80 text-xs">
                         <CheckCircle2 className="mt-0.5 size-3.5 shrink-0 text-emerald-700" />
                         <span>{s}</span>
@@ -266,25 +354,20 @@ function Dashboard() {
                         <span>Missing: {latestResume.missingSkills.slice(0, 3).join(", ")}</span>
                       </p>
                     )}
-                    {latestResume.actionableSuggestions.slice(0, 1).map((sug, idx) => (
-                      <p key={idx} className="flex items-start gap-2 text-ink/80 text-xs">
-                        <AlertTriangle className="mt-0.5 size-3.5 shrink-0 text-coral" />
-                        <span className="line-clamp-2">{sug}</span>
-                      </p>
-                    ))}
                   </>
                 ) : (
-                  <>
-                    <p className="flex items-start gap-2 text-ink/80 text-xs">
-                      <CheckCircle2 className="mt-0.5 size-3.5 shrink-0 text-ink" /> Strong project section & clear formatting
+                  <div className="py-2 text-xs text-ink/70 space-y-2">
+                    <p className="flex items-start gap-2">
+                      <HelpCircle className="mt-0.5 size-3.5 shrink-0 text-coral" />
+                      <span>Upload your resume to calculate your exact ATS score and identify role skill gaps.</span>
                     </p>
-                    <p className="flex items-start gap-2 text-ink/80 text-xs">
-                      <AlertTriangle className="mt-0.5 size-3.5 shrink-0 text-coral" /> Missing keywords: REST API, Docker, SQL joins
-                    </p>
-                    <p className="flex items-start gap-2 text-ink/80 text-xs">
-                      <AlertTriangle className="mt-0.5 size-3.5 shrink-0 text-coral" /> Add measurable impact to internship bullets
-                    </p>
-                  </>
+                    <Link
+                      to="/resume-analyzer"
+                      className="inline-block mt-2 font-bold text-xs text-coral hover:underline"
+                    >
+                      + Scan Resume Now
+                    </Link>
+                  </div>
                 )}
               </div>
             </div>
@@ -292,7 +375,7 @@ function Dashboard() {
             <div className="mt-5 flex flex-wrap gap-2">
               {(latestResume && latestResume.skillsFound.length > 0
                 ? latestResume.skillsFound.slice(0, 5)
-                : ["Java", "DSA", "SQL", "React", "Aptitude"]
+                : ["Java", "DSA", "SQL", "Spring Boot", "React"]
               ).map((s) => (
                 <span key={s} className="rounded-full bg-card px-3 py-1 text-xs font-medium text-ink shadow-2xs">
                   {s}
@@ -301,92 +384,130 @@ function Dashboard() {
             </div>
           </div>
 
-          <div className="rounded-3xl border border-border bg-card p-6 shadow-sm">
-            <div className="flex items-center gap-2">
-              <Target className="size-4 text-coral" />
-              <h2 className="font-display text-lg font-bold text-ink">Placement Prediction</h2>
+          {/* Placement Prediction Card */}
+          <div className="rounded-3xl border border-border bg-card p-6 shadow-sm flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Target className="size-4 text-coral" />
+                  <h2 className="font-display text-lg font-bold text-ink">Placement Predictions</h2>
+                </div>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600">
+                  Dynamic Odds
+                </span>
+              </div>
+              <p className="mt-1 text-xs text-ink/60">Real-time probabilities calculated from your active scores</p>
+
+              <ul className="mt-4 space-y-3.5">
+                {companyPredictions.slice(0, 4).map((c) => (
+                  <li key={c.companyName}>
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-bold text-ink">{c.companyName}</span>
+                      <span className="font-bold text-coral">{Math.round(c.placementProbability)}%</span>
+                    </div>
+                    <Bar value={c.placementProbability} className="mt-1" />
+                    <p className="mt-1 text-[11px] text-ink/60 line-clamp-1">{c.prepAdvice}</p>
+                  </li>
+                ))}
+              </ul>
             </div>
-            <p className="mt-2 text-xs text-ink/60">Company-specific chances & prep focus</p>
-            <ul className="mt-5 space-y-4">
-              {companies.map((c) => (
-                <li key={c.name}>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="font-semibold text-ink">{c.name}</span>
-                    <span className="text-ink/70">{c.chance}%</span>
-                  </div>
-                  <Bar value={c.chance} className="mt-1.5" />
-                  <p className="mt-1 text-xs text-ink/60">{c.note}</p>
-                </li>
-              ))}
-            </ul>
+
+            <div className="mt-4 pt-3 border-t border-border/60 flex items-center justify-between text-[11px]">
+              <span className="text-muted-foreground">TCS, Infosys, Wipro, Amazon</span>
+              <Link to="/coding-arena" className="text-coral font-bold hover:underline">
+                Practice Company Sets →
+              </Link>
+            </div>
           </div>
         </section>
 
-        {/* Modules */}
+        {/* Modules Grid */}
         <section className="mt-12">
-          <h2 className="font-display text-2xl font-extrabold text-ink">Your preparation modules</h2>
+          <div className="flex items-center justify-between">
+            <h2 className="font-display text-2xl font-extrabold text-ink">Your preparation modules</h2>
+            <span className="text-xs text-muted-foreground font-semibold">8 Interactive Modules</span>
+          </div>
+
           <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {modules.map((m) => {
-              const linkTarget =
-                m.title === "AI Resume Analyzer"
-                  ? "/resume-analyzer"
-                  : m.title === "Aptitude Training"
-                  ? "/aptitude"
-                  : m.title === "HR Training"
-                  ? "/hr-training"
-                  : m.title === "Technical Training"
-                  ? "/technical-training"
-                  : "/dashboard";
+            {MODULE_DEFINITIONS.map((m) => {
+              const score =
+                readinessData && (readinessData as any)[m.scoreKey] != null
+                  ? Math.round((readinessData as any)[m.scoreKey])
+                  : m.title === "AI Resume Analyzer" && latestResume
+                  ? latestResume.atsScore
+                  : 0;
+
+              const tag = getModuleTag(m.title, score);
+
               return (
                 <Link
-                  to={linkTarget}
+                  to={m.route}
                   key={m.title}
-                  className="group rounded-3xl border border-border bg-card p-5 shadow-sm transition-all hover:shadow-md hover:border-coral/40"
+                  className="group rounded-3xl border border-border bg-card p-5 shadow-sm transition-all hover:shadow-md hover:border-coral/40 flex flex-col justify-between"
                 >
-                  <div className={`grid size-11 place-items-center rounded-2xl ${m.bg}`}>
-                    <m.icon className="size-5 text-ink" />
+                  <div>
+                    <div className={`grid size-11 place-items-center rounded-2xl ${m.bg}`}>
+                      <m.icon className="size-5 text-ink" />
+                    </div>
+                    <h3 className="mt-4 font-display text-base font-bold text-ink">{m.title}</h3>
+                    <p className="mt-1 text-xs leading-relaxed text-ink/65">{m.text}</p>
                   </div>
-                  <h3 className="mt-4 font-display text-base font-bold text-ink">{m.title}</h3>
-                  <p className="mt-1 text-xs leading-relaxed text-ink/65">{m.text}</p>
-                  <div className="mt-4 flex items-center justify-between text-xs text-ink/70">
-                    <span>{m.title === "AI Resume Analyzer" && latestResume ? `ATS ${latestResume.atsScore}/100` : m.tag}</span>
-                    <span className="font-semibold text-ink">
-                      {m.title === "AI Resume Analyzer" && latestResume ? latestResume.readinessScore : m.progress}%
+
+                  <div className="mt-4 pt-3 border-t border-border/40">
+                    <div className="flex items-center justify-between text-xs text-ink/70">
+                      <span className="font-medium text-[11px]">{tag}</span>
+                      <span className="font-semibold text-ink">{score}%</span>
+                    </div>
+                    <Bar value={score} className="mt-1.5" />
+                    <span className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-coral">
+                      Open Module <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
                     </span>
                   </div>
-                  <Bar
-                    value={m.title === "AI Resume Analyzer" && latestResume ? latestResume.readinessScore : m.progress}
-                    className="mt-2"
-                  />
-                  <span className="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-coral">
-                    Open <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
-                  </span>
                 </Link>
               );
             })}
           </div>
         </section>
 
-        {/* Roadmap */}
+        {/* Personalized 4-Week Roadmap */}
         <section className="mt-12 rounded-3xl border border-border bg-peach/40 p-6 sm:p-8">
-          <div className="flex items-center gap-2">
-            <Map className="size-5 text-ink" />
-            <h2 className="font-display text-2xl font-extrabold text-ink">Your 4-week roadmap</h2>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Map className="size-5 text-ink" />
+              <h2 className="font-display text-2xl font-extrabold text-ink">Personalized 4-Week Roadmap</h2>
+            </div>
+            <span className="text-xs px-3 py-1 rounded-full bg-card font-semibold text-coral shadow-2xs">
+              AI Generated
+            </span>
           </div>
-          <p className="mt-2 text-sm text-ink/70">Generated from your weakest areas: interviews, HR answers and DSA depth.</p>
+          <p className="mt-2 text-sm text-ink/70">
+            Dynamically prioritized from your weakest preparation areas to maximize placement probability.
+          </p>
+
           <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            {roadmap.map((w) => (
-              <div key={w.week} className="rounded-2xl bg-card p-5 shadow-sm">
-                <p className="text-[0.6rem] font-semibold tracking-[0.2em] text-coral">{w.week.toUpperCase()}</p>
-                <h3 className="mt-2 font-display text-base font-bold text-ink">{w.focus}</h3>
-                <ul className="mt-3 space-y-2 text-xs text-ink/70">
-                  {w.items.map((i) => (
-                    <li key={i} className="flex items-start gap-2">
-                      <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-coral" />
-                      {i}
-                    </li>
-                  ))}
-                </ul>
+            {roadmapData?.weeks?.map((w, idx) => (
+              <div key={idx} className="rounded-2xl bg-card p-5 shadow-sm flex flex-col justify-between">
+                <div>
+                  <p className="text-[0.6rem] font-semibold tracking-[0.2em] text-coral">
+                    {(w.week || `Week ${idx + 1}`).toUpperCase()}
+                  </p>
+                  <h3 className="mt-2 font-display text-base font-bold text-ink">{w.focus}</h3>
+                  {w.rationale && (
+                    <p className="mt-1 text-[11px] text-muted-foreground italic line-clamp-2">{w.rationale}</p>
+                  )}
+                  <ul className="mt-3 space-y-2 text-xs text-ink/70">
+                    {w.tasks?.map((i: string, itemIdx: number) => (
+                      <li key={itemIdx} className="flex items-start gap-2">
+                        <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-coral" />
+                        <span>{i}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="mt-4 pt-3 border-t border-border/40 text-[11px] text-coral font-semibold">
+                  Target: Week {idx + 1} Milestone →
+                </div>
               </div>
             ))}
           </div>
