@@ -143,12 +143,106 @@ function Bar({ value, className = "" }: { value: number; className?: string }) {
   );
 }
 
+const DEFAULT_PREDICTIONS: CompanyPredictionDto[] = [
+  {
+    companyName: "TCS",
+    placementProbability: 18,
+    interviewSuccessRate: 25,
+    prepAdvice: "Focus on TCS NQT aptitude speed tests and fundamental Java/C++ logic",
+    focusAreas: ["Aptitude", "Core Programming"],
+    previousQuestionTopics: ["Numbers & Time-Work", "Email writing", "OOP"],
+    aptitudePattern: "TCS NQT (90 min)",
+    codingDifficulty: "Easy to Medium",
+    interviewStyle: "Technical + HR panel",
+  },
+  {
+    companyName: "Infosys",
+    placementProbability: 15,
+    interviewSuccessRate: 22,
+    prepAdvice: "Practice pseudo-code logic puzzles and relational database queries",
+    focusAreas: ["Pseudo-code", "DBMS"],
+    previousQuestionTopics: ["SQL queries", "Logical deduction", "Java collections"],
+    aptitudePattern: "InfyTQ (3 hours)",
+    codingDifficulty: "Medium",
+    interviewStyle: "Combined technical & behavioral",
+  },
+  {
+    companyName: "Wipro",
+    placementProbability: 20,
+    interviewSuccessRate: 30,
+    prepAdvice: "Target verbal comprehension, basic data structures, and email communication",
+    focusAreas: ["Verbal Ability", "Basic Coding"],
+    previousQuestionTopics: ["Reading comprehension", "Array manipulation", "Essay writing"],
+    aptitudePattern: "Wipro NLTH (2 hours)",
+    codingDifficulty: "Easy",
+    interviewStyle: "HR-heavy & GD round",
+  },
+  {
+    companyName: "Amazon",
+    placementProbability: 10,
+    interviewSuccessRate: 15,
+    prepAdvice: "Master medium-hard Trees & Graphs and practice STAR leadership principles",
+    focusAreas: ["DSA Trees/Graphs", "Leadership Principles"],
+    previousQuestionTopics: ["Binary Tree traversals", "Two Pointers", "Customer Obsession"],
+    aptitudePattern: "Online Assessment (70 min)",
+    codingDifficulty: "Medium to Hard",
+    interviewStyle: "Bar Raiser + Leadership interview",
+  },
+];
+
+const DEFAULT_ROADMAP: RoadmapResponse = {
+  studentName: "Student",
+  currentReadiness: 0,
+  weeks: [
+    {
+      week: "Week 1",
+      focus: "Resume ATS & Aptitude Core",
+      rationale: "Elevate your ATS score above 75 and build quantitative calculation speed",
+      tasks: [
+        "Upload resume to AI Analyzer and fix missing keywords and formatting gaps",
+        "Practice 15 Quantitative Aptitude questions (Percentages, Ratios, Speed-Distance)",
+        "Revise Object-Oriented Programming (OOP) concepts and inheritance patterns",
+      ],
+    },
+    {
+      week: "Week 2",
+      focus: "DSA Mastery & Coding Arena",
+      rationale: "Master high-frequency array and string patterns tested in technical screenings",
+      tasks: [
+        "Solve 8 Easy and 4 Medium problems in the Competitive Coding Arena",
+        "Submit code to AI Coding Mentor to identify optimization opportunities",
+        "Practice Logical Reasoning (Syllogisms, Blood Relations, Seating Arrangements)",
+      ],
+    },
+    {
+      week: "Week 3",
+      focus: "Core CS Subjects & SQL",
+      rationale: "Strengthen DBMS, OS, and Computer Networks for technical interview rounds",
+      tasks: [
+        "Complete DBMS and SQL query training modules (Joins, Indexing, Normalization)",
+        "Review Operating Systems concepts (Process Scheduling, Deadlocks, Paging)",
+        "Take a full timed Technical Assessment test and review error logs",
+      ],
+    },
+    {
+      week: "Week 4",
+      focus: "Mock Interviews & Speech Analytics",
+      rationale: "Simulate high-pressure behavioral and technical interviews with AI evaluation",
+      tasks: [
+        "Complete 2 full AI Mock Interview rounds using the STAR method",
+        "Record a Voice-Based Interview to analyze speaking pace (WPM) and filler words",
+        "Review target company question patterns (TCS, Infosys, Amazon, Wipro)",
+      ],
+    },
+  ],
+};
+
 function Dashboard() {
   const [userName, setUserName] = useState("Student");
   const [latestResume, setLatestResume] = useState<ResumeAnalysisResult | null>(null);
   const [readinessData, setReadinessData] = useState<ReadinessScoreResponse | null>(null);
-  const [roadmapData, setRoadmapData] = useState<RoadmapResponse | null>(null);
-  const [companyPredictions, setCompanyPredictions] = useState<CompanyPredictionDto[]>([]);
+  const [roadmapData, setRoadmapData] = useState<RoadmapResponse>(DEFAULT_ROADMAP);
+  const [companyPredictions, setCompanyPredictions] = useState<CompanyPredictionDto[]>(DEFAULT_PREDICTIONS);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -169,7 +263,9 @@ function Dashboard() {
 
         if (resumeRes) setLatestResume(resumeRes);
         if (readinessRes) setReadinessData(readinessRes);
-        if (roadmapRes) setRoadmapData(roadmapRes);
+        if (roadmapRes && roadmapRes.weeks && roadmapRes.weeks.length > 0) {
+          setRoadmapData(roadmapRes);
+        }
         if (predictionsRes && predictionsRes.length > 0) {
           setCompanyPredictions(predictionsRes);
         }

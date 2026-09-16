@@ -85,12 +85,23 @@ export async function apiFetch(
     url = `${base}${cleanPath}`;
   }
 
+  const sanitizedHeaders: Record<string, string> = { ...((init?.headers as Record<string, string>) || {}) };
+  const auth = sanitizedHeaders["Authorization"] || sanitizedHeaders["authorization"];
+  if (auth) {
+    const trimmed = auth.replace(/^Bearer\s*/i, "").trim();
+    if (!trimmed || trimmed === "null" || trimmed === "undefined") {
+      delete sanitizedHeaders["Authorization"];
+      delete sanitizedHeaders["authorization"];
+    }
+  }
+
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
     const response = await fetch(url, {
       ...init,
+      headers: sanitizedHeaders,
       signal: controller.signal,
     });
     return response;
