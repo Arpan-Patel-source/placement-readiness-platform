@@ -80,8 +80,36 @@ public class JwtService {
                 .getPayload();
     }
 
+    private static final byte[] DEFAULT_SECRET_BYTES =
+            "PlacementAiAssistantDefaultSecure256BitSecretKeyForHmacSha256Signature123456".getBytes(java.nio.charset.StandardCharsets.UTF_8);
+
     private SecretKey getSigningKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+        if (secretKey == null || secretKey.trim().isEmpty()) {
+            return Keys.hmacShaKeyFor(DEFAULT_SECRET_BYTES);
+        }
+
+        byte[] keyBytes = null;
+        try {
+            keyBytes = Decoders.BASE64.decode(secretKey.trim());
+        } catch (Exception ignored) {
+            // Not valid Base64, will fallback to raw UTF-8 bytes
+        }
+
+        if (keyBytes == null || keyBytes.length < 32) {
+            byte[] rawBytes = secretKey.trim().getBytes(java.nio.charset.StandardCharsets.UTF_8);
+            if (rawBytes.length >= 32) {
+                keyBytes = rawBytes;
+            } else {
+                try {
+                    java.security.MessageDigest md = java.security.MessageDigest.getInstance("SHA-256");
+                    keyBytes = md.digest(rawBytes);
+                } catch (java.security.NoSuchAlgorithmException e) {
+                    keyBytes = DEFAULT_SECRET_BYTES;
+                }
+            }
+        }
+
         return Keys.hmacShaKeyFor(keyBytes);
     }
 }
+
