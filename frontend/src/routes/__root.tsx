@@ -74,10 +74,17 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "PlacementAI — From Campus to Career" },
-      { name: "description", content: "AI-powered placement preparation: resume analysis, mock interviews, coding practice and aptitude prep." },
+      {
+        name: "description",
+        content:
+          "AI-powered placement preparation: resume analysis, mock interviews, coding practice and aptitude prep.",
+      },
       { name: "author", content: "PlacementAI" },
       { property: "og:title", content: "PlacementAI — From Campus to Career" },
-      { property: "og:description", content: "Your AI-powered placement preparation companion for a brighter tomorrow." },
+      {
+        property: "og:description",
+        content: "Your AI-powered placement preparation companion for a brighter tomorrow.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@PlacementAI" },

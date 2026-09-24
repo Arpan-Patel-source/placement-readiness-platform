@@ -89,7 +89,7 @@ function LoginPage() {
         email: email || "student@placementai.edu",
         role: "STUDENT",
       },
-      "Azhar Khan"
+      "Demo Student",
     );
     navigate({ to: "/dashboard" });
   };
@@ -130,7 +130,8 @@ function LoginPage() {
                 </>
               ) : (
                 <>
-                  Render free-tier instances sleep when idle and take 40–60s on cold start. You can continue instantly in Demo Mode or configure your Render backend URL below.
+                  Render free-tier instances sleep when idle and take 40–60s on cold start. You can
+                  continue instantly in Demo Mode or configure your Render backend URL below.
                 </>
               )}
             </p>
@@ -152,7 +153,9 @@ function LoginPage() {
             </div>
             {showServerConfig && (
               <div className="mt-2 pt-2 border-t border-border/40 space-y-2">
-                <Label htmlFor="custom-backend" className="text-xs">Render Backend URL:</Label>
+                <Label htmlFor="custom-backend" className="text-xs">
+                  Render Backend URL:
+                </Label>
                 <div className="flex gap-2">
                   <Input
                     id="custom-backend"
@@ -220,10 +223,13 @@ function LoginPage() {
                   ? "Spring Boot backend is booting up..."
                   : "Connecting to backend server..."}
               </span>
-              <span className="font-mono bg-coral/10 px-2 py-0.5 rounded-full">{loadingSeconds}s</span>
+              <span className="font-mono bg-coral/10 px-2 py-0.5 rounded-full">
+                {loadingSeconds}s
+              </span>
             </div>
             <p className="text-[11px] text-ink/75 leading-relaxed">
-              Render free tier spins down after 15m of inactivity. First cold start takes ~50–70s to boot. Please wait, or click below for instant Demo Mode!
+              Render free tier spins down after 15m of inactivity. First cold start takes ~50–70s to
+              boot. Please wait, or click below for instant Demo Mode!
             </p>
             {loadingSeconds >= 5 && (
               <div className="pt-2 border-t border-coral/20 flex items-center justify-between">
@@ -262,12 +268,12 @@ function LoginPage() {
             className="text-xs text-ink/60 hover:text-coral transition inline-flex items-center gap-1"
           >
             <span>Testing the platform?</span>
-            <span className="font-semibold text-coral underline">Instant Demo Access (No wait) →</span>
+            <span className="font-semibold text-coral underline">
+              Instant Demo Access (No wait) →
+            </span>
           </button>
         </div>
       </form>
     </AuthLayout>
   );
 }
-
-

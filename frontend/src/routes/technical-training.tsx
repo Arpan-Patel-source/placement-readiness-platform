@@ -97,133 +97,215 @@ function TechnicalTrainingModule() {
   const [loadingHistory, setLoadingHistory] = useState(false);
 
   // Load category summaries & formulas on mount
-const FALLBACK_TECH_CATEGORIES: TechCategorySummary[] = [
-  { category: "OOP", displayName: "Object-Oriented Programming", totalQuestions: 15, topics: [{ topic: "Encapsulation", questionCount: 5 }, { topic: "Inheritance & Polymorphism", questionCount: 5 }, { topic: "Interfaces & Abstraction", questionCount: 5 }] },
-  { category: "DBMS", displayName: "Database Management Systems", totalQuestions: 15, topics: [{ topic: "Normalization", questionCount: 5 }, { topic: "ACID & Transactions", questionCount: 5 }, { topic: "Indexing & Joins", questionCount: 5 }] },
-  { category: "OPERATING_SYSTEMS", displayName: "Operating Systems", totalQuestions: 12, topics: [{ topic: "Deadlocks", questionCount: 4 }, { topic: "Process Management", questionCount: 4 }, { topic: "Virtual Memory", questionCount: 4 }] },
-  { category: "COMPUTER_NETWORKS", displayName: "Computer Networks", totalQuestions: 12, topics: [{ topic: "OSI & TCP/IP", questionCount: 4 }, { topic: "Routing & Protocols", questionCount: 4 }, { topic: "DNS & HTTP", questionCount: 4 }] },
-  { category: "DSA", displayName: "Data Structures & Algorithms", totalQuestions: 15, topics: [{ topic: "Trees & BST", questionCount: 5 }, { topic: "Graph Algorithms", questionCount: 5 }, { topic: "Complexity Analysis", questionCount: 5 }] },
-  { category: "WEB_TECHNOLOGIES", displayName: "Web Technologies", totalQuestions: 12, topics: [{ topic: "REST APIs", questionCount: 4 }, { topic: "Browser Storage & Cookies", questionCount: 4 }, { topic: "Authentication & Security", questionCount: 4 }] },
-];
-
-const FALLBACK_TECH_QUESTIONS: Record<string, TechQuestion[]> = {
-  OOP: [
+  const FALLBACK_TECH_CATEGORIES: TechCategorySummary[] = [
     {
-      id: "OOP-001",
       category: "OOP",
-      topic: "Encapsulation",
-      difficulty: "EASY",
-      question: "Which OOP concept is defined as the bundling of data and the methods that operate on that data into a single unit, while restricting direct access to some components?",
-      options: ["Polymorphism", "Encapsulation", "Inheritance", "Abstraction"],
-      correctOptionIndex: 1,
-      explanation: "Encapsulation prevents unauthorized access to internal representation by hiding object state behind getter and setter methods.",
-      companiesAsked: ["TCS", "Infosys", "Wipro"],
-    },
-    {
-      id: "OOP-002",
-      category: "OOP",
-      topic: "Interfaces & Abstraction",
-      difficulty: "MEDIUM",
-      question: "What is the primary architectural difference between an interface and an abstract class in modern Java (Java 8+)?",
-      options: [
-        "Interfaces cannot contain method bodies",
-        "Abstract classes can declare instance state (fields), while interfaces can only have static final constants",
-        "A class can inherit multiple abstract classes",
-        "Interfaces cannot be used as reference types"
+      displayName: "Object-Oriented Programming",
+      totalQuestions: 15,
+      topics: [
+        { topic: "Encapsulation", questionCount: 5 },
+        { topic: "Inheritance & Polymorphism", questionCount: 5 },
+        { topic: "Interfaces & Abstraction", questionCount: 5 },
       ],
-      correctOptionIndex: 1,
-      explanation: "Even though Java 8 introduced default and static methods in interfaces, interfaces still cannot maintain instance state, whereas abstract classes can.",
-      companiesAsked: ["Amazon", "Microsoft", "Goldman Sachs"],
     },
-  ],
-  DBMS: [
     {
-      id: "DBMS-001",
       category: "DBMS",
-      topic: "Normalization",
-      difficulty: "EASY",
-      question: "Which Normal Form strictly requires that all non-key attributes are fully functionally dependent on the entire primary key (eliminating partial dependencies)?",
-      options: ["First Normal Form (1NF)", "Second Normal Form (2NF)", "Third Normal Form (3NF)", "Boyce-Codd Normal Form (BCNF)"],
-      correctOptionIndex: 1,
-      explanation: "2NF requires 1NF compliance and mandates that every non-prime attribute depends on the whole primary key, not a proper subset of it.",
-      companiesAsked: ["Cognizant", "Accenture", "TCS"],
+      displayName: "Database Management Systems",
+      totalQuestions: 15,
+      topics: [
+        { topic: "Normalization", questionCount: 5 },
+        { topic: "ACID & Transactions", questionCount: 5 },
+        { topic: "Indexing & Joins", questionCount: 5 },
+      ],
     },
     {
-      id: "DBMS-002",
-      category: "DBMS",
-      topic: "ACID & Transactions",
-      difficulty: "MEDIUM",
-      question: "Which ACID property guarantees that a committed transaction will remain saved and persistent even in the event of an abrupt system power loss or database crash?",
-      options: ["Atomicity", "Consistency", "Isolation", "Durability"],
-      correctOptionIndex: 3,
-      explanation: "Durability guarantees that once a transaction has committed, its changes are written to non-volatile storage (via Write-Ahead Logging) and will not be lost.",
-      companiesAsked: ["Amazon", "Oracle", "Flipkart"],
-    },
-  ],
-  OPERATING_SYSTEMS: [
-    {
-      id: "OS-001",
       category: "OPERATING_SYSTEMS",
-      topic: "Deadlocks",
-      difficulty: "EASY",
-      question: "Which of the following is NOT one of Coffman's four necessary conditions for a deadlock to occur?",
-      options: ["Mutual Exclusion", "Hold and Wait", "Preemption of Resources", "Circular Wait"],
-      correctOptionIndex: 2,
-      explanation: "The condition is NO PREEMPTION (resources cannot be forcibly reclaimed). If preemption is allowed, deadlocks cannot persist.",
-      companiesAsked: ["TCS Digital", "Infosys", "Cisco"],
+      displayName: "Operating Systems",
+      totalQuestions: 12,
+      topics: [
+        { topic: "Deadlocks", questionCount: 4 },
+        { topic: "Process Management", questionCount: 4 },
+        { topic: "Virtual Memory", questionCount: 4 },
+      ],
     },
     {
-      id: "OS-002",
-      category: "OPERATING_SYSTEMS",
-      topic: "Virtual Memory",
-      difficulty: "MEDIUM",
-      question: "What hardware component is responsible for translating virtual memory addresses to physical RAM addresses at runtime?",
-      options: ["Arithmetic Logic Unit (ALU)", "Memory Management Unit (MMU)", "DMA Controller", "Cache Controller"],
-      correctOptionIndex: 1,
-      explanation: "The MMU hardware, working alongside the TLB (Translation Lookaside Buffer), translates virtual page addresses to physical page frames.",
-      companiesAsked: ["Intel", "Qualcomm", "Microsoft"],
-    },
-  ],
-  COMPUTER_NETWORKS: [
-    {
-      id: "CN-001",
       category: "COMPUTER_NETWORKS",
-      topic: "OSI & TCP/IP",
-      difficulty: "EASY",
-      question: "At which layer of the OSI model does the TCP (Transmission Control Protocol) operate?",
-      options: ["Network Layer", "Transport Layer", "Session Layer", "Data Link Layer"],
-      correctOptionIndex: 1,
-      explanation: "TCP and UDP are Transport Layer (Layer 4) protocols providing end-to-end communication and port multiplexing.",
-      companiesAsked: ["Wipro", "TCS", "Accenture"],
+      displayName: "Computer Networks",
+      totalQuestions: 12,
+      topics: [
+        { topic: "OSI & TCP/IP", questionCount: 4 },
+        { topic: "Routing & Protocols", questionCount: 4 },
+        { topic: "DNS & HTTP", questionCount: 4 },
+      ],
     },
-  ],
-  DSA: [
     {
-      id: "DSA-001",
       category: "DSA",
-      topic: "Trees & BST",
-      difficulty: "EASY",
-      question: "What is the worst-case time complexity of searching for an element in a balanced Binary Search Tree containing n nodes?",
-      options: ["O(1)", "O(log n)", "O(n)", "O(n log n)"],
-      correctOptionIndex: 1,
-      explanation: "In balanced trees like Red-Black or AVL trees, the height is guaranteed to be O(log n), so search is O(log n).",
-      companiesAsked: ["Amazon", "Google", "Microsoft"],
+      displayName: "Data Structures & Algorithms",
+      totalQuestions: 15,
+      topics: [
+        { topic: "Trees & BST", questionCount: 5 },
+        { topic: "Graph Algorithms", questionCount: 5 },
+        { topic: "Complexity Analysis", questionCount: 5 },
+      ],
     },
-  ],
-  WEB_TECHNOLOGIES: [
     {
-      id: "WEB-001",
       category: "WEB_TECHNOLOGIES",
-      topic: "REST APIs",
-      difficulty: "EASY",
-      question: "Which HTTP request method is considered idempotent and used for replacing an entire resource at a specified URI?",
-      options: ["POST", "PUT", "PATCH", "CONNECT"],
-      correctOptionIndex: 1,
-      explanation: "PUT is idempotent: making multiple identical PUT requests produces the exact same server state as a single request.",
-      companiesAsked: ["Adobe", "Salesforce", "Infosys"],
+      displayName: "Web Technologies",
+      totalQuestions: 12,
+      topics: [
+        { topic: "REST APIs", questionCount: 4 },
+        { topic: "Browser Storage & Cookies", questionCount: 4 },
+        { topic: "Authentication & Security", questionCount: 4 },
+      ],
     },
-  ],
-};
+  ];
+
+  const FALLBACK_TECH_QUESTIONS: Record<string, TechQuestion[]> = {
+    OOP: [
+      {
+        id: "OOP-001",
+        category: "OOP",
+        topic: "Encapsulation",
+        difficulty: "EASY",
+        question:
+          "Which OOP concept is defined as the bundling of data and the methods that operate on that data into a single unit, while restricting direct access to some components?",
+        options: ["Polymorphism", "Encapsulation", "Inheritance", "Abstraction"],
+        correctOptionIndex: 1,
+        explanation:
+          "Encapsulation prevents unauthorized access to internal representation by hiding object state behind getter and setter methods.",
+        companiesAsked: ["TCS", "Infosys", "Wipro"],
+      },
+      {
+        id: "OOP-002",
+        category: "OOP",
+        topic: "Interfaces & Abstraction",
+        difficulty: "MEDIUM",
+        question:
+          "What is the primary architectural difference between an interface and an abstract class in modern Java (Java 8+)?",
+        options: [
+          "Interfaces cannot contain method bodies",
+          "Abstract classes can declare instance state (fields), while interfaces can only have static final constants",
+          "A class can inherit multiple abstract classes",
+          "Interfaces cannot be used as reference types",
+        ],
+        correctOptionIndex: 1,
+        explanation:
+          "Even though Java 8 introduced default and static methods in interfaces, interfaces still cannot maintain instance state, whereas abstract classes can.",
+        companiesAsked: ["Amazon", "Microsoft", "Goldman Sachs"],
+      },
+    ],
+    DBMS: [
+      {
+        id: "DBMS-001",
+        category: "DBMS",
+        topic: "Normalization",
+        difficulty: "EASY",
+        question:
+          "Which Normal Form strictly requires that all non-key attributes are fully functionally dependent on the entire primary key (eliminating partial dependencies)?",
+        options: [
+          "First Normal Form (1NF)",
+          "Second Normal Form (2NF)",
+          "Third Normal Form (3NF)",
+          "Boyce-Codd Normal Form (BCNF)",
+        ],
+        correctOptionIndex: 1,
+        explanation:
+          "2NF requires 1NF compliance and mandates that every non-prime attribute depends on the whole primary key, not a proper subset of it.",
+        companiesAsked: ["Cognizant", "Accenture", "TCS"],
+      },
+      {
+        id: "DBMS-002",
+        category: "DBMS",
+        topic: "ACID & Transactions",
+        difficulty: "MEDIUM",
+        question:
+          "Which ACID property guarantees that a committed transaction will remain saved and persistent even in the event of an abrupt system power loss or database crash?",
+        options: ["Atomicity", "Consistency", "Isolation", "Durability"],
+        correctOptionIndex: 3,
+        explanation:
+          "Durability guarantees that once a transaction has committed, its changes are written to non-volatile storage (via Write-Ahead Logging) and will not be lost.",
+        companiesAsked: ["Amazon", "Oracle", "Flipkart"],
+      },
+    ],
+    OPERATING_SYSTEMS: [
+      {
+        id: "OS-001",
+        category: "OPERATING_SYSTEMS",
+        topic: "Deadlocks",
+        difficulty: "EASY",
+        question:
+          "Which of the following is NOT one of Coffman's four necessary conditions for a deadlock to occur?",
+        options: ["Mutual Exclusion", "Hold and Wait", "Preemption of Resources", "Circular Wait"],
+        correctOptionIndex: 2,
+        explanation:
+          "The condition is NO PREEMPTION (resources cannot be forcibly reclaimed). If preemption is allowed, deadlocks cannot persist.",
+        companiesAsked: ["TCS Digital", "Infosys", "Cisco"],
+      },
+      {
+        id: "OS-002",
+        category: "OPERATING_SYSTEMS",
+        topic: "Virtual Memory",
+        difficulty: "MEDIUM",
+        question:
+          "What hardware component is responsible for translating virtual memory addresses to physical RAM addresses at runtime?",
+        options: [
+          "Arithmetic Logic Unit (ALU)",
+          "Memory Management Unit (MMU)",
+          "DMA Controller",
+          "Cache Controller",
+        ],
+        correctOptionIndex: 1,
+        explanation:
+          "The MMU hardware, working alongside the TLB (Translation Lookaside Buffer), translates virtual page addresses to physical page frames.",
+        companiesAsked: ["Intel", "Qualcomm", "Microsoft"],
+      },
+    ],
+    COMPUTER_NETWORKS: [
+      {
+        id: "CN-001",
+        category: "COMPUTER_NETWORKS",
+        topic: "OSI & TCP/IP",
+        difficulty: "EASY",
+        question:
+          "At which layer of the OSI model does the TCP (Transmission Control Protocol) operate?",
+        options: ["Network Layer", "Transport Layer", "Session Layer", "Data Link Layer"],
+        correctOptionIndex: 1,
+        explanation:
+          "TCP and UDP are Transport Layer (Layer 4) protocols providing end-to-end communication and port multiplexing.",
+        companiesAsked: ["Wipro", "TCS", "Accenture"],
+      },
+    ],
+    DSA: [
+      {
+        id: "DSA-001",
+        category: "DSA",
+        topic: "Trees & BST",
+        difficulty: "EASY",
+        question:
+          "What is the worst-case time complexity of searching for an element in a balanced Binary Search Tree containing n nodes?",
+        options: ["O(1)", "O(log n)", "O(n)", "O(n log n)"],
+        correctOptionIndex: 1,
+        explanation:
+          "In balanced trees like Red-Black or AVL trees, the height is guaranteed to be O(log n), so search is O(log n).",
+        companiesAsked: ["Amazon", "Google", "Microsoft"],
+      },
+    ],
+    WEB_TECHNOLOGIES: [
+      {
+        id: "WEB-001",
+        category: "WEB_TECHNOLOGIES",
+        topic: "REST APIs",
+        difficulty: "EASY",
+        question:
+          "Which HTTP request method is considered idempotent and used for replacing an entire resource at a specified URI?",
+        options: ["POST", "PUT", "PATCH", "CONNECT"],
+        correctOptionIndex: 1,
+        explanation:
+          "PUT is idempotent: making multiple identical PUT requests produces the exact same server state as a single request.",
+        companiesAsked: ["Adobe", "Salesforce", "Infosys"],
+      },
+    ],
+  };
 
   useEffect(() => {
     async function loadInitial() {
@@ -544,11 +626,12 @@ const FALLBACK_TECH_QUESTIONS: Record<string, TechQuestion[]> = {
                     <span className="rounded-full bg-sky/30 px-3 py-1 text-xs font-semibold text-ink/80">
                       {currentQuestion.topic}
                     </span>
-                    {currentQuestion.companiesAsked && currentQuestion.companiesAsked.length > 0 && (
-                      <span className="text-xs text-muted-foreground">
-                        Asked by: {currentQuestion.companiesAsked.join(", ")}
-                      </span>
-                    )}
+                    {currentQuestion.companiesAsked &&
+                      currentQuestion.companiesAsked.length > 0 && (
+                        <span className="text-xs text-muted-foreground">
+                          Asked by: {currentQuestion.companiesAsked.join(", ")}
+                        </span>
+                      )}
                   </div>
 
                   {/* Question */}
@@ -890,9 +973,7 @@ const FALLBACK_TECH_QUESTIONS: Record<string, TechQuestion[]> = {
                           style={{ width: `${tb.accuracy}%` }}
                         />
                       </div>
-                      <span className="mt-1 text-xs font-semibold text-ink/60">
-                        {tb.accuracy}%
-                      </span>
+                      <span className="mt-1 text-xs font-semibold text-ink/60">{tb.accuracy}%</span>
                     </div>
                   ))}
                 </div>

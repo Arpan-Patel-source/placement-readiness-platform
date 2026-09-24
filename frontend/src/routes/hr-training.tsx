@@ -15,13 +15,7 @@ import {
   Award,
   Lightbulb,
 } from "lucide-react";
-import {
-  api,
-  HrCategoryType,
-  HrPrompt,
-  HrEvaluationResponse,
-  HrHistoryItem,
-} from "../lib/api";
+import { api, HrCategoryType, HrPrompt, HrEvaluationResponse, HrHistoryItem } from "../lib/api";
 import { SiteHeader } from "../components/SiteHeader";
 
 export const Route = createFileRoute("/hr-training")({
@@ -43,134 +37,152 @@ const FALLBACK_HR_PROMPTS: Record<HrCategoryType, HrPrompt[]> = {
       id: "HR_INTRO_01",
       category: "SELF_INTRODUCTION",
       question: "Tell me about yourself and walk me through your engineering journey.",
-      recruiterIntent: "Testing communication clarity, storytelling ability, relevance to the position, and enthusiasm for technology.",
+      recruiterIntent:
+        "Testing communication clarity, storytelling ability, relevance to the position, and enthusiasm for technology.",
       keyPointsToInclude: [
         "Present education & core technical stack.",
         "Key achievement or high-impact project you engineered.",
-        "Why this specific company & role aligns with your career trajectory."
+        "Why this specific company & role aligns with your career trajectory.",
       ],
       commonPitfalls: [
         "Reading your resume chronologically line-by-line.",
         "Focusing on unrelated hobbies or childhood stories.",
-        "Talking continuously for more than 2 minutes without pausing."
+        "Talking continuously for more than 2 minutes without pausing.",
       ],
-      sampleModelAnswer: "I am an aspiring Software Engineer graduating in Computer Science with deep focus on Java backend ecosystems, distributed systems, and Spring Boot. Over the past two years, I built and deployed scalable services, including a full-featured microservices-based order processing engine that handles over 1,500 concurrent requests with Redis caching. What excites me most about joining your engineering team is your dedication to high-throughput platforms and architectural excellence.",
-      companyTags: ["Amazon", "Google", "TCS", "Infosys", "Microsoft"]
+      sampleModelAnswer:
+        "I am an aspiring Software Engineer graduating in Computer Science with deep focus on Java backend ecosystems, distributed systems, and Spring Boot. Over the past two years, I built and deployed scalable services, including a full-featured microservices-based order processing engine that handles over 1,500 concurrent requests with Redis caching. What excites me most about joining your engineering team is your dedication to high-throughput platforms and architectural excellence.",
+      companyTags: ["Amazon", "Google", "TCS", "Infosys", "Microsoft"],
     },
     {
       id: "HR_INTRO_02",
       category: "SELF_INTRODUCTION",
       question: "Why should our organization hire you over other qualified candidates?",
-      recruiterIntent: "Evaluating self-awareness, unique value proposition, and understanding of the company tech stack.",
+      recruiterIntent:
+        "Evaluating self-awareness, unique value proposition, and understanding of the company tech stack.",
       keyPointsToInclude: [
         "Direct match between technical competencies and team requirements.",
         "Proven problem-solving agility and rapid learning curve.",
-        "Ownership mindset and proactive collaboration."
+        "Ownership mindset and proactive collaboration.",
       ],
       commonPitfalls: [
         "Claiming to be 'the hardest worker' without concrete examples.",
-        "Putting down other candidates or sounding overly arrogant."
+        "Putting down other candidates or sounding overly arrogant.",
       ],
-      sampleModelAnswer: "You should consider me because I bridge the gap between solid foundational theory and hands-on system building. In my capstone project, when our database hit write bottlenecks, I profiled slow queries, introduced indexing, and re-architected the connection pool, reducing response latency by 42%. I bring that proactive ownership to your backend engineering team from day one.",
-      companyTags: ["Accenture", "Goldman Sachs", "Wipro", "Deloitte"]
-    }
+      sampleModelAnswer:
+        "You should consider me because I bridge the gap between solid foundational theory and hands-on system building. In my capstone project, when our database hit write bottlenecks, I profiled slow queries, introduced indexing, and re-architected the connection pool, reducing response latency by 42%. I bring that proactive ownership to your backend engineering team from day one.",
+      companyTags: ["Accenture", "Goldman Sachs", "Wipro", "Deloitte"],
+    },
   ],
   LEADERSHIP: [
     {
       id: "HR_LEAD_01",
       category: "LEADERSHIP",
-      question: "Describe a situation where you took the initiative to lead a project or resolve an unforeseen roadblock.",
-      recruiterIntent: "Assessing ownership, proactivity, crisis handling, and ability to influence without formal authority.",
+      question:
+        "Describe a situation where you took the initiative to lead a project or resolve an unforeseen roadblock.",
+      recruiterIntent:
+        "Assessing ownership, proactivity, crisis handling, and ability to influence without formal authority.",
       keyPointsToInclude: [
         "Situation: The unexpected technical or organizational roadblock.",
         "Task: The objective and your self-assigned responsibility.",
         "Action: The specific analytical steps, trade-offs, and decisions you executed.",
-        "Result: The tangible impact, metric improvement, and team outcome."
+        "Result: The tangible impact, metric improvement, and team outcome.",
       ],
       commonPitfalls: [
         "Using 'we did this' without clarifying your personal contribution.",
-        "Describing a trivial scenario with no genuine stakes."
+        "Describing a trivial scenario with no genuine stakes.",
       ],
-      sampleModelAnswer: "During our final year hackathon, 18 hours before final judging, our primary payment gateway API suffered an outage. Seeing the team panic, I stepped up as project coordinator. I organized a 10-minute huddle, divided tasks between frontend mocking and backend refactoring, and personally engineered a resilient fallback mock gateway. We secured 2nd place out of 60 teams.",
-      companyTags: ["Amazon", "Flipkart", "Oracle", "Uber"]
-    }
+      sampleModelAnswer:
+        "During our final year hackathon, 18 hours before final judging, our primary payment gateway API suffered an outage. Seeing the team panic, I stepped up as project coordinator. I organized a 10-minute huddle, divided tasks between frontend mocking and backend refactoring, and personally engineered a resilient fallback mock gateway. We secured 2nd place out of 60 teams.",
+      companyTags: ["Amazon", "Flipkart", "Oracle", "Uber"],
+    },
   ],
   CONFLICT_RESOLUTION: [
     {
       id: "HR_CONF_01",
       category: "CONFLICT_RESOLUTION",
-      question: "Tell me about a time you had a technical disagreement with a team member. How did you resolve it?",
-      recruiterIntent: "Testing intellectual humility, objectivity, reliance on data/metrics, and maintaining strong professional relationships.",
+      question:
+        "Tell me about a time you had a technical disagreement with a team member. How did you resolve it?",
+      recruiterIntent:
+        "Testing intellectual humility, objectivity, reliance on data/metrics, and maintaining strong professional relationships.",
       keyPointsToInclude: [
         "The technical disagreement (e.g. SQL vs NoSQL, architectural style).",
         "How you depersonalized the disagreement and moved to empirical evidence/benchmarking.",
-        "The collaborative resolution and how mutual respect was preserved."
+        "The collaborative resolution and how mutual respect was preserved.",
       ],
       commonPitfalls: [
         "Portraying yourself as 100% right and the other person as foolish.",
-        "Resolving conflict by simply 'agreeing to disagree' with no resolution."
+        "Resolving conflict by simply 'agreeing to disagree' with no resolution.",
       ],
-      sampleModelAnswer: "In our microservices project, a fellow engineer advocated for MongoDB for rapid prototyping, while I favored PostgreSQL due to ACID transaction requirements in checkout. I suggested building a rapid POC to benchmark write consistency under concurrent load. The benchmarks showed relational constraints prevented data corruption, so we aligned on PostgreSQL with full team buy-in.",
-      companyTags: ["Google", "Atlassian", "Amazon", "Salesforce"]
-    }
+      sampleModelAnswer:
+        "In our microservices project, a fellow engineer advocated for MongoDB for rapid prototyping, while I favored PostgreSQL due to ACID transaction requirements in checkout. I suggested building a rapid POC to benchmark write consistency under concurrent load. The benchmarks showed relational constraints prevented data corruption, so we aligned on PostgreSQL with full team buy-in.",
+      companyTags: ["Google", "Atlassian", "Amazon", "Salesforce"],
+    },
   ],
   TEAMWORK: [
     {
       id: "HR_TEAM_01",
       category: "TEAMWORK",
-      question: "Describe a time when you worked on a diverse team to deliver a project under tight deadlines.",
-      recruiterIntent: "Assessing active listening, adaptability, cross-functional communication, and team-first orientation.",
+      question:
+        "Describe a time when you worked on a diverse team to deliver a project under tight deadlines.",
+      recruiterIntent:
+        "Assessing active listening, adaptability, cross-functional communication, and team-first orientation.",
       keyPointsToInclude: [
         "Context of the diverse team (e.g. designers, frontend, backend).",
         "How you established communication rhythms (daily standups, clear contracts).",
-        "Delivery outcome and appreciation of peers' contributions."
+        "Delivery outcome and appreciation of peers' contributions.",
       ],
       commonPitfalls: [
         "Minimizing others' contributions and claiming solo glory.",
-        "Lack of specific details on communication tools or methodologies."
+        "Lack of specific details on communication tools or methodologies.",
       ],
-      sampleModelAnswer: "In an inter-departmental capstone with UI designers and IoT engineers, the biggest challenge was aligning API request formats. I created an OpenAPI contract upfront so the frontend team could develop concurrently with mocked endpoints while I finalized backend logic. This clear contract cut debugging time in half and we launched 3 days early.",
-      companyTags: ["Infosys", "Cisco", "Deloitte", "Capgemini"]
-    }
+      sampleModelAnswer:
+        "In an inter-departmental capstone with UI designers and IoT engineers, the biggest challenge was aligning API request formats. I created an OpenAPI contract upfront so the frontend team could develop concurrently with mocked endpoints while I finalized backend logic. This clear contract cut debugging time in half and we launched 3 days early.",
+      companyTags: ["Infosys", "Cisco", "Deloitte", "Capgemini"],
+    },
   ],
   FAILURE_RESILIENCE: [
     {
       id: "HR_FAIL_01",
       category: "FAILURE_RESILIENCE",
-      question: "Can you describe a significant mistake you made or a project that failed? What did you learn?",
-      recruiterIntent: "Evaluating self-honesty, resilience, psychological safety, and growth mindset.",
+      question:
+        "Can you describe a significant mistake you made or a project that failed? What did you learn?",
+      recruiterIntent:
+        "Evaluating self-honesty, resilience, psychological safety, and growth mindset.",
       keyPointsToInclude: [
         "Honest admission of an actual mistake without deflecting blame.",
         "Immediate remediation steps taken to minimize damage.",
-        "Systemic preventative measures established so the error never recurs."
+        "Systemic preventative measures established so the error never recurs.",
       ],
       commonPitfalls: [
         "Claiming 'I have never really failed' (red flag).",
-        "Blaming circumstances or team members."
+        "Blaming circumstances or team members.",
       ],
-      sampleModelAnswer: "Early in my internship, I accidentally pushed database migration scripts with unindexed foreign keys directly into staging, which spiked query latency to over 2.4 seconds. I immediately owned up in our engineering channel, rolled back the migration, and instituted an automated CI check that rejects migration scripts lacking explicit indexing.",
-      companyTags: ["Amazon", "Meta", "Adobe", "Goldman Sachs"]
-    }
+      sampleModelAnswer:
+        "Early in my internship, I accidentally pushed database migration scripts with unindexed foreign keys directly into staging, which spiked query latency to over 2.4 seconds. I immediately owned up in our engineering channel, rolled back the migration, and instituted an automated CI check that rejects migration scripts lacking explicit indexing.",
+      companyTags: ["Amazon", "Meta", "Adobe", "Goldman Sachs"],
+    },
   ],
   CAREER_VISION: [
     {
       id: "HR_VISN_01",
       category: "CAREER_VISION",
       question: "Where do you envision yourself professionally over the next 3 to 5 years?",
-      recruiterIntent: "Checking retention probability, career ambition, realistic expectations, and alignment with engineering growth ladders.",
+      recruiterIntent:
+        "Checking retention probability, career ambition, realistic expectations, and alignment with engineering growth ladders.",
       keyPointsToInclude: [
         "Mastering foundational engineering practices in the first 1-2 years.",
         "Taking on architectural responsibility and mentoring junior developers in years 3-5.",
-        "Deep domain mastery aligned with high-performance software systems."
+        "Deep domain mastery aligned with high-performance software systems.",
       ],
       commonPitfalls: [
         "Saying 'I want to be CEO' or 'I want an MBA in 1 year' (attrition signals).",
-        "Vague cliches like 'I just want to be happy'."
+        "Vague cliches like 'I just want to be happy'.",
       ],
-      sampleModelAnswer: "In the next 2 years, my primary goal is to become an indispensable backend engineer on your core product, achieving deep mastery of distributed microservices. By years 3 to 5, I aspire to take technical ownership of end-to-end service architectures and mentor upcoming graduate recruits, driving measurable reliability and business velocity.",
-      companyTags: ["Microsoft", "Google", "TCS", "Accenture", "Infosys"]
-    }
-  ]
+      sampleModelAnswer:
+        "In the next 2 years, my primary goal is to become an indispensable backend engineer on your core product, achieving deep mastery of distributed microservices. By years 3 to 5, I aspire to take technical ownership of end-to-end service architectures and mentor upcoming graduate recruits, driving measurable reliability and business velocity.",
+      companyTags: ["Microsoft", "Google", "TCS", "Accenture", "Infosys"],
+    },
+  ],
 };
 
 function HrTrainingModule() {
@@ -269,7 +281,9 @@ function HrTrainingModule() {
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
             <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-coral">
-              <Link to="/dashboard" className="hover:underline">Dashboard</Link>
+              <Link to="/dashboard" className="hover:underline">
+                Dashboard
+              </Link>
               <span>/</span>
               <span>HR Training</span>
             </div>
@@ -277,7 +291,8 @@ function HrTrainingModule() {
               HR Interview Practice
             </h1>
             <p className="mt-1 text-sm text-ink/70">
-              Practice common HR and behavioral questions, get immediate feedback on your answers, and learn how to present your experiences effectively.
+              Practice common HR and behavioral questions, get immediate feedback on your answers,
+              and learn how to present your experiences effectively.
             </p>
           </div>
 
@@ -313,9 +328,12 @@ function HrTrainingModule() {
             {history.length === 0 ? (
               <div className="rounded-3xl border border-dashed border-border bg-card/40 p-12 text-center">
                 <MessageSquare className="mx-auto size-8 text-coral/70" />
-                <h3 className="mt-2 font-display text-lg font-bold text-ink">No saved answers yet</h3>
+                <h3 className="mt-2 font-display text-lg font-bold text-ink">
+                  No saved answers yet
+                </h3>
                 <p className="mt-1 text-xs text-ink/60">
-                  Select a question, write your answer, and click "Evaluate Answer" to see your score.
+                  Select a question, write your answer, and click "Evaluate Answer" to see your
+                  score.
                 </p>
               </div>
             ) : (
@@ -420,7 +438,10 @@ function HrTrainingModule() {
                         <div className="flex items-center gap-1 text-[0.65rem] text-ink/60">
                           <span className="font-semibold text-ink">Asked by:</span>
                           {selectedPrompt.companyTags.map((co) => (
-                            <span key={co} className="rounded bg-muted px-1.5 py-0.5 font-bold text-ink">
+                            <span
+                              key={co}
+                              className="rounded bg-muted px-1.5 py-0.5 font-bold text-ink"
+                            >
                               {co}
                             </span>
                           ))}
@@ -478,9 +499,7 @@ function HrTrainingModule() {
                     {/* Answer Workspace */}
                     <div className="mt-6">
                       <div className="flex items-center justify-between mb-2">
-                        <label className="text-xs font-bold text-ink">
-                          Your Answer
-                        </label>
+                        <label className="text-xs font-bold text-ink">Your Answer</label>
                         <div className="flex items-center gap-3">
                           <button
                             onClick={handleFillSample}
@@ -493,8 +512,8 @@ function HrTrainingModule() {
                               words >= 60 && words <= 250
                                 ? "text-emerald-700"
                                 : words < 60
-                                ? "text-amber-700"
-                                : "text-ink/60"
+                                  ? "text-amber-700"
+                                  : "text-ink/60"
                             }`}
                           >
                             {words} words (recommended: 80–200)
@@ -694,7 +713,8 @@ function HrTrainingModule() {
 
                         <div className="border-t border-border/60 pt-3">
                           <p className="text-xs font-bold text-coral flex items-center gap-1.5">
-                            <TrendingUp className="size-3.5 text-coral" /> Recommendations to Improve
+                            <TrendingUp className="size-3.5 text-coral" /> Recommendations to
+                            Improve
                           </p>
                           <ul className="mt-2 space-y-1.5 text-xs text-ink/80">
                             {evaluationResult.areasForImprovement.map((imp, idx) => (
@@ -711,7 +731,9 @@ function HrTrainingModule() {
                       <div className="rounded-3xl border border-peach bg-peach/30 p-6">
                         <div className="flex items-center gap-2 text-ink">
                           <Award className="size-4 text-coral" />
-                          <h4 className="font-display text-sm font-bold">Recommended Sample Answer</h4>
+                          <h4 className="font-display text-sm font-bold">
+                            Recommended Sample Answer
+                          </h4>
                         </div>
                         <p className="mt-1 text-xs text-ink/65">
                           How an effective response is phrased for this question:
@@ -739,7 +761,8 @@ function HrTrainingModule() {
                           <div className="rounded-2xl bg-muted/40 p-3 border border-border/50">
                             <p className="text-xs font-bold text-ink">1. Context & Setting</p>
                             <p className="mt-1 text-[0.7rem] text-ink/70">
-                              Describe the background: the project, team setting, and the specific hurdle or situation.
+                              Describe the background: the project, team setting, and the specific
+                              hurdle or situation.
                             </p>
                           </div>
 
@@ -753,14 +776,16 @@ function HrTrainingModule() {
                           <div className="rounded-2xl bg-muted/40 p-3 border border-border/50">
                             <p className="text-xs font-bold text-ink">3. Actions Taken</p>
                             <p className="mt-1 text-[0.7rem] text-ink/70">
-                              Detail the exact steps, technical choices, or collaborative actions you executed.
+                              Detail the exact steps, technical choices, or collaborative actions
+                              you executed.
                             </p>
                           </div>
 
                           <div className="rounded-2xl bg-muted/40 p-3 border border-border/50">
                             <p className="text-xs font-bold text-ink">4. Results & Impact</p>
                             <p className="mt-1 text-[0.7rem] text-ink/70">
-                              Conclude with the measurable outcome, time or efficiency saved, and lessons learned.
+                              Conclude with the measurable outcome, time or efficiency saved, and
+                              lessons learned.
                             </p>
                           </div>
                         </div>
@@ -772,7 +797,8 @@ function HrTrainingModule() {
                           Interview Tip
                         </h4>
                         <p className="mt-2 text-xs leading-relaxed text-ink/80">
-                          Keep your focus on your personal initiative and problem solving. Mention concrete numbers or percentages when possible to show measurable results.
+                          Keep your focus on your personal initiative and problem solving. Mention
+                          concrete numbers or percentages when possible to show measurable results.
                         </p>
                       </div>
                     </div>

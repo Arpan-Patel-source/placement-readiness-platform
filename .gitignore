@@ -15,3 +15,9 @@ Thumbs.db
 **/target/
 **/data/
 *.mv.db
+
+# Environment & Secrets
+.env
+.env.local
+.env.production
+.env.*.local

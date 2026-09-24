@@ -44,7 +44,8 @@ export const Route = createFileRoute("/dashboard")({
       { property: "og:title", content: "Student Dashboard — PlacementAI" },
       {
         property: "og:description",
-        content: "All your placement preparation modules, readiness score and personalised roadmap in one place.",
+        content:
+          "All your placement preparation modules, readiness score and personalised roadmap in one place.",
       },
     ],
   }),
@@ -138,7 +139,10 @@ function Bar({ value, className = "" }: { value: number; className?: string }) {
   const safeVal = Math.min(100, Math.max(0, value));
   return (
     <div className={`h-2 w-full overflow-hidden rounded-full bg-muted ${className}`}>
-      <div className="h-full rounded-full bg-coral transition-all duration-500" style={{ width: `${safeVal}%` }} />
+      <div
+        className="h-full rounded-full bg-coral transition-all duration-500"
+        style={{ width: `${safeVal}%` }}
+      />
     </div>
   );
 }
@@ -242,7 +246,8 @@ function Dashboard() {
   const [latestResume, setLatestResume] = useState<ResumeAnalysisResult | null>(null);
   const [readinessData, setReadinessData] = useState<ReadinessScoreResponse | null>(null);
   const [roadmapData, setRoadmapData] = useState<RoadmapResponse>(DEFAULT_ROADMAP);
-  const [companyPredictions, setCompanyPredictions] = useState<CompanyPredictionDto[]>(DEFAULT_PREDICTIONS);
+  const [companyPredictions, setCompanyPredictions] =
+    useState<CompanyPredictionDto[]>(DEFAULT_PREDICTIONS);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -283,21 +288,24 @@ function Dashboard() {
   const overallScore = readinessData?.overallScore
     ? Math.round(readinessData.overallScore)
     : latestResume
-    ? latestResume.readinessScore
-    : 0;
+      ? latestResume.readinessScore
+      : 0;
 
   const atsScore = latestResume
     ? latestResume.atsScore
     : readinessData?.resumeScore
-    ? Math.round(readinessData.resumeScore)
-    : 0;
+      ? Math.round(readinessData.resumeScore)
+      : 0;
 
   const breakdownItems = [
     { label: "Resume ATS", value: atsScore },
     { label: "Coding Arena", value: readinessData ? Math.round(readinessData.codingScore) : 0 },
     { label: "Aptitude", value: readinessData ? Math.round(readinessData.aptitudeScore) : 0 },
     { label: "HR Training", value: readinessData ? Math.round(readinessData.hrScore) : 0 },
-    { label: "Mock Interview", value: readinessData ? Math.round(readinessData.interviewScore) : 0 },
+    {
+      label: "Mock Interview",
+      value: readinessData ? Math.round(readinessData.interviewScore) : 0,
+    },
     { label: "Technical", value: readinessData ? Math.round(readinessData.technicalScore) : 0 },
   ];
 
@@ -334,12 +342,14 @@ function Dashboard() {
           <div>
             <p className="text-xs font-semibold tracking-[0.22em] text-coral">YOUR DASHBOARD</p>
             <h1 className="mt-2 font-display text-3xl font-extrabold text-ink sm:text-4xl">
-              Hey {userName}, you're <span className="text-coral">{overallScore}% placement ready</span>
+              Hey {userName}, you're{" "}
+              <span className="text-coral">{overallScore}% placement ready</span>
             </h1>
             <p className="mt-2 max-w-xl text-sm text-ink/70">
               {readinessData?.readinessVerdict ? (
                 <>
-                  <span className="font-semibold text-ink">{readinessData.readinessVerdict}</span> · {readinessData.solvedProblems} coding problems solved.
+                  <span className="font-semibold text-ink">{readinessData.readinessVerdict}</span> ·{" "}
+                  {readinessData.solvedProblems} coding problems solved.
                 </>
               ) : latestResume ? (
                 `Latest resume scan for ${latestResume.targetRole}: ATS score is ${atsScore}/100.`
@@ -372,7 +382,8 @@ function Dashboard() {
               <div className="flex items-center justify-between">
                 <h2 className="font-display text-lg font-bold text-ink">Placement Readiness</h2>
                 <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-coral/10 text-coral border border-coral/30">
-                  {readinessData?.readinessVerdict || (overallScore > 0 ? "In Progress" : "Getting Started")}
+                  {readinessData?.readinessVerdict ||
+                    (overallScore > 0 ? "In Progress" : "Getting Started")}
                 </span>
               </div>
               <div className="mt-5 flex items-center gap-6">
@@ -398,7 +409,10 @@ function Dashboard() {
                 </span>
                 <div className="flex flex-wrap gap-1.5 mt-1.5">
                   {readinessData.weakAreas.map((w, idx) => (
-                    <span key={idx} className="text-[10px] px-2 py-0.5 rounded bg-peach/70 text-ink font-medium">
+                    <span
+                      key={idx}
+                      className="text-[10px] px-2 py-0.5 rounded bg-peach/70 text-ink font-medium"
+                    >
                       {w}
                     </span>
                   ))}
@@ -431,8 +445,8 @@ function Dashboard() {
                 {latestResume
                   ? `ATS score (${latestResume.targetRole})`
                   : atsScore > 0
-                  ? "ATS compatibility score"
-                  : "No resume scanned yet"}
+                    ? "ATS compatibility score"
+                    : "No resume scanned yet"}
               </p>
 
               <div className="mt-5 space-y-2 text-sm">
@@ -455,7 +469,10 @@ function Dashboard() {
                   <div className="py-2 text-xs text-ink/70 space-y-2">
                     <p className="flex items-start gap-2">
                       <HelpCircle className="mt-0.5 size-3.5 shrink-0 text-coral" />
-                      <span>Upload your resume to calculate your exact ATS score and identify role skill gaps.</span>
+                      <span>
+                        Upload your resume to calculate your exact ATS score and identify role skill
+                        gaps.
+                      </span>
                     </p>
                     <Link
                       to="/resume-analyzer"
@@ -473,7 +490,10 @@ function Dashboard() {
                 ? latestResume.skillsFound.slice(0, 5)
                 : ["Java", "DSA", "SQL", "Spring Boot", "React"]
               ).map((s) => (
-                <span key={s} className="rounded-full bg-card px-3 py-1 text-xs font-medium text-ink shadow-2xs">
+                <span
+                  key={s}
+                  className="rounded-full bg-card px-3 py-1 text-xs font-medium text-ink shadow-2xs"
+                >
                   {s}
                 </span>
               ))}
@@ -492,14 +512,18 @@ function Dashboard() {
                   Dynamic Odds
                 </span>
               </div>
-              <p className="mt-1 text-xs text-ink/60">Real-time probabilities calculated from your active scores</p>
+              <p className="mt-1 text-xs text-ink/60">
+                Real-time probabilities calculated from your active scores
+              </p>
 
               <ul className="mt-4 space-y-3.5">
                 {companyPredictions.slice(0, 4).map((c) => (
                   <li key={c.companyName}>
                     <div className="flex items-center justify-between text-xs">
                       <span className="font-bold text-ink">{c.companyName}</span>
-                      <span className="font-bold text-coral">{Math.round(c.placementProbability)}%</span>
+                      <span className="font-bold text-coral">
+                        {Math.round(c.placementProbability)}%
+                      </span>
                     </div>
                     <Bar value={c.placementProbability} className="mt-1" />
                     <p className="mt-1 text-[11px] text-ink/60 line-clamp-1">{c.prepAdvice}</p>
@@ -520,8 +544,12 @@ function Dashboard() {
         {/* Modules Grid */}
         <section className="mt-12">
           <div className="flex items-center justify-between">
-            <h2 className="font-display text-2xl font-extrabold text-ink">Your preparation modules</h2>
-            <span className="text-xs text-muted-foreground font-semibold">8 Interactive Modules</span>
+            <h2 className="font-display text-2xl font-extrabold text-ink">
+              Your preparation modules
+            </h2>
+            <span className="text-xs text-muted-foreground font-semibold">
+              8 Interactive Modules
+            </span>
           </div>
 
           <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -530,8 +558,8 @@ function Dashboard() {
                 readinessData && (readinessData as any)[m.scoreKey] != null
                   ? Math.round((readinessData as any)[m.scoreKey])
                   : m.title === "AI Resume Analyzer" && latestResume
-                  ? latestResume.atsScore
-                  : 0;
+                    ? latestResume.atsScore
+                    : 0;
 
               const tag = getModuleTag(m.title, score);
 
@@ -556,7 +584,8 @@ function Dashboard() {
                     </div>
                     <Bar value={score} className="mt-1.5" />
                     <span className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-coral">
-                      Open Module <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
+                      Open Module{" "}
+                      <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
                     </span>
                   </div>
                 </Link>
@@ -570,26 +599,34 @@ function Dashboard() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Map className="size-5 text-ink" />
-              <h2 className="font-display text-2xl font-extrabold text-ink">Personalized 4-Week Roadmap</h2>
+              <h2 className="font-display text-2xl font-extrabold text-ink">
+                Personalized 4-Week Roadmap
+              </h2>
             </div>
             <span className="text-xs px-3 py-1 rounded-full bg-card font-semibold text-coral shadow-2xs">
               AI Generated
             </span>
           </div>
           <p className="mt-2 text-sm text-ink/70">
-            Dynamically prioritized from your weakest preparation areas to maximize placement probability.
+            Dynamically prioritized from your weakest preparation areas to maximize placement
+            probability.
           </p>
 
           <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             {roadmapData?.weeks?.map((w, idx) => (
-              <div key={idx} className="rounded-2xl bg-card p-5 shadow-sm flex flex-col justify-between">
+              <div
+                key={idx}
+                className="rounded-2xl bg-card p-5 shadow-sm flex flex-col justify-between"
+              >
                 <div>
                   <p className="text-[0.6rem] font-semibold tracking-[0.2em] text-coral">
                     {(w.week || `Week ${idx + 1}`).toUpperCase()}
                   </p>
                   <h3 className="mt-2 font-display text-base font-bold text-ink">{w.focus}</h3>
                   {w.rationale && (
-                    <p className="mt-1 text-[11px] text-muted-foreground italic line-clamp-2">{w.rationale}</p>
+                    <p className="mt-1 text-[11px] text-muted-foreground italic line-clamp-2">
+                      {w.rationale}
+                    </p>
                   )}
                   <ul className="mt-3 space-y-2 text-xs text-ink/70">
                     {w.tasks?.map((i: string, itemIdx: number) => (
@@ -610,7 +647,9 @@ function Dashboard() {
         </section>
 
         <p className="mt-10 text-center text-xs text-muted-foreground">
-          <Link to="/" className="hover:text-coral">← Back to home</Link>
+          <Link to="/" className="hover:text-coral">
+            ← Back to home
+          </Link>
         </p>
       </main>
     </div>

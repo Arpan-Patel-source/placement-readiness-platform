@@ -76,7 +76,9 @@ const ROUNDS: {
 function MockInterviewPage() {
   const [selectedRound, setSelectedRound] = useState<InterviewRoundType>("HR");
   const [questionCount, setQuestionCount] = useState<number>(5);
-  const [skillsInput, setSkillsInput] = useState<string>("Java, Spring Boot, SQL, DSA, System Design");
+  const [skillsInput, setSkillsInput] = useState<string>(
+    "Java, Spring Boot, SQL, DSA, System Design",
+  );
 
   // Session State
   const [session, setSession] = useState<StartInterviewResponse | null>(null);
@@ -151,27 +153,79 @@ function MockInterviewPage() {
   const getFallbackQuestions = (round: InterviewRoundType, count: number) => {
     if (round === "HR") {
       const qs = [
-        { id: "hr-1", question: "Tell me about a time you faced a difficult technical challenge and how you overcame it using the STAR method." },
-        { id: "hr-2", question: "Describe a situation where you had a disagreement with a team member. How did you resolve it?" },
-        { id: "hr-3", question: "Why do you want to work at a high-growth tech company, and where do you see yourself in 3 years?" },
-        { id: "hr-4", question: "Tell me about a project that failed or did not meet expectations. What was your key takeaway?" },
-        { id: "hr-5", question: "How do you prioritize deadlines when managing multiple urgent assignments or project deliverables?" },
+        {
+          id: "hr-1",
+          question:
+            "Tell me about a time you faced a difficult technical challenge and how you overcame it using the STAR method.",
+        },
+        {
+          id: "hr-2",
+          question:
+            "Describe a situation where you had a disagreement with a team member. How did you resolve it?",
+        },
+        {
+          id: "hr-3",
+          question:
+            "Why do you want to work at a high-growth tech company, and where do you see yourself in 3 years?",
+        },
+        {
+          id: "hr-4",
+          question:
+            "Tell me about a project that failed or did not meet expectations. What was your key takeaway?",
+        },
+        {
+          id: "hr-5",
+          question:
+            "How do you prioritize deadlines when managing multiple urgent assignments or project deliverables?",
+        },
       ];
       return qs.slice(0, count);
     } else if (round === "TECHNICAL") {
       const qs = [
-        { id: "tech-1", question: "Explain the difference between Optimistic and Pessimistic Locking in database transactions. When would you use each?" },
-        { id: "tech-2", question: "How does Java garbage collection work under the hood, and what causes a java.lang.OutOfMemoryError: Java heap space?" },
-        { id: "tech-3", question: "Explain how you would design a URL shortener like bit.ly. What are the key database schema and caching considerations?" },
-        { id: "tech-4", question: "What is the difference between SQL and NoSQL databases? How do you decide which one to select for high write throughput?" },
-        { id: "tech-5", question: "Explain RESTful API idempotent methods and how JWT authentication differs from stateful session cookies." },
+        {
+          id: "tech-1",
+          question:
+            "Explain the difference between Optimistic and Pessimistic Locking in database transactions. When would you use each?",
+        },
+        {
+          id: "tech-2",
+          question:
+            "How does Java garbage collection work under the hood, and what causes a java.lang.OutOfMemoryError: Java heap space?",
+        },
+        {
+          id: "tech-3",
+          question:
+            "Explain how you would design a URL shortener like bit.ly. What are the key database schema and caching considerations?",
+        },
+        {
+          id: "tech-4",
+          question:
+            "What is the difference between SQL and NoSQL databases? How do you decide which one to select for high write throughput?",
+        },
+        {
+          id: "tech-5",
+          question:
+            "Explain RESTful API idempotent methods and how JWT authentication differs from stateful session cookies.",
+        },
       ];
       return qs.slice(0, count);
     } else {
       const qs = [
-        { id: "code-1", question: "Explain how you would find the Longest Substring Without Repeating Characters in O(N) time and O(min(m,n)) space." },
-        { id: "code-2", question: "Given a directed graph, how would you detect a cycle? Explain the difference between DFS 3-color and Kahn's algorithm." },
-        { id: "code-3", question: "Explain how you would design an LRU Cache with O(1) get and put operations using a Doubly Linked List and Hash Map." },
+        {
+          id: "code-1",
+          question:
+            "Explain how you would find the Longest Substring Without Repeating Characters in O(N) time and O(min(m,n)) space.",
+        },
+        {
+          id: "code-2",
+          question:
+            "Given a directed graph, how would you detect a cycle? Explain the difference between DFS 3-color and Kahn's algorithm.",
+        },
+        {
+          id: "code-3",
+          question:
+            "Explain how you would design an LRU Cache with O(1) get and put operations using a Doubly Linked List and Hash Map.",
+        },
       ];
       return qs.slice(0, count);
     }
@@ -220,12 +274,14 @@ function MockInterviewPage() {
             ans.trim().length > 100
               ? "Good detail and structured thought process."
               : "Consider adding concrete examples and metrics to validate your assertions.",
-            "Use standard domain terminology to exhibit senior engineering maturity."
+            "Use standard domain terminology to exhibit senior engineering maturity.",
           ],
         };
       });
 
-      const avg = Math.round(answerEntries.reduce((acc, q) => acc + q.score, 0) / answerEntries.length);
+      const avg = Math.round(
+        answerEntries.reduce((acc, q) => acc + q.score, 0) / answerEntries.length,
+      );
 
       setResult({
         sessionId: session.sessionId,
@@ -259,7 +315,9 @@ function MockInterviewPage() {
   };
 
   const currentQuestion = session?.questions[currentIdx];
-  const currentAnswer = currentQuestion ? answers[currentQuestion.id || `q-${currentIdx}`] || "" : "";
+  const currentAnswer = currentQuestion
+    ? answers[currentQuestion.id || `q-${currentIdx}`] || ""
+    : "";
 
   return (
     <div className="min-h-screen bg-[#0d1117] text-slate-100 flex flex-col font-sans selection:bg-coral/30 selection:text-coral-200">
@@ -281,15 +339,14 @@ function MockInterviewPage() {
                 <span className="p-1.5 rounded-md bg-coral/20 text-coral">
                   <Users className="size-5" />
                 </span>
-                <h1 className="text-xl font-bold tracking-tight text-white">
-                  AI Mock Interview
-                </h1>
+                <h1 className="text-xl font-bold tracking-tight text-white">AI Mock Interview</h1>
                 <span className="text-xs px-2 py-0.5 rounded-full bg-slate-800 text-coral font-medium border border-coral/30">
                   HR · Technical · Coding
                 </span>
               </div>
               <p className="text-xs text-slate-400 mt-0.5">
-                Simulate realistic placement interviews with automated grading, STAR-format feedback, and scorecards
+                Simulate realistic placement interviews with automated grading, STAR-format
+                feedback, and scorecards
               </p>
             </div>
           </div>
@@ -306,7 +363,9 @@ function MockInterviewPage() {
               <button
                 onClick={() => setActiveTab("interview")}
                 className={`px-3 py-1 rounded-md font-semibold transition-colors ${
-                  activeTab === "interview" ? "bg-coral text-white" : "text-slate-400 hover:text-white"
+                  activeTab === "interview"
+                    ? "bg-coral text-white"
+                    : "text-slate-400 hover:text-white"
                 }`}
               >
                 Simulator
@@ -314,7 +373,9 @@ function MockInterviewPage() {
               <button
                 onClick={() => setActiveTab("history")}
                 className={`px-3 py-1 rounded-md font-semibold transition-colors ${
-                  activeTab === "history" ? "bg-coral text-white" : "text-slate-400 hover:text-white"
+                  activeTab === "history"
+                    ? "bg-coral text-white"
+                    : "text-slate-400 hover:text-white"
                 }`}
               >
                 History ({history.length})
@@ -343,7 +404,8 @@ function MockInterviewPage() {
 
             {history.length === 0 ? (
               <div className="py-12 text-center text-slate-500 text-sm">
-                No interview sessions recorded yet. Start your first round to evaluate your interview readiness!
+                No interview sessions recorded yet. Start your first round to evaluate your
+                interview readiness!
               </div>
             ) : (
               <div className="divide-y divide-slate-800">
@@ -352,11 +414,14 @@ function MockInterviewPage() {
                     <div>
                       <div className="font-semibold text-white text-sm">{item.roundType} Round</div>
                       <div className="text-xs text-slate-500 mt-0.5">
-                        {item.totalQuestions} Questions · {new Date(item.createdAt).toLocaleDateString()}
+                        {item.totalQuestions} Questions ·{" "}
+                        {new Date(item.createdAt).toLocaleDateString()}
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
-                      <span className="text-sm font-bold text-coral">{item.overallScore} / 100</span>
+                      <span className="text-sm font-bold text-coral">
+                        {item.overallScore} / 100
+                      </span>
                       <span className="text-xs px-2.5 py-1 rounded-full bg-slate-800 border border-slate-700 font-semibold text-slate-300">
                         {item.verdict}
                       </span>
@@ -377,7 +442,9 @@ function MockInterviewPage() {
                     <span className="px-2.5 py-0.5 rounded-full bg-coral/20 text-coral text-xs font-bold uppercase tracking-wider">
                       {result.roundType} Completed
                     </span>
-                    <span className="text-xs text-slate-400">Elapsed: {formatTimer(timerSeconds)}</span>
+                    <span className="text-xs text-slate-400">
+                      Elapsed: {formatTimer(timerSeconds)}
+                    </span>
                   </div>
                   <h2 className="text-2xl font-black text-white mt-2">
                     Placement Readiness: <span className="text-coral">{result.verdict}</span>
@@ -565,8 +632,8 @@ function MockInterviewPage() {
                       selectedRound === "HR"
                         ? "State the Situation, Task, Action you took, and final Result (STAR method)..."
                         : selectedRound === "CODING"
-                        ? "// Write your algorithm or structured code solution..."
-                        : "Explain your architectural decisions, trade-offs, and technical rationale..."
+                          ? "// Write your algorithm or structured code solution..."
+                          : "Explain your architectural decisions, trade-offs, and technical rationale..."
                     }
                     className={`w-full bg-[#0d1117] border border-slate-700 rounded-xl p-4 text-xs text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-coral leading-relaxed ${
                       selectedRound === "CODING" ? "font-mono" : "font-sans"
@@ -578,8 +645,8 @@ function MockInterviewPage() {
                       {selectedRound === "HR"
                         ? "Tip: Emphasize 'I' instead of 'we' when describing your individual contributions."
                         : selectedRound === "CODING"
-                        ? "Tip: State time & space complexity alongside your implementation."
-                        : "Tip: Mention real-world trade-offs (e.g. latency vs consistency, memory vs CPU)."}
+                          ? "Tip: State time & space complexity alongside your implementation."
+                          : "Tip: Mention real-world trade-offs (e.g. latency vs consistency, memory vs CPU)."}
                     </span>
                   </div>
                 </div>
@@ -597,7 +664,9 @@ function MockInterviewPage() {
                   <div className="flex items-center gap-2">
                     {currentIdx < session.totalQuestions - 1 ? (
                       <button
-                        onClick={() => setCurrentIdx((p) => Math.min(session.totalQuestions - 1, p + 1))}
+                        onClick={() =>
+                          setCurrentIdx((p) => Math.min(session.totalQuestions - 1, p + 1))
+                        }
                         className="px-4 py-2 rounded-lg bg-coral hover:bg-coral/90 text-white text-xs font-semibold transition-colors flex items-center gap-1.5 shadow"
                       >
                         Next Prompt <ArrowRight className="size-3.5" />
@@ -625,7 +694,8 @@ function MockInterviewPage() {
                 Select Your Interview Simulation Round
               </h2>
               <p className="text-slate-400 text-sm max-w-lg mx-auto">
-                Each round generates authentic placement test questions with AI grading on communication clarity, technical depth, and structure.
+                Each round generates authentic placement test questions with AI grading on
+                communication clarity, technical depth, and structure.
               </p>
             </div>
 
@@ -661,7 +731,9 @@ function MockInterviewPage() {
                       <span className={isSelected ? "text-coral" : "text-slate-500"}>
                         {isSelected ? "Selected Round ✓" : "Select Round"}
                       </span>
-                      <ChevronRight className={`size-4 ${isSelected ? "text-coral" : "text-slate-600"}`} />
+                      <ChevronRight
+                        className={`size-4 ${isSelected ? "text-coral" : "text-slate-600"}`}
+                      />
                     </div>
                   </button>
                 );

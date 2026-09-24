@@ -40,10 +40,21 @@ const HR_VOICE_QUESTIONS = [
   "Describe a situation where you had to explain a complex technical concept to a non-technical stakeholder.",
   "Where do you see yourself in 3 to 5 years in your software engineering career?",
   "Describe an instance where you optimized an algorithm or database query to improve response time.",
-  "What motivates you to deliver high-quality code and how do you handle constructive code review critique?"
+  "What motivates you to deliver high-quality code and how do you handle constructive code review critique?",
 ];
 
-const FILLER_WORDS = ["um", "uh", "like", "you know", "actually", "basically", "literally", "sort of", "kind of", "so yeah"];
+const FILLER_WORDS = [
+  "um",
+  "uh",
+  "like",
+  "you know",
+  "actually",
+  "basically",
+  "literally",
+  "sort of",
+  "kind of",
+  "so yeah",
+];
 
 interface VoiceMetrics {
   totalWords: number;
@@ -64,7 +75,9 @@ function VoiceInterviewPage() {
   const [metrics, setMetrics] = useState<VoiceMetrics | null>(null);
   const [speechSupported, setSpeechSupported] = useState(true);
   const [isEvaluating, setIsEvaluating] = useState(false);
-  const [simulatedVolume, setSimulatedVolume] = useState<number[]>([12, 24, 18, 35, 48, 20, 15, 30, 42, 25]);
+  const [simulatedVolume, setSimulatedVolume] = useState<number[]>([
+    12, 24, 18, 35, 48, 20, 15, 30, 42, 25,
+  ]);
 
   const recognitionRef = useRef<any>(null);
   const timerRef = useRef<any>(null);
@@ -110,9 +123,7 @@ function VoiceInterviewPage() {
 
     // Waveform simulation
     waveIntervalRef.current = setInterval(() => {
-      setSimulatedVolume(
-        Array.from({ length: 16 }, () => Math.floor(Math.random() * 60) + 10)
-      );
+      setSimulatedVolume(Array.from({ length: 16 }, () => Math.floor(Math.random() * 60) + 10));
     }, 120);
 
     // Initialize Web Speech API if supported
@@ -245,7 +256,8 @@ function VoiceInterviewPage() {
                 </span>
               </div>
               <p className="text-xs text-slate-400 mt-0.5">
-                Practice verbal communication with live speech-to-text, speaking pace (WPM), filler word detection, and confidence scoring
+                Practice verbal communication with live speech-to-text, speaking pace (WPM), filler
+                word detection, and confidence scoring
               </p>
             </div>
           </div>
@@ -268,7 +280,9 @@ function VoiceInterviewPage() {
             <Info className="size-5 text-amber-400 shrink-0 mt-0.5" />
             <div>
               <span className="font-bold text-amber-300">Browser Speech API Note: </span>
-              Your current browser does not support the native Web Speech Recognition API. We recommend using Google Chrome or Microsoft Edge for live microphone transcription. You can still test voice evaluation by speaking or typing answers directly!
+              Your current browser does not support the native Web Speech Recognition API. We
+              recommend using Google Chrome or Microsoft Edge for live microphone transcription. You
+              can still test voice evaluation by speaking or typing answers directly!
             </div>
           </div>
         )}
@@ -313,7 +327,8 @@ function VoiceInterviewPage() {
             "{HR_VOICE_QUESTIONS[questionIdx]}"
           </h2>
           <p className="text-xs text-slate-400">
-            Click the microphone below and deliver your response aloud as if speaking with a senior recruiter or hiring manager.
+            Click the microphone below and deliver your response aloud as if speaking with a senior
+            recruiter or hiring manager.
           </p>
         </div>
 
@@ -325,9 +340,7 @@ function VoiceInterviewPage() {
               <div
                 key={idx}
                 className={`w-2 rounded-full transition-all duration-150 ${
-                  isRecording
-                    ? "bg-gradient-to-t from-coral to-rose-400"
-                    : "bg-slate-800"
+                  isRecording ? "bg-gradient-to-t from-coral to-rose-400" : "bg-slate-800"
                 }`}
                 style={{
                   height: isRecording ? `${Math.max(10, vol)}px` : "12px",
@@ -406,14 +419,14 @@ function VoiceInterviewPage() {
                 <span className="text-xs font-bold uppercase tracking-wider text-coral">
                   AI Speech Diagnostics
                 </span>
-                <h3 className="text-lg font-bold text-white mt-1">
-                  Vocal Performance Report
-                </h3>
+                <h3 className="text-lg font-bold text-white mt-1">Vocal Performance Report</h3>
               </div>
 
               <div className="flex items-center gap-3">
                 <div className="text-right">
-                  <div className="text-[10px] uppercase font-bold text-slate-500">Speaking Score</div>
+                  <div className="text-[10px] uppercase font-bold text-slate-500">
+                    Speaking Score
+                  </div>
                   <div className="text-2xl font-black text-coral">
                     {Math.round((metrics.confidenceScore + metrics.fluencyScore) / 2)} / 100
                   </div>
@@ -428,10 +441,14 @@ function VoiceInterviewPage() {
                 <div className="text-[10px] uppercase font-bold text-slate-500 flex items-center gap-1">
                   <Clock className="size-3 text-cyan-400" /> Speaking Pace
                 </div>
-                <div className="text-xl font-bold text-white">{metrics.wpm} <span className="text-xs font-normal text-slate-500">WPM</span></div>
-                <div className={`text-[11px] font-semibold ${
-                  metrics.paceVerdict === "Ideal Pace" ? "text-emerald-400" : "text-amber-400"
-                }`}>
+                <div className="text-xl font-bold text-white">
+                  {metrics.wpm} <span className="text-xs font-normal text-slate-500">WPM</span>
+                </div>
+                <div
+                  className={`text-[11px] font-semibold ${
+                    metrics.paceVerdict === "Ideal Pace" ? "text-emerald-400" : "text-amber-400"
+                  }`}
+                >
                   {metrics.paceVerdict} (120-150 target)
                 </div>
               </div>
@@ -443,7 +460,9 @@ function VoiceInterviewPage() {
                 </div>
                 <div className="text-xl font-bold text-white">{metrics.fillerCount}</div>
                 <div className="text-[11px] text-slate-400">
-                  {metrics.fillerCount === 0 ? "Excellent clarity! 0 fillers" : "Detected vocal crutches"}
+                  {metrics.fillerCount === 0
+                    ? "Excellent clarity! 0 fillers"
+                    : "Detected vocal crutches"}
                 </div>
               </div>
 
@@ -464,9 +483,7 @@ function VoiceInterviewPage() {
                   <Sparkles className="size-3 text-violet-400" /> Fluency & Flow
                 </div>
                 <div className="text-xl font-bold text-white">{metrics.fluencyScore}%</div>
-                <div className="text-[11px] text-slate-400">
-                  {metrics.totalWords} words spoken
-                </div>
+                <div className="text-[11px] text-slate-400">{metrics.totalWords} words spoken</div>
               </div>
             </div>
 
@@ -499,8 +516,8 @@ function VoiceInterviewPage() {
                   {metrics.wpm < 110
                     ? "Increase your tempo slightly. A conversational rhythm around 130 WPM conveys greater energy and confidence."
                     : metrics.wpm > 160
-                    ? "Slow down intentionally between major points. Strategic 1-second pauses allow interviewers to absorb your key achievements."
-                    : "Your speaking speed is well-calibrated and comfortable for remote technical interviews."}
+                      ? "Slow down intentionally between major points. Strategic 1-second pauses allow interviewers to absorb your key achievements."
+                      : "Your speaking speed is well-calibrated and comfortable for remote technical interviews."}
                 </li>
                 <li>
                   {metrics.fillerCount > 3
@@ -508,7 +525,8 @@ function VoiceInterviewPage() {
                     : "Clean vocal delivery with minimal filler friction. Keep this up!"}
                 </li>
                 <li>
-                  Structure your vocal responses with a clear punchline first: summarize the outcome before narrating the technical steps.
+                  Structure your vocal responses with a clear punchline first: summarize the outcome
+                  before narrating the technical steps.
                 </li>
               </ul>
             </div>

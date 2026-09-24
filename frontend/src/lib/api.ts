@@ -76,7 +76,7 @@ const DEFAULT_API_TIMEOUT_MS = 90000;
 export async function apiFetch(
   endpointOrUrl: string,
   init?: RequestInit,
-  timeoutMs: number = DEFAULT_API_TIMEOUT_MS
+  timeoutMs: number = DEFAULT_API_TIMEOUT_MS,
 ): Promise<Response> {
   const base = getApiBaseUrl();
   let url = endpointOrUrl;
@@ -85,7 +85,9 @@ export async function apiFetch(
     url = `${base}${cleanPath}`;
   }
 
-  const sanitizedHeaders: Record<string, string> = { ...((init?.headers as Record<string, string>) || {}) };
+  const sanitizedHeaders: Record<string, string> = {
+    ...((init?.headers as Record<string, string>) || {}),
+  };
   const auth = sanitizedHeaders["Authorization"] || sanitizedHeaders["authorization"];
   if (auth) {
     const trimmed = auth.replace(/^Bearer\s*/i, "").trim();
@@ -108,7 +110,7 @@ export async function apiFetch(
   } catch (err: any) {
     if (err.name === "AbortError") {
       throw new Error(
-        "Request timed out. The backend server may still be waking up (Render free tier can take up to 60–80s on cold start). Please try again or switch to Demo Mode."
+        "Request timed out. The backend server may still be waking up (Render free tier can take up to 60–80s on cold start). Please try again or switch to Demo Mode.",
       );
     }
     throw err;
@@ -143,7 +145,6 @@ export interface ForgotPasswordResponse {
   resetToken?: string;
   expiresInMinutes?: number;
 }
-
 
 export interface AuthResponse {
   token: string;
@@ -348,9 +349,7 @@ export const authStorage = {
       name: name || fallbackName || "Student",
     };
     localStorage.setItem(USER_KEY, JSON.stringify(session));
-
   },
-
 
   clearSession(): void {
     if (typeof window === "undefined") return;
@@ -373,7 +372,7 @@ async function handleResponse<T>(response: Response): Promise<T> {
 
   if (!isJson && response.ok) {
     throw new Error(
-      "Received HTML from server instead of JSON. If deployed on Vercel, please check that VITE_API_URL is configured in your Vercel Project Settings to point to your live backend."
+      "Received HTML from server instead of JSON. If deployed on Vercel, please check that VITE_API_URL is configured in your Vercel Project Settings to point to your live backend.",
     );
   }
 
@@ -1305,12 +1304,7 @@ export interface HrHistoryItem {
 
 // ── Types for Module 7: Technical Training ─────────────────────────────────
 export type TechCategoryType =
-  | "OOP"
-  | "DBMS"
-  | "OPERATING_SYSTEMS"
-  | "COMPUTER_NETWORKS"
-  | "DSA"
-  | "WEB_TECHNOLOGIES";
+  "OOP" | "DBMS" | "OPERATING_SYSTEMS" | "COMPUTER_NETWORKS" | "DSA" | "WEB_TECHNOLOGIES";
 
 export interface TechTopicSummary {
   topicId: string;
@@ -1411,13 +1405,7 @@ export interface TechHistoryItem {
 
 // ── Types for Module 3 & 4: Coding Arena & Mentor ─────────────────────────────
 export type CodingCategoryType =
-  | "ARRAYS"
-  | "STRINGS"
-  | "LINKED_LIST"
-  | "TREES"
-  | "GRAPHS"
-  | "DP"
-  | "GREEDY";
+  "ARRAYS" | "STRINGS" | "LINKED_LIST" | "TREES" | "GRAPHS" | "DP" | "GREEDY";
 
 export type CodingDifficultyType = "EASY" | "MEDIUM" | "HARD";
 export type CodingLanguageType = "JAVA" | "PYTHON" | "CPP" | "C";
@@ -1475,11 +1463,7 @@ export interface CodingResultResponse {
   submissionId: string;
   problemId: string;
   status:
-    | "ACCEPTED"
-    | "WRONG_ANSWER"
-    | "TIME_LIMIT_EXCEEDED"
-    | "RUNTIME_ERROR"
-    | "COMPILATION_ERROR";
+    "ACCEPTED" | "WRONG_ANSWER" | "TIME_LIMIT_EXCEEDED" | "RUNTIME_ERROR" | "COMPILATION_ERROR";
   passedTestCases: number;
   totalTestCases: number;
   runtimeMs: number;
@@ -1619,4 +1603,3 @@ export interface CompanyPredictionDto {
   codingDifficulty: string;
   interviewStyle: string;
 }
-

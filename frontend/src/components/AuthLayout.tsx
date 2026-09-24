@@ -33,9 +33,7 @@ export function AuthLayout({
             loading="lazy"
             className="w-full rounded-3xl object-cover"
           />
-          <p className="mt-8 font-hand text-2xl text-ink/70">
-            Same students, brighter futures.
-          </p>
+          <p className="mt-8 font-hand text-2xl text-ink/70">Same students, brighter futures.</p>
         </div>
         <p className="text-[0.6rem] tracking-[0.3em] text-ink/40">
           PREPARE TODAY FOR A BRIGHTER TOMORROW

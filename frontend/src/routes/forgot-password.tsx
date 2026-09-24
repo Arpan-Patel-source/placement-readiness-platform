@@ -119,7 +119,7 @@ function ForgotPasswordPage() {
               email: email || "student@placementai.edu",
               role: "STUDENT",
             },
-            "Azhar Khan"
+            "Azhar Khan",
           );
           setStep("success");
         } else {
@@ -164,7 +164,9 @@ function ForgotPasswordPage() {
 
           {offlineNotice && (
             <div className="space-y-3 rounded-2xl border border-border bg-peach/40 p-4 text-sm text-ink">
-              <p className="font-semibold text-coral">Backend server is not running on localhost:8080</p>
+              <p className="font-semibold text-coral">
+                Backend server is not running on localhost:8080
+              </p>
               <p className="text-xs text-ink/75">
                 To test live with Spring Boot:
                 <br />
@@ -314,7 +316,8 @@ function ForgotPasswordPage() {
           <div className="space-y-2">
             <h3 className="font-display text-xl font-bold text-ink">Password Changed!</h3>
             <p className="text-sm text-ink/70">
-              Your password has been successfully updated. You can now sign in with your new credentials.
+              Your password has been successfully updated. You can now sign in with your new
+              credentials.
             </p>
           </div>
 

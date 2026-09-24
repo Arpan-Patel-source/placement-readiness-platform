@@ -14,7 +14,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -109,7 +108,7 @@ public class ResumeAnalysisService {
                         .readinessScore(r.getReadinessScore())
                         .createdAt(r.getCreatedAt())
                         .build())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Transactional(readOnly = true)

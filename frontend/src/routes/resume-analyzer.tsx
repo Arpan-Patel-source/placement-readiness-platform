@@ -141,7 +141,9 @@ function ResumeAnalyzerPage() {
   const [history, setHistory] = useState<ResumeHistoryItem[]>([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<"overview" | "skills" | "suggestions" | "grammar">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "skills" | "suggestions" | "grammar">(
+    "overview",
+  );
 
   // ENHANCEMENT 1: Bullet Rewriter Studio States
   const [bulletInput, setBulletInput] = useState("");
@@ -185,7 +187,7 @@ function ResumeAnalyzerPage() {
           setCurrentAnalysis(latest);
           // Pre-populate sample bullet if MindBridge is present
           setBulletInput(
-            "Developed MindBridge, an AI-powered mental health platform, AI chatbot (Groq + Llama 3) with sentiment analysis, mood analytics, risk detection with SOS alerts, and GPS-based service locator using OpenStreetMap APIs; built using Spring Boot, Java, MySQL, REST APIs."
+            "Developed MindBridge, an AI-powered mental health platform, AI chatbot (Groq + Llama 3) with sentiment analysis, mood analytics, risk detection with SOS alerts, and GPS-based service locator using OpenStreetMap APIs; built using Spring Boot, Java, MySQL, REST APIs.",
           );
         }
       })
@@ -274,8 +276,14 @@ function ResumeAnalyzerPage() {
     setErrorMsg(null);
 
     setAnalysisStep("Extracting text from resume...");
-    const timer1 = setTimeout(() => setAnalysisStep("Auditing real ATS keyword compatibility & section parsing..."), 600);
-    const timer2 = setTimeout(() => setAnalysisStep(`Benchmarking competencies for ${targetRole}...`), 1200);
+    const timer1 = setTimeout(
+      () => setAnalysisStep("Auditing real ATS keyword compatibility & section parsing..."),
+      600,
+    );
+    const timer2 = setTimeout(
+      () => setAnalysisStep(`Benchmarking competencies for ${targetRole}...`),
+      1200,
+    );
 
     try {
       const result = await api.analyzeResume(selectedFile, targetRole);
@@ -429,7 +437,8 @@ function ResumeAnalyzerPage() {
               AI Resume Analyzer & ATS Benchmark Studio
             </h1>
             <p className="mt-1 text-xs sm:text-sm text-ink/70">
-              Calculate authentic ATS compatibility, rewrite project bullets with the Google XYZ formula, and match real company JDs.
+              Calculate authentic ATS compatibility, rewrite project bullets with the Google XYZ
+              formula, and match real company JDs.
             </p>
           </div>
 
@@ -581,7 +590,8 @@ function ResumeAnalyzerPage() {
                 ))}
               </select>
               <p className="mt-1 text-[0.7rem] text-ink/60">
-                We benchmark your resume keywords and competencies against industry standards for this position.
+                We benchmark your resume keywords and competencies against industry standards for
+                this position.
               </p>
             </div>
 
@@ -698,8 +708,8 @@ function ResumeAnalyzerPage() {
                       {currentAnalysis.readinessScore >= 80
                         ? "Interview ready"
                         : currentAnalysis.readinessScore >= 60
-                        ? "Competitive with recommended tuning"
-                        : "Requires significant updates"}
+                          ? "Competitive with recommended tuning"
+                          : "Requires significant updates"}
                     </p>
                   </div>
                   <ScoreRing
@@ -728,15 +738,11 @@ function ResumeAnalyzerPage() {
                       {currentAnalysis.atsScore >= 85
                         ? "Exceptional — Passes top recruiter bots"
                         : currentAnalysis.atsScore >= 70
-                        ? "Passes standard enterprise filters"
-                        : "Deductions applied: Needs ATS adjustments"}
+                          ? "Passes standard enterprise filters"
+                          : "Deductions applied: Needs ATS adjustments"}
                     </p>
                   </div>
-                  <ScoreRing
-                    value={currentAnalysis.atsScore}
-                    label="ATS"
-                    gradientColor="#059669"
-                  />
+                  <ScoreRing value={currentAnalysis.atsScore} label="ATS" gradientColor="#059669" />
                 </div>
               </div>
 
@@ -754,9 +760,7 @@ function ResumeAnalyzerPage() {
                       {currentAnalysis.strengthScore}
                       <span className="text-lg text-ink/60">/100</span>
                     </span>
-                    <p className="mt-1 text-xs text-ink/65">
-                      Action verbs & quantifiable metrics
-                    </p>
+                    <p className="mt-1 text-xs text-ink/65">Action verbs & quantifiable metrics</p>
                   </div>
                   <ScoreRing
                     value={currentAnalysis.strengthScore}
@@ -944,7 +948,9 @@ function ResumeAnalyzerPage() {
                         </span>
                       ))
                     ) : (
-                      <p className="text-xs text-muted-foreground">No specific skill keywords recognized.</p>
+                      <p className="text-xs text-muted-foreground">
+                        No specific skill keywords recognized.
+                      </p>
                     )}
                   </div>
                 </div>
@@ -997,9 +1003,7 @@ function ResumeAnalyzerPage() {
                       <div className="grid size-7 shrink-0 place-items-center rounded-xl bg-peach text-xs font-bold text-ink">
                         {idx + 1}
                       </div>
-                      <div className="text-xs sm:text-sm leading-relaxed text-ink/80">
-                        {sug}
-                      </div>
+                      <div className="text-xs sm:text-sm leading-relaxed text-ink/80">{sug}</div>
                     </div>
                   ))}
                 </div>
@@ -1050,7 +1054,8 @@ function ResumeAnalyzerPage() {
                     AI Bullet Point Rewriter Studio
                   </h2>
                   <p className="text-xs text-ink/70">
-                    Transform weak or unquantified project descriptions into high-scoring Google XYZ bullets with 1-click copy.
+                    Transform weak or unquantified project descriptions into high-scoring Google XYZ
+                    bullets with 1-click copy.
                   </p>
                 </div>
               </div>
@@ -1064,7 +1069,7 @@ function ResumeAnalyzerPage() {
                   <button
                     onClick={() =>
                       setBulletInput(
-                        "Developed MindBridge, an AI-powered mental health platform, AI chatbot (Groq + Llama 3) with sentiment analysis, mood analytics, risk detection with SOS alerts, and GPS-based service locator using OpenStreetMap APIs; built using Spring Boot, Java, MySQL, REST APIs."
+                        "Developed MindBridge, an AI-powered mental health platform, AI chatbot (Groq + Llama 3) with sentiment analysis, mood analytics, risk detection with SOS alerts, and GPS-based service locator using OpenStreetMap APIs; built using Spring Boot, Java, MySQL, REST APIs.",
                       )
                     }
                     className="rounded-xl border border-border bg-background px-3 py-1.5 text-xs font-semibold text-ink hover:bg-peach/30"
@@ -1074,7 +1079,7 @@ function ResumeAnalyzerPage() {
                   <button
                     onClick={() =>
                       setBulletInput(
-                        "A web-based platform design to manage courses, attendance and marks with separate dashboard for learners, instructors and admin using Java, JSP and MySQL."
+                        "A web-based platform design to manage courses, attendance and marks with separate dashboard for learners, instructors and admin using Java, JSP and MySQL.",
                       )
                     }
                     className="rounded-xl border border-border bg-background px-3 py-1.5 text-xs font-semibold text-ink hover:bg-peach/30"
@@ -1084,7 +1089,7 @@ function ResumeAnalyzerPage() {
                   <button
                     onClick={() =>
                       setBulletInput(
-                        "Helped build an e-commerce backend with Spring Boot and created APIs for user cart and orders."
+                        "Helped build an e-commerce backend with Spring Boot and created APIs for user cart and orders.",
                       )
                     }
                     className="rounded-xl border border-border bg-background px-3 py-1.5 text-xs font-semibold text-ink hover:bg-peach/30"
@@ -1144,7 +1149,9 @@ function ResumeAnalyzerPage() {
                         <span className="rounded-full bg-coral px-2.5 py-0.5 text-[0.65rem] font-extrabold text-white uppercase tracking-wider">
                           RECOMMENDED
                         </span>
-                        <span className="text-[0.7rem] font-bold text-coral">Google XYZ Method</span>
+                        <span className="text-[0.7rem] font-bold text-coral">
+                          Google XYZ Method
+                        </span>
                       </div>
                       <h4 className="mt-3 font-display text-base font-bold text-ink">
                         {bulletResult.quantifiedXyz.title}
@@ -1155,7 +1162,9 @@ function ResumeAnalyzerPage() {
 
                       <div className="mt-4 rounded-xl bg-card p-2.5 border border-border text-[0.7rem]">
                         <span className="font-bold text-coral">Metric Impact: </span>
-                        <span className="text-ink/80">{bulletResult.quantifiedXyz.highlightMetric}</span>
+                        <span className="text-ink/80">
+                          {bulletResult.quantifiedXyz.highlightMetric}
+                        </span>
                       </div>
                     </div>
 
@@ -1184,7 +1193,9 @@ function ResumeAnalyzerPage() {
                         <span className="rounded-full bg-emerald-700 px-2.5 py-0.5 text-[0.65rem] font-extrabold text-white uppercase tracking-wider">
                           ENTERPRISE
                         </span>
-                        <span className="text-[0.7rem] font-bold text-emerald-800">Architecture First</span>
+                        <span className="text-[0.7rem] font-bold text-emerald-800">
+                          Architecture First
+                        </span>
                       </div>
                       <h4 className="mt-3 font-display text-base font-bold text-ink">
                         {bulletResult.enterpriseStack.title}
@@ -1195,7 +1206,9 @@ function ResumeAnalyzerPage() {
 
                       <div className="mt-4 rounded-xl bg-card p-2.5 border border-border text-[0.7rem]">
                         <span className="font-bold text-emerald-700">Tech Depth: </span>
-                        <span className="text-ink/80">{bulletResult.enterpriseStack.highlightMetric}</span>
+                        <span className="text-ink/80">
+                          {bulletResult.enterpriseStack.highlightMetric}
+                        </span>
                       </div>
                     </div>
 
@@ -1235,7 +1248,9 @@ function ResumeAnalyzerPage() {
 
                       <div className="mt-4 rounded-xl bg-card p-2.5 border border-border text-[0.7rem]">
                         <span className="font-bold text-sky-800">Ownership: </span>
-                        <span className="text-ink/80">{bulletResult.leadershipImpact.highlightMetric}</span>
+                        <span className="text-ink/80">
+                          {bulletResult.leadershipImpact.highlightMetric}
+                        </span>
                       </div>
                     </div>
 
@@ -1292,7 +1307,8 @@ function ResumeAnalyzerPage() {
                     Custom Job Description (JD) Matcher
                   </h2>
                   <p className="text-xs text-ink/70">
-                    Paste any recruiter job posting to compare keyword overlap, calculate JD match %, and detect missing criteria before applying.
+                    Paste any recruiter job posting to compare keyword overlap, calculate JD match
+                    %, and detect missing criteria before applying.
                   </p>
                 </div>
               </div>
@@ -1340,7 +1356,7 @@ function ResumeAnalyzerPage() {
                     onClick={() => {
                       setJdCompany("Bajaj Finserv");
                       setJdText(
-                        "We are seeking an experienced Java Backend Developer to build robust microservices for our financial platforms. Required: Java 17+, Spring Boot, Microservices, REST APIs, MySQL, PostgreSQL, Docker, Redis caching, Unit Testing with JUnit. Good to have: Kafka, AWS, CI/CD pipeline, Clean Architecture."
+                        "We are seeking an experienced Java Backend Developer to build robust microservices for our financial platforms. Required: Java 17+, Spring Boot, Microservices, REST APIs, MySQL, PostgreSQL, Docker, Redis caching, Unit Testing with JUnit. Good to have: Kafka, AWS, CI/CD pipeline, Clean Architecture.",
                       );
                     }}
                     className="rounded-xl border border-border bg-background px-3 py-1.5 text-xs font-semibold text-ink hover:bg-mint/30"
@@ -1351,7 +1367,7 @@ function ResumeAnalyzerPage() {
                     onClick={() => {
                       setJdCompany("Amazon");
                       setJdText(
-                        "Amazon is looking for a Software Development Engineer (SDE-1). You will design scalable distributed systems using Java or Python. Experience with Data Structures & Algorithms, Object-Oriented Programming, RESTful services, Docker, AWS, System Design, and automated unit testing."
+                        "Amazon is looking for a Software Development Engineer (SDE-1). You will design scalable distributed systems using Java or Python. Experience with Data Structures & Algorithms, Object-Oriented Programming, RESTful services, Docker, AWS, System Design, and automated unit testing.",
                       );
                     }}
                     className="rounded-xl border border-border bg-background px-3 py-1.5 text-xs font-semibold text-ink hover:bg-mint/30"
@@ -1362,7 +1378,7 @@ function ResumeAnalyzerPage() {
                     onClick={() => {
                       setJdCompany("Fintech Unicorn");
                       setJdText(
-                        "Full Stack / Backend Engineer wanted. Stack: Java, Spring Boot, React, TypeScript, Docker, Kubernetes, PostgreSQL, Redis caching, Event-driven architecture with Kafka, and CI/CD pipelines."
+                        "Full Stack / Backend Engineer wanted. Stack: Java, Spring Boot, React, TypeScript, Docker, Kubernetes, PostgreSQL, Redis caching, Event-driven architecture with Kafka, and CI/CD pipelines.",
                       );
                     }}
                     className="rounded-xl border border-border bg-background px-3 py-1.5 text-xs font-semibold text-ink hover:bg-mint/30"
@@ -1440,10 +1456,12 @@ function ResumeAnalyzerPage() {
                     </span>
                     <div className="mt-4">
                       <span className="font-display text-3xl font-extrabold text-ink">
-                        {jdMatchResult.totalJdKeywordsFound} / {jdMatchResult.totalJdKeywordsExtracted}
+                        {jdMatchResult.totalJdKeywordsFound} /{" "}
+                        {jdMatchResult.totalJdKeywordsExtracted}
                       </span>
                       <p className="mt-1 text-xs text-ink/70">
-                        Keywords extracted from {jdMatchResult.companyName}'s posting found in your resume.
+                        Keywords extracted from {jdMatchResult.companyName}'s posting found in your
+                        resume.
                       </p>
                     </div>
                   </div>
@@ -1534,7 +1552,8 @@ function ResumeAnalyzerPage() {
                       ATS Recruiter Bot Inspector
                     </h2>
                     <p className="text-xs text-ink/70">
-                      Transparency view: see exactly how automated enterprise parsers (Workday, Taleo, Ashby) extract and index your resume.
+                      Transparency view: see exactly how automated enterprise parsers (Workday,
+                      Taleo, Ashby) extract and index your resume.
                     </p>
                   </div>
                 </div>
@@ -1559,7 +1578,8 @@ function ResumeAnalyzerPage() {
                   {/* Health Banner */}
                   <div
                     className={`rounded-2xl border p-4 flex items-center justify-between ${
-                      parsedTree.health.status === "EXCELLENT" || parsedTree.health.status === "GOOD"
+                      parsedTree.health.status === "EXCELLENT" ||
+                      parsedTree.health.status === "GOOD"
                         ? "border-emerald-500/30 bg-mint/30"
                         : "border-amber-500/30 bg-amber-500/10"
                     }`}
@@ -1567,7 +1587,8 @@ function ResumeAnalyzerPage() {
                     <div className="flex items-center gap-3">
                       <ShieldCheck
                         className={`size-5 ${
-                          parsedTree.health.status === "EXCELLENT" || parsedTree.health.status === "GOOD"
+                          parsedTree.health.status === "EXCELLENT" ||
+                          parsedTree.health.status === "GOOD"
                             ? "text-emerald-700"
                             : "text-amber-600"
                         }`}
@@ -1578,7 +1599,10 @@ function ResumeAnalyzerPage() {
                         </span>
                         <p className="text-[0.7rem] text-ink/70">
                           {parsedTree.health.totalWordCount} words parsed ·{" "}
-                          {parsedTree.health.singlePageFit ? "Optimal single-page length" : "Length warning"} ·{" "}
+                          {parsedTree.health.singlePageFit
+                            ? "Optimal single-page length"
+                            : "Length warning"}{" "}
+                          ·{" "}
                           {parsedTree.health.hasLegacyBiodataClutter
                             ? "Legacy bio-data detected"
                             : "Clean header"}
@@ -1614,19 +1638,27 @@ function ResumeAnalyzerPage() {
                       </div>
                       <div>
                         <span className="text-ink/60">Email:</span>
-                        <p className="font-bold text-ink">{parsedTree.detectedEmail || "Not detected"}</p>
+                        <p className="font-bold text-ink">
+                          {parsedTree.detectedEmail || "Not detected"}
+                        </p>
                       </div>
                       <div>
                         <span className="text-ink/60">Phone:</span>
-                        <p className="font-bold text-ink">{parsedTree.detectedPhone || "Not detected"}</p>
+                        <p className="font-bold text-ink">
+                          {parsedTree.detectedPhone || "Not detected"}
+                        </p>
                       </div>
                       <div>
                         <span className="text-ink/60">LinkedIn Profile:</span>
-                        <p className="font-bold text-coral truncate">{parsedTree.detectedLinkedIn || "Not detected"}</p>
+                        <p className="font-bold text-coral truncate">
+                          {parsedTree.detectedLinkedIn || "Not detected"}
+                        </p>
                       </div>
                       <div>
                         <span className="text-ink/60">GitHub Portfolio:</span>
-                        <p className="font-bold text-coral truncate">{parsedTree.detectedGitHub || "Not detected"}</p>
+                        <p className="font-bold text-coral truncate">
+                          {parsedTree.detectedGitHub || "Not detected"}
+                        </p>
                       </div>
                       <div>
                         <span className="text-ink/60">Location:</span>
@@ -1647,7 +1679,9 @@ function ResumeAnalyzerPage() {
                       </div>
                       <div>
                         <span className="text-ink/60">Institution:</span>
-                        <p className="font-bold text-ink">{parsedTree.educationSummary.institution}</p>
+                        <p className="font-bold text-ink">
+                          {parsedTree.educationSummary.institution}
+                        </p>
                       </div>
                       <div>
                         <span className="text-ink/60">Graduation Timeline:</span>
@@ -1721,7 +1755,8 @@ function ResumeAnalyzerPage() {
                       Cross-Role Readiness Benchmark
                     </h2>
                     <p className="text-xs text-ink/70">
-                      See how your resume stacks up across all 6 core tech tracks to discover your strongest placement opportunities.
+                      See how your resume stacks up across all 6 core tech tracks to discover your
+                      strongest placement opportunities.
                     </p>
                   </div>
                 </div>
@@ -1739,7 +1774,9 @@ function ResumeAnalyzerPage() {
               {isLoadingCrossRole ? (
                 <div className="mt-8 text-center py-12">
                   <RefreshCw className="mx-auto size-6 animate-spin text-coral" />
-                  <p className="mt-2 text-xs text-ink/60">Evaluating across 6 engineering tracks...</p>
+                  <p className="mt-2 text-xs text-ink/60">
+                    Evaluating across 6 engineering tracks...
+                  </p>
                 </div>
               ) : crossRoleData ? (
                 <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -1750,8 +1787,8 @@ function ResumeAnalyzerPage() {
                         item.suitabilityBadge === "Strong Fit"
                           ? "border-emerald-500/40 bg-mint/20"
                           : item.suitabilityBadge === "Good Fit"
-                          ? "border-coral/30 bg-peach/20"
-                          : "border-border bg-card"
+                            ? "border-coral/30 bg-peach/20"
+                            : "border-border bg-card"
                       }`}
                     >
                       <div>
@@ -1761,15 +1798,13 @@ function ResumeAnalyzerPage() {
                               item.suitabilityBadge === "Strong Fit"
                                 ? "bg-emerald-700 text-white"
                                 : item.suitabilityBadge === "Good Fit"
-                                ? "bg-coral text-white"
-                                : "bg-muted text-ink/70"
+                                  ? "bg-coral text-white"
+                                  : "bg-muted text-ink/70"
                             }`}
                           >
                             {item.suitabilityBadge}
                           </span>
-                          <span className="text-xs font-black text-ink">
-                            ATS: {item.atsScore}%
-                          </span>
+                          <span className="text-xs font-black text-ink">ATS: {item.atsScore}%</span>
                         </div>
 
                         <h4 className="mt-3 font-display text-base font-extrabold text-ink">
@@ -1874,7 +1909,9 @@ function ResumeAnalyzerPage() {
                   <div className="flex items-center gap-4">
                     <div className="text-right">
                       <span className="text-xs font-extrabold text-ink">ATS: {h.atsScore}%</span>
-                      <span className="ml-2 text-xs font-semibold text-coral">Ready: {h.readinessScore}%</span>
+                      <span className="ml-2 text-xs font-semibold text-coral">
+                        Ready: {h.readinessScore}%
+                      </span>
                     </div>
                     <button
                       onClick={(e) => handleDeleteHistory(h.id, e)}
@@ -1889,7 +1926,8 @@ function ResumeAnalyzerPage() {
             </div>
           ) : (
             <p className="mt-4 text-xs text-muted-foreground">
-              No previous resume scans found. Upload your first resume above to begin tracking your readiness.
+              No previous resume scans found. Upload your first resume above to begin tracking your
+              readiness.
             </p>
           )}
         </div>

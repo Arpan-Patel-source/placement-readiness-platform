@@ -13,6 +13,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.UUID;
+
 /**
  * Handles registration and login business logic.
  *
@@ -26,8 +29,6 @@ import org.springframework.transaction.annotation.Transactional;
  * 1. Delegates credential check to AuthenticationManager.
  * 2. Loads the user and generates a JWT.
  */
-import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -132,4 +133,3 @@ public class AuthService {
                 .build();
     }
 }
-

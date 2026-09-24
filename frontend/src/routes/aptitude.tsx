@@ -65,80 +65,165 @@ function AptitudeModule() {
   const [formulas, setFormulas] = useState<FormulaCard[]>([]);
   const [formulaFilter, setFormulaFilter] = useState("All");
 
-const FALLBACK_APT_CATEGORIES: AptitudeCategorySummary[] = [
-  { category: "QUANTITATIVE", displayName: "Quantitative Aptitude", totalQuestions: 15, topics: [{ topicId: "Percentages", topicName: "Percentages", questionCount: 5, keyConcept: "Base comparisons" }, { topicId: "Profit & Loss", topicName: "Profit & Loss", questionCount: 5, keyConcept: "Margins" }, { topicId: "Time & Work", topicName: "Time & Work", questionCount: 5, keyConcept: "Efficiency" }] },
-  { category: "LOGICAL_REASONING", displayName: "Logical Reasoning", totalQuestions: 15, topics: [{ topicId: "Number Series", topicName: "Number Series", questionCount: 5, keyConcept: "Patterns" }, { topicId: "Blood Relations", topicName: "Blood Relations", questionCount: 5, keyConcept: "Family trees" }, { topicId: "Syllogisms", topicName: "Syllogisms", questionCount: 5, keyConcept: "Venn logic" }] },
-  { category: "VERBAL_ABILITY", displayName: "Verbal Ability", totalQuestions: 15, topics: [{ topicId: "Error Spotting", topicName: "Error Spotting", questionCount: 5, keyConcept: "Subject-verb agreement" }, { topicId: "Vocabulary", topicName: "Vocabulary", questionCount: 5, keyConcept: "Synonyms" }, { topicId: "Reading Comprehension", topicName: "Reading Comprehension", questionCount: 5, keyConcept: "Contextual inference" }] },
-];
-
-const FALLBACK_APT_QUESTIONS: Record<string, AptitudeQuestion[]> = {
-  QUANTITATIVE: [
+  const FALLBACK_APT_CATEGORIES: AptitudeCategorySummary[] = [
     {
-      id: "QA_PERC_01",
       category: "QUANTITATIVE",
-      topic: "Percentages",
-      difficulty: "EASY",
-      question: "A student must obtain 33% of the total marks to pass. He got 125 marks and failed by 40 marks. What was the maximum aggregate marks of the examination?",
-      options: ["450", "500", "550", "600"],
-      correctOptionIndex: 1,
-      explanation: "Passing marks = 125 + 40 = 165. Since 33% = 165, Total = (165 / 33) * 100 = 500.",
-      formulaTip: "Pass Marks = Scored + Deficit = (Pass % * Total) / 100",
-      companiesAsked: ["TCS", "Wipro", "Cognizant"],
+      displayName: "Quantitative Aptitude",
+      totalQuestions: 15,
+      topics: [
+        {
+          topicId: "Percentages",
+          topicName: "Percentages",
+          questionCount: 5,
+          keyConcept: "Base comparisons",
+        },
+        {
+          topicId: "Profit & Loss",
+          topicName: "Profit & Loss",
+          questionCount: 5,
+          keyConcept: "Margins",
+        },
+        {
+          topicId: "Time & Work",
+          topicName: "Time & Work",
+          questionCount: 5,
+          keyConcept: "Efficiency",
+        },
+      ],
     },
     {
-      id: "QA_PERC_02",
-      category: "QUANTITATIVE",
-      topic: "Percentages",
-      difficulty: "MEDIUM",
-      question: "If the price of petrol increases by 25%, by what percentage must a driver reduce fuel consumption so that the total fuel expenditure remains constant?",
-      options: ["15%", "20%", "25%", "33.33%"],
-      correctOptionIndex: 1,
-      explanation: "Reduction % = [r / (100 + r)] * 100 = [25 / 125] * 100 = 20%.",
-      formulaTip: "Reduction = [r / (100 + r)] * 100",
-      companiesAsked: ["Infosys", "Accenture", "Capgemini"],
-    },
-  ],
-  LOGICAL_REASONING: [
-    {
-      id: "LR_SER_01",
       category: "LOGICAL_REASONING",
-      topic: "Number Series",
-      difficulty: "EASY",
-      question: "Find the next missing number in the following progression: 2, 6, 12, 20, 30, ?",
-      options: ["40", "42", "44", "48"],
-      correctOptionIndex: 1,
-      explanation: "Differences are +4, +6, +8, +10, +12. So next is 30 + 12 = 42. (Or n^2 + n: 1*2, 2*3, 3*4, 4*5, 5*6, 6*7=42).",
-      formulaTip: "Pattern: n*(n+1) or increasing consecutive even increments",
-      companiesAsked: ["TCS NQT", "Infosys", "Capgemini"],
+      displayName: "Logical Reasoning",
+      totalQuestions: 15,
+      topics: [
+        {
+          topicId: "Number Series",
+          topicName: "Number Series",
+          questionCount: 5,
+          keyConcept: "Patterns",
+        },
+        {
+          topicId: "Blood Relations",
+          topicName: "Blood Relations",
+          questionCount: 5,
+          keyConcept: "Family trees",
+        },
+        {
+          topicId: "Syllogisms",
+          topicName: "Syllogisms",
+          questionCount: 5,
+          keyConcept: "Venn logic",
+        },
+      ],
     },
     {
-      id: "LR_BR_01",
-      category: "LOGICAL_REASONING",
-      topic: "Blood Relations",
-      difficulty: "EASY",
-      question: "Pointing to a photograph of a boy, Suresh said, 'He is the son of the only son of my mother.' How is Suresh related to that boy?",
-      options: ["Brother", "Uncle", "Father", "Grandfather"],
-      correctOptionIndex: 2,
-      explanation: "'Only son of my mother' is Suresh himself. Therefore, the boy is Suresh's son, making Suresh the boy's Father.",
-      formulaTip: "Deconstruct backwards from the last relative phrase",
-      companiesAsked: ["Wipro", "Tech Mahindra", "Cognizant"],
-    },
-  ],
-  VERBAL_ABILITY: [
-    {
-      id: "VA_ERR_01",
       category: "VERBAL_ABILITY",
-      topic: "Error Spotting",
-      difficulty: "EASY",
-      question: "Identify the part containing a grammatical error: 'Neither the principal (A) / nor the teachers (B) / was present at the ceremony (C) / No error (D)'",
-      options: ["Neither the principal", "nor the teachers", "was present at the ceremony", "No error"],
-      correctOptionIndex: 2,
-      explanation: "When subjects are joined by 'neither... nor', the verb agrees with the closer subject ('teachers' is plural, so use 'were present').",
-      formulaTip: "Subject-Verb Agreement: Proximity rule applies with neither/nor",
-      companiesAsked: ["TCS", "Accenture", "Infosys"],
+      displayName: "Verbal Ability",
+      totalQuestions: 15,
+      topics: [
+        {
+          topicId: "Error Spotting",
+          topicName: "Error Spotting",
+          questionCount: 5,
+          keyConcept: "Subject-verb agreement",
+        },
+        {
+          topicId: "Vocabulary",
+          topicName: "Vocabulary",
+          questionCount: 5,
+          keyConcept: "Synonyms",
+        },
+        {
+          topicId: "Reading Comprehension",
+          topicName: "Reading Comprehension",
+          questionCount: 5,
+          keyConcept: "Contextual inference",
+        },
+      ],
     },
-  ],
-};
+  ];
+
+  const FALLBACK_APT_QUESTIONS: Record<string, AptitudeQuestion[]> = {
+    QUANTITATIVE: [
+      {
+        id: "QA_PERC_01",
+        category: "QUANTITATIVE",
+        topic: "Percentages",
+        difficulty: "EASY",
+        question:
+          "A student must obtain 33% of the total marks to pass. He got 125 marks and failed by 40 marks. What was the maximum aggregate marks of the examination?",
+        options: ["450", "500", "550", "600"],
+        correctOptionIndex: 1,
+        explanation:
+          "Passing marks = 125 + 40 = 165. Since 33% = 165, Total = (165 / 33) * 100 = 500.",
+        formulaTip: "Pass Marks = Scored + Deficit = (Pass % * Total) / 100",
+        companiesAsked: ["TCS", "Wipro", "Cognizant"],
+      },
+      {
+        id: "QA_PERC_02",
+        category: "QUANTITATIVE",
+        topic: "Percentages",
+        difficulty: "MEDIUM",
+        question:
+          "If the price of petrol increases by 25%, by what percentage must a driver reduce fuel consumption so that the total fuel expenditure remains constant?",
+        options: ["15%", "20%", "25%", "33.33%"],
+        correctOptionIndex: 1,
+        explanation: "Reduction % = [r / (100 + r)] * 100 = [25 / 125] * 100 = 20%.",
+        formulaTip: "Reduction = [r / (100 + r)] * 100",
+        companiesAsked: ["Infosys", "Accenture", "Capgemini"],
+      },
+    ],
+    LOGICAL_REASONING: [
+      {
+        id: "LR_SER_01",
+        category: "LOGICAL_REASONING",
+        topic: "Number Series",
+        difficulty: "EASY",
+        question: "Find the next missing number in the following progression: 2, 6, 12, 20, 30, ?",
+        options: ["40", "42", "44", "48"],
+        correctOptionIndex: 1,
+        explanation:
+          "Differences are +4, +6, +8, +10, +12. So next is 30 + 12 = 42. (Or n^2 + n: 1*2, 2*3, 3*4, 4*5, 5*6, 6*7=42).",
+        formulaTip: "Pattern: n*(n+1) or increasing consecutive even increments",
+        companiesAsked: ["TCS NQT", "Infosys", "Capgemini"],
+      },
+      {
+        id: "LR_BR_01",
+        category: "LOGICAL_REASONING",
+        topic: "Blood Relations",
+        difficulty: "EASY",
+        question:
+          "Pointing to a photograph of a boy, Suresh said, 'He is the son of the only son of my mother.' How is Suresh related to that boy?",
+        options: ["Brother", "Uncle", "Father", "Grandfather"],
+        correctOptionIndex: 2,
+        explanation:
+          "'Only son of my mother' is Suresh himself. Therefore, the boy is Suresh's son, making Suresh the boy's Father.",
+        formulaTip: "Deconstruct backwards from the last relative phrase",
+        companiesAsked: ["Wipro", "Tech Mahindra", "Cognizant"],
+      },
+    ],
+    VERBAL_ABILITY: [
+      {
+        id: "VA_ERR_01",
+        category: "VERBAL_ABILITY",
+        topic: "Error Spotting",
+        difficulty: "EASY",
+        question:
+          "Identify the part containing a grammatical error: 'Neither the principal (A) / nor the teachers (B) / was present at the ceremony (C) / No error (D)'",
+        options: [
+          "Neither the principal",
+          "nor the teachers",
+          "was present at the ceremony",
+          "No error",
+        ],
+        correctOptionIndex: 2,
+        explanation:
+          "When subjects are joined by 'neither... nor', the verb agrees with the closer subject ('teachers' is plural, so use 'were present').",
+        formulaTip: "Subject-Verb Agreement: Proximity rule applies with neither/nor",
+        companiesAsked: ["TCS", "Accenture", "Infosys"],
+      },
+    ],
+  };
 
   // Load category summaries & formulas on mount
   useEffect(() => {
@@ -175,14 +260,18 @@ const FALLBACK_APT_QUESTIONS: Record<string, AptitudeQuestion[]> = {
         if (qList && qList.length > 0) {
           setQuestions(qList);
         } else {
-          setQuestions(FALLBACK_APT_QUESTIONS[selectedCategory] || FALLBACK_APT_QUESTIONS.QUANTITATIVE);
+          setQuestions(
+            FALLBACK_APT_QUESTIONS[selectedCategory] || FALLBACK_APT_QUESTIONS.QUANTITATIVE,
+          );
         }
         setCurrentIndex(0);
         setSelectedOption(null);
         setShowExplanation(false);
       } catch (err) {
         console.warn("Using fallback aptitude questions:", err);
-        setQuestions(FALLBACK_APT_QUESTIONS[selectedCategory] || FALLBACK_APT_QUESTIONS.QUANTITATIVE);
+        setQuestions(
+          FALLBACK_APT_QUESTIONS[selectedCategory] || FALLBACK_APT_QUESTIONS.QUANTITATIVE,
+        );
         setCurrentIndex(0);
         setSelectedOption(null);
         setShowExplanation(false);
@@ -271,7 +360,9 @@ const FALLBACK_APT_QUESTIONS: Record<string, AptitudeQuestion[]> = {
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
             <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-coral">
-              <Link to="/dashboard" className="hover:underline">Dashboard</Link>
+              <Link to="/dashboard" className="hover:underline">
+                Dashboard
+              </Link>
               <span>/</span>
               <span>Aptitude Training</span>
             </div>
@@ -279,7 +370,8 @@ const FALLBACK_APT_QUESTIONS: Record<string, AptitudeQuestion[]> = {
               Aptitude & Reasoning Practice
             </h1>
             <p className="mt-1 text-sm text-ink/70">
-              Practice placement quantitative problems, logical puzzles, and verbal reasoning with clear step-by-step solutions.
+              Practice placement quantitative problems, logical puzzles, and verbal reasoning with
+              clear step-by-step solutions.
             </p>
           </div>
 
@@ -359,8 +451,8 @@ const FALLBACK_APT_QUESTIONS: Record<string, AptitudeQuestion[]> = {
                         {cat.category === "QUANTITATIVE"
                           ? "Quantitative"
                           : cat.category === "LOGICAL_REASONING"
-                          ? "Logical"
-                          : "Verbal"}
+                            ? "Logical"
+                            : "Verbal"}
                       </span>
                       <span className="rounded-full bg-peach/40 px-2.5 py-0.5 text-xs font-semibold text-ink">
                         {cat.totalQuestions} Questions
@@ -428,14 +520,17 @@ const FALLBACK_APT_QUESTIONS: Record<string, AptitudeQuestion[]> = {
             {loading ? (
               <div className="flex flex-col items-center justify-center rounded-3xl border border-border bg-card py-20">
                 <div className="size-8 animate-spin rounded-full border-2 border-coral border-t-transparent" />
-                <p className="mt-3 text-xs font-semibold text-ink/70">Loading placement questions...</p>
+                <p className="mt-3 text-xs font-semibold text-ink/70">
+                  Loading placement questions...
+                </p>
               </div>
             ) : questions.length === 0 ? (
               <div className="rounded-3xl border border-dashed border-border bg-card/40 p-12 text-center">
                 <AlertCircle className="mx-auto size-8 text-coral/70" />
                 <h3 className="mt-2 font-display text-lg font-bold text-ink">No questions found</h3>
                 <p className="mt-1 text-xs text-ink/60">
-                  Try clearing topic or difficulty filters to explore all questions in this category.
+                  Try clearing topic or difficulty filters to explore all questions in this
+                  category.
                 </p>
                 <button
                   onClick={() => {
@@ -466,8 +561,8 @@ const FALLBACK_APT_QUESTIONS: Record<string, AptitudeQuestion[]> = {
                             currentQ.difficulty === "EASY"
                               ? "bg-mint/60 text-emerald-800"
                               : currentQ.difficulty === "MEDIUM"
-                              ? "bg-peach/60 text-amber-900"
-                              : "bg-coral/20 text-coral"
+                                ? "bg-peach/60 text-amber-900"
+                                : "bg-coral/20 text-coral"
                           }`}
                         >
                           {currentQ.difficulty}
@@ -506,7 +601,8 @@ const FALLBACK_APT_QUESTIONS: Record<string, AptitudeQuestion[]> = {
 
                         if (selectedOption !== null || showExplanation) {
                           if (isCorrect) {
-                            optionStyle = "border-emerald-500 bg-emerald-50/80 text-emerald-950 font-semibold ring-1 ring-emerald-500";
+                            optionStyle =
+                              "border-emerald-500 bg-emerald-50/80 text-emerald-950 font-semibold ring-1 ring-emerald-500";
                           } else if (isChosen && !isCorrect) {
                             optionStyle = "border-coral bg-coral/10 text-coral font-semibold";
                           } else {
@@ -540,9 +636,9 @@ const FALLBACK_APT_QUESTIONS: Record<string, AptitudeQuestion[]> = {
                             {(selectedOption !== null || showExplanation) && isCorrect && (
                               <CheckCircle2 className="size-5 text-emerald-600 shrink-0" />
                             )}
-                            {(selectedOption !== null || showExplanation) && isChosen && !isCorrect && (
-                              <XCircle className="size-5 text-coral shrink-0" />
-                            )}
+                            {(selectedOption !== null || showExplanation) &&
+                              isChosen &&
+                              !isCorrect && <XCircle className="size-5 text-coral shrink-0" />}
                           </button>
                         );
                       })}
@@ -589,9 +685,7 @@ const FALLBACK_APT_QUESTIONS: Record<string, AptitudeQuestion[]> = {
                       <div className="mt-6 rounded-2xl border border-mint bg-mint/20 p-5">
                         <div className="flex items-center gap-2 text-emerald-900">
                           <CheckCircle2 className="size-4 text-emerald-700" />
-                          <h4 className="font-display text-sm font-bold">
-                            Solution Breakdown
-                          </h4>
+                          <h4 className="font-display text-sm font-bold">Solution Breakdown</h4>
                         </div>
                         <div className="mt-3 whitespace-pre-line text-xs leading-relaxed text-ink/85 font-mono bg-card/80 p-3.5 rounded-xl border border-border/50">
                           {currentQ.explanation}
@@ -632,7 +726,8 @@ const FALLBACK_APT_QUESTIONS: Record<string, AptitudeQuestion[]> = {
                         Time Target
                       </p>
                       <p className="mt-1 text-xs text-ink/80">
-                        Aim for <strong>under 60 seconds</strong> per question in actual placement assessments.
+                        Aim for <strong>under 60 seconds</strong> per question in actual placement
+                        assessments.
                       </p>
                     </div>
                   </div>
@@ -677,8 +772,9 @@ const FALLBACK_APT_QUESTIONS: Record<string, AptitudeQuestion[]> = {
                   Placement Mock Test Simulator
                 </h2>
                 <p className="mt-2 text-xs leading-relaxed text-ink/70">
-                  Simulate the exact conditions of online assessment rounds (TCS NQT, Infosys DSE, Amazon OA).
-                  10 randomized questions across Quantitative, Logical, and Verbal topics with a 10-minute timer.
+                  Simulate the exact conditions of online assessment rounds (TCS NQT, Infosys DSE,
+                  Amazon OA). 10 randomized questions across Quantitative, Logical, and Verbal
+                  topics with a 10-minute timer.
                 </p>
 
                 <div className="mt-6 grid grid-cols-3 gap-3 rounded-2xl bg-muted/50 p-4 text-center">
@@ -819,7 +915,9 @@ const FALLBACK_APT_QUESTIONS: Record<string, AptitudeQuestion[]> = {
                         </button>
                         <button
                           disabled={mockCurrentIndex >= mockQuestions.length - 1}
-                          onClick={() => setMockCurrentIndex((p) => Math.min(mockQuestions.length - 1, p + 1))}
+                          onClick={() =>
+                            setMockCurrentIndex((p) => Math.min(mockQuestions.length - 1, p + 1))
+                          }
                           className="flex items-center gap-1.5 rounded-xl bg-ink px-4 py-2 text-xs font-bold text-background disabled:opacity-30 hover:bg-ink/90"
                         >
                           Next <ChevronRight className="size-4" />
@@ -874,7 +972,9 @@ const FALLBACK_APT_QUESTIONS: Record<string, AptitudeQuestion[]> = {
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="size-3 rounded-md bg-muted border border-border" />
-                      <span>Unattempted ({mockQuestions.length - Object.keys(mockAnswers).length})</span>
+                      <span>
+                        Unattempted ({mockQuestions.length - Object.keys(mockAnswers).length})
+                      </span>
                     </div>
                   </div>
 
@@ -922,15 +1022,21 @@ const FALLBACK_APT_QUESTIONS: Record<string, AptitudeQuestion[]> = {
                   <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4 border-t border-border/60 pt-6 text-center">
                     <div className="rounded-2xl bg-muted/30 p-4">
                       <p className="text-xs text-ink/60">Total Questions</p>
-                      <p className="font-display text-2xl font-bold text-ink">{testResult.totalQuestions}</p>
+                      <p className="font-display text-2xl font-bold text-ink">
+                        {testResult.totalQuestions}
+                      </p>
                     </div>
                     <div className="rounded-2xl bg-emerald-50 p-4">
                       <p className="text-xs text-emerald-800 font-semibold">Correct</p>
-                      <p className="font-display text-2xl font-bold text-emerald-700">{testResult.correctCount}</p>
+                      <p className="font-display text-2xl font-bold text-emerald-700">
+                        {testResult.correctCount}
+                      </p>
                     </div>
                     <div className="rounded-2xl bg-coral/10 p-4">
                       <p className="text-xs text-coral font-semibold">Incorrect</p>
-                      <p className="font-display text-2xl font-bold text-coral">{testResult.incorrectCount}</p>
+                      <p className="font-display text-2xl font-bold text-coral">
+                        {testResult.incorrectCount}
+                      </p>
                     </div>
                     <div className="rounded-2xl bg-muted/30 p-4">
                       <p className="text-xs text-ink/60">Time Spent</p>
@@ -953,10 +1059,15 @@ const FALLBACK_APT_QUESTIONS: Record<string, AptitudeQuestion[]> = {
                 {/* Topic Breakdown Bars */}
                 {testResult.topicBreakdowns.length > 0 && (
                   <div className="rounded-3xl border border-border bg-card p-6 shadow-sm">
-                    <h3 className="font-display text-base font-bold text-ink">Topic-Wise Performance</h3>
+                    <h3 className="font-display text-base font-bold text-ink">
+                      Topic-Wise Performance
+                    </h3>
                     <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                       {testResult.topicBreakdowns.map((tb) => (
-                        <div key={tb.topic} className="rounded-2xl border border-border/70 p-4 bg-muted/20">
+                        <div
+                          key={tb.topic}
+                          className="rounded-2xl border border-border/70 p-4 bg-muted/20"
+                        >
                           <div className="flex items-center justify-between text-xs">
                             <span className="font-bold text-ink">{tb.topic}</span>
                             <span className="font-semibold text-coral">{tb.accuracy}%</span>
@@ -978,7 +1089,9 @@ const FALLBACK_APT_QUESTIONS: Record<string, AptitudeQuestion[]> = {
 
                 {/* Question-by-Question Review Accordion */}
                 <div className="space-y-4">
-                  <h3 className="font-display text-lg font-bold text-ink">Question Review & Solutions</h3>
+                  <h3 className="font-display text-lg font-bold text-ink">
+                    Question Review & Solutions
+                  </h3>
                   {testResult.questionReviews.map((rev, idx) => (
                     <div
                       key={rev.questionId}
@@ -986,8 +1099,8 @@ const FALLBACK_APT_QUESTIONS: Record<string, AptitudeQuestion[]> = {
                         rev.isCorrect
                           ? "border-emerald-200 bg-emerald-50/20"
                           : rev.isAttempted
-                          ? "border-coral/30 bg-coral/5"
-                          : "border-border bg-card"
+                            ? "border-coral/30 bg-coral/5"
+                            : "border-border bg-card"
                       }`}
                     >
                       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -997,8 +1110,8 @@ const FALLBACK_APT_QUESTIONS: Record<string, AptitudeQuestion[]> = {
                               rev.isCorrect
                                 ? "bg-emerald-600 text-white"
                                 : rev.isAttempted
-                                ? "bg-coral text-white"
-                                : "bg-muted text-ink/60"
+                                  ? "bg-coral text-white"
+                                  : "bg-muted text-ink/60"
                             }`}
                           >
                             {idx + 1}
@@ -1010,11 +1123,15 @@ const FALLBACK_APT_QUESTIONS: Record<string, AptitudeQuestion[]> = {
                             rev.isCorrect
                               ? "bg-emerald-100 text-emerald-800"
                               : rev.isAttempted
-                              ? "bg-coral/15 text-coral"
-                              : "bg-muted text-ink/60"
+                                ? "bg-coral/15 text-coral"
+                                : "bg-muted text-ink/60"
                           }`}
                         >
-                          {rev.isCorrect ? "Correct" : rev.isAttempted ? "Incorrect" : "Unattempted"}
+                          {rev.isCorrect
+                            ? "Correct"
+                            : rev.isAttempted
+                              ? "Incorrect"
+                              : "Unattempted"}
                         </span>
                       </div>
 
@@ -1025,8 +1142,10 @@ const FALLBACK_APT_QUESTIONS: Record<string, AptitudeQuestion[]> = {
                           const isSelected = rev.selectedOptionIndex === oIdx;
                           const isCorrect = rev.correctOptionIndex === oIdx;
                           let style = "border-border/60 bg-card text-ink/70";
-                          if (isCorrect) style = "border-emerald-500 bg-emerald-100 text-emerald-950 font-bold";
-                          if (isSelected && !isCorrect) style = "border-coral bg-coral/20 text-coral font-bold";
+                          if (isCorrect)
+                            style = "border-emerald-500 bg-emerald-100 text-emerald-950 font-bold";
+                          if (isSelected && !isCorrect)
+                            style = "border-coral bg-coral/20 text-coral font-bold";
 
                           return (
                             <div
@@ -1037,7 +1156,9 @@ const FALLBACK_APT_QUESTIONS: Record<string, AptitudeQuestion[]> = {
                                 {String.fromCharCode(65 + oIdx)}. {opt}
                               </span>
                               {isCorrect && <CheckCircle2 className="size-3.5 text-emerald-700" />}
-                              {isSelected && !isCorrect && <XCircle className="size-3.5 text-coral" />}
+                              {isSelected && !isCorrect && (
+                                <XCircle className="size-3.5 text-coral" />
+                              )}
                             </div>
                           );
                         })}
@@ -1045,7 +1166,9 @@ const FALLBACK_APT_QUESTIONS: Record<string, AptitudeQuestion[]> = {
 
                       {/* Explanation box */}
                       <div className="mt-4 rounded-xl bg-card p-3.5 text-xs font-mono text-ink/80 border border-border/60 whitespace-pre-line">
-                        <span className="font-sans font-bold text-ink block mb-1">Step-by-Step Derivation:</span>
+                        <span className="font-sans font-bold text-ink block mb-1">
+                          Step-by-Step Derivation:
+                        </span>
                         {rev.explanation}
                       </div>
                     </div>
@@ -1091,7 +1214,11 @@ const FALLBACK_APT_QUESTIONS: Record<string, AptitudeQuestion[]> = {
 
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {formulas
-                .filter((f) => formulaFilter === "All" || f.category.toLowerCase().includes(formulaFilter.toLowerCase()))
+                .filter(
+                  (f) =>
+                    formulaFilter === "All" ||
+                    f.category.toLowerCase().includes(formulaFilter.toLowerCase()),
+                )
                 .map((f, i) => (
                   <div
                     key={i}

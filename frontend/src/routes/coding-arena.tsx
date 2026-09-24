@@ -43,7 +43,10 @@ const CATEGORY_NAMES: Record<CodingCategoryType, string> = {
   GREEDY: "Greedy & Intervals",
 };
 
-const DIFFICULTY_COLORS: Record<CodingDifficultyType, { bg: string; text: string; border: string }> = {
+const DIFFICULTY_COLORS: Record<
+  CodingDifficultyType,
+  { bg: string; text: string; border: string }
+> = {
   EASY: { bg: "bg-emerald-500/10", text: "text-emerald-500", border: "border-emerald-500/20" },
   MEDIUM: { bg: "bg-amber-500/10", text: "text-amber-500", border: "border-amber-500/20" },
   HARD: { bg: "bg-rose-500/10", text: "text-rose-500", border: "border-rose-500/20" },
@@ -60,7 +63,9 @@ function CodingArenaPage() {
   // Editor State
   const [language, setLanguage] = useState<CodingLanguageType>("JAVA");
   const [code, setCode] = useState<string>("");
-  const [activeTab, setActiveTab] = useState<"description" | "hints" | "submissions">("description");
+  const [activeTab, setActiveTab] = useState<"description" | "hints" | "submissions">(
+    "description",
+  );
   const [outputTab, setOutputTab] = useState<"results" | "mentor">("results");
 
   // Execution & Mentor State
@@ -92,13 +97,20 @@ function CodingArenaPage() {
   const updateStarterCode = (prob: CodingProblem, lang: CodingLanguageType) => {
     switch (lang) {
       case "JAVA":
-        setCode(prob.starterCodeJava || "// Write your Java solution here\nclass Solution {\n    \n}");
+        setCode(
+          prob.starterCodeJava || "// Write your Java solution here\nclass Solution {\n    \n}",
+        );
         break;
       case "PYTHON":
-        setCode(prob.starterCodePython || "# Write your Python solution here\nclass Solution:\n    pass");
+        setCode(
+          prob.starterCodePython || "# Write your Python solution here\nclass Solution:\n    pass",
+        );
         break;
       case "CPP":
-        setCode(prob.starterCodeCpp || "// Write your C++ solution here\nclass Solution {\npublic:\n    \n};");
+        setCode(
+          prob.starterCodeCpp ||
+            "// Write your C++ solution here\nclass Solution {\npublic:\n    \n};",
+        );
         break;
       case "C":
         setCode(prob.starterCodeC || "// Write your C solution here\n");
@@ -112,13 +124,48 @@ function CodingArenaPage() {
       setCategories(data);
     } catch {
       setCategories([
-        { category: "ARRAYS", displayName: "Arrays & Hashing", problemCount: 5, description: "Subarrays, hash maps, two pointers" },
-        { category: "STRINGS", displayName: "Strings & Palindromes", problemCount: 5, description: "Anagrams, palindromes, sliding window" },
-        { category: "LINKED_LIST", displayName: "Linked Lists", problemCount: 5, description: "Reversals, cycles, fast-slow pointers" },
-        { category: "TREES", displayName: "Binary Trees & BST", problemCount: 5, description: "Traversals, depth, valid BST" },
-        { category: "GRAPHS", displayName: "Graphs", problemCount: 5, description: "BFS, DFS, components, cycles" },
-        { category: "DP", displayName: "Dynamic Programming", problemCount: 5, description: "Memoization, tabulation, knapsack" },
-        { category: "GREEDY", displayName: "Greedy & Intervals", problemCount: 5, description: "Interval scheduling, jump game" },
+        {
+          category: "ARRAYS",
+          displayName: "Arrays & Hashing",
+          problemCount: 5,
+          description: "Subarrays, hash maps, two pointers",
+        },
+        {
+          category: "STRINGS",
+          displayName: "Strings & Palindromes",
+          problemCount: 5,
+          description: "Anagrams, palindromes, sliding window",
+        },
+        {
+          category: "LINKED_LIST",
+          displayName: "Linked Lists",
+          problemCount: 5,
+          description: "Reversals, cycles, fast-slow pointers",
+        },
+        {
+          category: "TREES",
+          displayName: "Binary Trees & BST",
+          problemCount: 5,
+          description: "Traversals, depth, valid BST",
+        },
+        {
+          category: "GRAPHS",
+          displayName: "Graphs",
+          problemCount: 5,
+          description: "BFS, DFS, components, cycles",
+        },
+        {
+          category: "DP",
+          displayName: "Dynamic Programming",
+          problemCount: 5,
+          description: "Memoization, tabulation, knapsack",
+        },
+        {
+          category: "GREEDY",
+          displayName: "Greedy & Intervals",
+          problemCount: 5,
+          description: "Interval scheduling, jump game",
+        },
       ]);
     }
   };
@@ -139,7 +186,8 @@ function CodingArenaPage() {
         {
           id: "arr-001",
           title: "Two Sum",
-          description: "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.\n\nYou may assume that each input would have exactly one solution, and you may not use the same element twice.",
+          description:
+            "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.\n\nYou may assume that each input would have exactly one solution, and you may not use the same element twice.",
           category: "ARRAYS",
           difficulty: "EASY",
           constraints: "2 <= nums.length <= 10^4\n-10^9 <= nums[i] <= 10^9",
@@ -147,9 +195,12 @@ function CodingArenaPage() {
           outputFormat: "Two space-separated indices",
           sampleTestCases: [{ input: "2 7 11 15\n9", expectedOutput: "0 1" }],
           totalTestCases: 4,
-          starterCodeJava: "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String[] parts = sc.nextLine().split(\" \");\n        int[] nums = new int[parts.length];\n        for (int i = 0; i < parts.length; i++) nums[i] = Integer.parseInt(parts[i]);\n        int target = Integer.parseInt(sc.nextLine().trim());\n        // Solve here\n    }\n}",
-          starterCodePython: "nums = list(map(int, input().split()))\ntarget = int(input())\n# Solve here",
-          starterCodeCpp: "#include <iostream>\n#include <vector>\nusing namespace std;\nint main() {\n    // Solve here\n    return 0;\n}",
+          starterCodeJava:
+            'import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String[] parts = sc.nextLine().split(" ");\n        int[] nums = new int[parts.length];\n        for (int i = 0; i < parts.length; i++) nums[i] = Integer.parseInt(parts[i]);\n        int target = Integer.parseInt(sc.nextLine().trim());\n        // Solve here\n    }\n}',
+          starterCodePython:
+            "nums = list(map(int, input().split()))\ntarget = int(input())\n# Solve here",
+          starterCodeCpp:
+            "#include <iostream>\n#include <vector>\nusing namespace std;\nint main() {\n    // Solve here\n    return 0;\n}",
           starterCodeC: "#include <stdio.h>\nint main() {\n    return 0;\n}",
           hints: ["Use a Hash Map to store complement values", "Check if target - num exists"],
           timeComplexity: "O(n)",
@@ -159,7 +210,8 @@ function CodingArenaPage() {
         {
           id: "str-001",
           title: "Valid Anagram",
-          description: "Given two strings s and t, return true if t is an anagram of s, and false otherwise.",
+          description:
+            "Given two strings s and t, return true if t is an anagram of s, and false otherwise.",
           category: "STRINGS",
           difficulty: "EASY",
           constraints: "1 <= s.length, t.length <= 5 * 10^4",
@@ -167,9 +219,11 @@ function CodingArenaPage() {
           outputFormat: "true or false",
           sampleTestCases: [{ input: "anagram\nnagaram", expectedOutput: "true" }],
           totalTestCases: 4,
-          starterCodeJava: "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String s = sc.nextLine();\n        String t = sc.nextLine();\n        // Solve here\n    }\n}",
+          starterCodeJava:
+            "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String s = sc.nextLine();\n        String t = sc.nextLine();\n        // Solve here\n    }\n}",
           starterCodePython: "s = input().strip()\nt = input().strip()\n# Solve here",
-          starterCodeCpp: "#include <iostream>\n#include <string>\nusing namespace std;\nint main() {\n    return 0;\n}",
+          starterCodeCpp:
+            "#include <iostream>\n#include <string>\nusing namespace std;\nint main() {\n    return 0;\n}",
           starterCodeC: "#include <stdio.h>\nint main() {\n    return 0;\n}",
           hints: ["Count character frequencies using an array of size 26"],
           timeComplexity: "O(n)",
@@ -179,7 +233,8 @@ function CodingArenaPage() {
         {
           id: "ll-001",
           title: "Reverse a Linked List",
-          description: "Given the head of a singly linked list, reverse the list, and return the reversed list elements.",
+          description:
+            "Given the head of a singly linked list, reverse the list, and return the reversed list elements.",
           category: "LINKED_LIST",
           difficulty: "EASY",
           constraints: "0 <= number of nodes <= 5000",
@@ -187,9 +242,11 @@ function CodingArenaPage() {
           outputFormat: "Space-separated reversed values",
           sampleTestCases: [{ input: "1 2 3 4 5", expectedOutput: "5 4 3 2 1" }],
           totalTestCases: 4,
-          starterCodeJava: "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        // Solve here\n    }\n}",
+          starterCodeJava:
+            "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        // Solve here\n    }\n}",
           starterCodePython: "nodes = list(map(int, input().split()))\nprint(*nodes[::-1])",
-          starterCodeCpp: "#include <iostream>\nusing namespace std;\nint main() {\n    return 0;\n}",
+          starterCodeCpp:
+            "#include <iostream>\nusing namespace std;\nint main() {\n    return 0;\n}",
           starterCodeC: "#include <stdio.h>\nint main() {\n    return 0;\n}",
           hints: ["Use three pointers: prev, curr, next"],
           timeComplexity: "O(n)",
@@ -199,7 +256,8 @@ function CodingArenaPage() {
         {
           id: "tree-001",
           title: "Maximum Depth of Binary Tree",
-          description: "Given the root of a binary tree, return its maximum depth (number of nodes along the longest path from root to leaf).",
+          description:
+            "Given the root of a binary tree, return its maximum depth (number of nodes along the longest path from root to leaf).",
           category: "TREES",
           difficulty: "EASY",
           constraints: "0 <= nodes <= 10^4",
@@ -207,9 +265,11 @@ function CodingArenaPage() {
           outputFormat: "Integer representing depth",
           sampleTestCases: [{ input: "3 9 20 -1 -1 15 7", expectedOutput: "3" }],
           totalTestCases: 4,
-          starterCodeJava: "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        // Solve here\n    }\n}",
+          starterCodeJava:
+            "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        // Solve here\n    }\n}",
           starterCodePython: "# Tree depth calculation\npass",
-          starterCodeCpp: "#include <iostream>\nusing namespace std;\nint main() {\n    return 0;\n}",
+          starterCodeCpp:
+            "#include <iostream>\nusing namespace std;\nint main() {\n    return 0;\n}",
           starterCodeC: "#include <stdio.h>\nint main() {\n    return 0;\n}",
           hints: ["1 + max(depth(left), depth(right))"],
           timeComplexity: "O(n)",
@@ -219,7 +279,8 @@ function CodingArenaPage() {
         {
           id: "graph-001",
           title: "Number of Connected Components",
-          description: "Given n nodes and a list of undirected edges, return the number of connected components in the graph.",
+          description:
+            "Given n nodes and a list of undirected edges, return the number of connected components in the graph.",
           category: "GRAPHS",
           difficulty: "MEDIUM",
           constraints: "1 <= n <= 2000",
@@ -227,7 +288,8 @@ function CodingArenaPage() {
           outputFormat: "Integer component count",
           sampleTestCases: [{ input: "5 2\n0 1\n1 2", expectedOutput: "3" }],
           totalTestCases: 4,
-          starterCodeJava: "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        // Solve here\n    }\n}",
+          starterCodeJava:
+            "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        // Solve here\n    }\n}",
           starterCodePython: "n, m = map(int, input().split())\n# Graph BFS/DFS traversal",
           starterCodeCpp: "#include <iostream>\nusing namespace std;\nint main() { return 0; }",
           starterCodeC: "#include <stdio.h>\nint main() { return 0; }",
@@ -239,7 +301,8 @@ function CodingArenaPage() {
         {
           id: "dp-001",
           title: "Climbing Stairs",
-          description: "You are climbing a staircase. It takes n steps to reach the top. Each time you can either climb 1 or 2 steps. In how many distinct ways can you climb to the top?",
+          description:
+            "You are climbing a staircase. It takes n steps to reach the top. Each time you can either climb 1 or 2 steps. In how many distinct ways can you climb to the top?",
           category: "DP",
           difficulty: "EASY",
           constraints: "1 <= n <= 45",
@@ -247,7 +310,8 @@ function CodingArenaPage() {
           outputFormat: "Number of distinct ways",
           sampleTestCases: [{ input: "3", expectedOutput: "3" }],
           totalTestCases: 4,
-          starterCodeJava: "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        int n = sc.nextInt();\n        // Solve here\n    }\n}",
+          starterCodeJava:
+            "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        int n = sc.nextInt();\n        // Solve here\n    }\n}",
           starterCodePython: "n = int(input())\n# DP / Fibonacci progression",
           starterCodeCpp: "#include <iostream>\nusing namespace std;\nint main() { return 0; }",
           starterCodeC: "#include <stdio.h>\nint main() { return 0; }",
@@ -259,7 +323,8 @@ function CodingArenaPage() {
         {
           id: "greedy-001",
           title: "Jump Game",
-          description: "You are given an integer array nums. You are initially positioned at the array's first index. Each element represents your maximum jump length at that position. Return true if you can reach the last index, or false otherwise.",
+          description:
+            "You are given an integer array nums. You are initially positioned at the array's first index. Each element represents your maximum jump length at that position. Return true if you can reach the last index, or false otherwise.",
           category: "GREEDY",
           difficulty: "MEDIUM",
           constraints: "1 <= nums.length <= 10^4",
@@ -267,7 +332,8 @@ function CodingArenaPage() {
           outputFormat: "true or false",
           sampleTestCases: [{ input: "2 3 1 1 4", expectedOutput: "true" }],
           totalTestCases: 4,
-          starterCodeJava: "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        // Solve here\n    }\n}",
+          starterCodeJava:
+            "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        // Solve here\n    }\n}",
           starterCodePython: "nums = list(map(int, input().split()))\n# Greedy reach tracker",
           starterCodeCpp: "#include <iostream>\nusing namespace std;\nint main() { return 0; }",
           starterCodeC: "#include <stdio.h>\nint main() { return 0; }",
@@ -320,14 +386,15 @@ function CodingArenaPage() {
         memoryKb: 14200,
         verdict: "Error: " + (err.message || "Failed to execute sample tests"),
         feedback: "Check your syntax and make sure your solution handles basic edge cases.",
-        testCaseResults: selectedProblem.sampleTestCases?.map((tc, idx) => ({
-          testCaseIndex: idx + 1,
-          passed: false,
-          input: tc.input,
-          expectedOutput: tc.expectedOutput,
-          actualOutput: "Execution failed or offline",
-          isHidden: false,
-        })) || [],
+        testCaseResults:
+          selectedProblem.sampleTestCases?.map((tc, idx) => ({
+            testCaseIndex: idx + 1,
+            passed: false,
+            input: tc.input,
+            expectedOutput: tc.expectedOutput,
+            actualOutput: "Execution failed or offline",
+            isHidden: false,
+          })) || [],
       });
     } finally {
       setIsRunning(false);
@@ -357,7 +424,8 @@ function CodingArenaPage() {
         runtimeMs: 68,
         memoryKb: 18450,
         verdict: "Failed on hidden test cases",
-        feedback: "Your solution passed initial sample cases but encountered mismatch on boundary conditions.",
+        feedback:
+          "Your solution passed initial sample cases but encountered mismatch on boundary conditions.",
         testCaseResults: [],
       });
     } finally {
@@ -387,15 +455,16 @@ function CodingArenaPage() {
         optimalSpaceComplexity: selectedProblem.spaceComplexity || "O(1)",
         isOptimal: true,
         betterApproach: "Hash Map / Single Pass Optimization",
-        betterApproachExplanation: "By storing seen elements or prefix states in a hash table, you can eliminate nested loops and achieve linear runtime.",
+        betterApproachExplanation:
+          "By storing seen elements or prefix states in a hash table, you can eliminate nested loops and achieve linear runtime.",
         codeQualitySuggestions: [
           "Include variable naming that reflects domain entities (e.g. targetDiff instead of d).",
           "Add early boundary exit conditions for null or single-element inputs.",
-          "Consider integer overflow limits for large array sizes."
+          "Consider integer overflow limits for large array sizes.",
         ],
         optimizationTips: [
           "Pre-allocate collection capacities if size is known beforehand.",
-          "Use primitive arrays instead of wrapper collections in tight loops for 3x speedup."
+          "Use primitive arrays instead of wrapper collections in tight loops for 3x speedup.",
         ],
         overallVerdict: "Strong implementation with clear logical decomposition.",
         codeQualityScore: 88,
@@ -443,7 +512,8 @@ function CodingArenaPage() {
                 </span>
               </div>
               <p className="text-xs text-slate-400 mt-0.5">
-                Practice 35+ curated company problems with auto-evaluation and instant AI Mentor feedback
+                Practice 35+ curated company problems with auto-evaluation and instant AI Mentor
+                feedback
               </p>
             </div>
           </div>
@@ -455,14 +525,17 @@ function CodingArenaPage() {
               <div>
                 <div className="text-slate-400 text-[10px] uppercase font-semibold">Solved</div>
                 <div className="text-white font-bold text-sm">
-                  {stats?.solvedProblems ?? history.filter(h => h.status === "ACCEPTED").length} / {problems.length || 35}
+                  {stats?.solvedProblems ?? history.filter((h) => h.status === "ACCEPTED").length} /{" "}
+                  {problems.length || 35}
                 </div>
               </div>
             </div>
             <div className="bg-slate-800/60 border border-slate-700/60 rounded-lg px-3 py-2 flex items-center gap-2">
               <Zap className="size-4 text-amber-400" />
               <div>
-                <div className="text-slate-400 text-[10px] uppercase font-semibold">Submissions</div>
+                <div className="text-slate-400 text-[10px] uppercase font-semibold">
+                  Submissions
+                </div>
                 <div className="text-white font-bold text-sm">
                   {stats?.totalSubmissions ?? history.length}
                 </div>
@@ -543,9 +616,13 @@ function CodingArenaPage() {
             </div>
             <div className="overflow-y-auto divide-y divide-slate-800/60">
               {loadingProblems ? (
-                <div className="p-4 text-center text-xs text-slate-500">Loading problem catalog...</div>
+                <div className="p-4 text-center text-xs text-slate-500">
+                  Loading problem catalog...
+                </div>
               ) : filteredProblems.length === 0 ? (
-                <div className="p-4 text-center text-xs text-slate-500">No problems matching filter</div>
+                <div className="p-4 text-center text-xs text-slate-500">
+                  No problems matching filter
+                </div>
               ) : (
                 filteredProblems.map((prob) => {
                   const isSelected = selectedProblem?.id === prob.id;
@@ -559,11 +636,15 @@ function CodingArenaPage() {
                       }`}
                     >
                       <div className="min-w-0 pr-2">
-                        <div className={`text-xs font-semibold truncate ${isSelected ? "text-coral" : "text-slate-200"}`}>
+                        <div
+                          className={`text-xs font-semibold truncate ${isSelected ? "text-coral" : "text-slate-200"}`}
+                        >
                           {prob.title}
                         </div>
                         <div className="flex items-center gap-2 mt-0.5">
-                          <span className="text-[10px] text-slate-500">{CATEGORY_NAMES[prob.category]}</span>
+                          <span className="text-[10px] text-slate-500">
+                            {CATEGORY_NAMES[prob.category]}
+                          </span>
                           {prob.companiesAsked && prob.companiesAsked.length > 0 && (
                             <span className="text-[9px] text-slate-400 bg-slate-800 px-1.5 py-0.2 rounded">
                               {prob.companiesAsked[0]}
@@ -571,7 +652,9 @@ function CodingArenaPage() {
                           )}
                         </div>
                       </div>
-                      <span className={`text-[10px] px-2 py-0.5 rounded border font-semibold ${diffColor.bg} ${diffColor.text} ${diffColor.border}`}>
+                      <span
+                        className={`text-[10px] px-2 py-0.5 rounded border font-semibold ${diffColor.bg} ${diffColor.text} ${diffColor.border}`}
+                      >
                         {prob.difficulty}
                       </span>
                     </button>
@@ -604,10 +687,12 @@ function CodingArenaPage() {
                 {/* Company & Complexity Badges */}
                 <div className="flex flex-wrap items-center gap-2 mt-2 text-[11px]">
                   <span className="text-slate-400 flex items-center gap-1">
-                    <Clock className="size-3 text-slate-500" /> Target: {selectedProblem.timeComplexity || "O(N)"}
+                    <Clock className="size-3 text-slate-500" /> Target:{" "}
+                    {selectedProblem.timeComplexity || "O(N)"}
                   </span>
                   <span className="text-slate-400 flex items-center gap-1">
-                    <Cpu className="size-3 text-slate-500" /> Space: {selectedProblem.spaceComplexity || "O(1)"}
+                    <Cpu className="size-3 text-slate-500" /> Space:{" "}
+                    {selectedProblem.spaceComplexity || "O(1)"}
                   </span>
                   {selectedProblem.companiesAsked?.map((co) => (
                     <span
@@ -624,7 +709,9 @@ function CodingArenaPage() {
                   <button
                     onClick={() => setActiveTab("description")}
                     className={`font-semibold pb-1 border-b-2 transition-colors ${
-                      activeTab === "description" ? "border-coral text-coral" : "border-transparent text-slate-400 hover:text-slate-200"
+                      activeTab === "description"
+                        ? "border-coral text-coral"
+                        : "border-transparent text-slate-400 hover:text-slate-200"
                     }`}
                   >
                     Description
@@ -632,7 +719,9 @@ function CodingArenaPage() {
                   <button
                     onClick={() => setActiveTab("hints")}
                     className={`font-semibold pb-1 border-b-2 transition-colors ${
-                      activeTab === "hints" ? "border-coral text-coral" : "border-transparent text-slate-400 hover:text-slate-200"
+                      activeTab === "hints"
+                        ? "border-coral text-coral"
+                        : "border-transparent text-slate-400 hover:text-slate-200"
                     }`}
                   >
                     Hints ({selectedProblem.hints?.length || 0})
@@ -666,8 +755,13 @@ function CodingArenaPage() {
                         Sample Test Cases
                       </div>
                       {selectedProblem.sampleTestCases?.map((tc, idx) => (
-                        <div key={idx} className="bg-[#0d1117] p-3 rounded-lg border border-slate-800 space-y-1.5 font-mono text-[11px]">
-                          <div className="text-slate-500 font-sans text-[10px] font-semibold">Example {idx + 1}:</div>
+                        <div
+                          key={idx}
+                          className="bg-[#0d1117] p-3 rounded-lg border border-slate-800 space-y-1.5 font-mono text-[11px]"
+                        >
+                          <div className="text-slate-500 font-sans text-[10px] font-semibold">
+                            Example {idx + 1}:
+                          </div>
                           <div>
                             <span className="text-slate-500">Input: </span>
                             <span className="text-emerald-400">{tc.input}</span>
@@ -684,16 +778,23 @@ function CodingArenaPage() {
                   <div className="space-y-3">
                     {selectedProblem.hints && selectedProblem.hints.length > 0 ? (
                       selectedProblem.hints.map((hint, idx) => (
-                        <div key={idx} className="bg-slate-800/50 p-3 rounded-lg border border-slate-700/60 flex items-start gap-2">
+                        <div
+                          key={idx}
+                          className="bg-slate-800/50 p-3 rounded-lg border border-slate-700/60 flex items-start gap-2"
+                        >
                           <HelpCircle className="size-4 text-amber-400 shrink-0 mt-0.5" />
                           <div>
-                            <div className="font-semibold text-slate-200 text-xs mb-0.5">Hint {idx + 1}</div>
+                            <div className="font-semibold text-slate-200 text-xs mb-0.5">
+                              Hint {idx + 1}
+                            </div>
                             <div className="text-slate-300 text-xs">{hint}</div>
                           </div>
                         </div>
                       ))
                     ) : (
-                      <div className="text-slate-500 text-center py-6">No hints for this problem. Try analyzing input patterns!</div>
+                      <div className="text-slate-500 text-center py-6">
+                        No hints for this problem. Try analyzing input patterns!
+                      </div>
                     )}
                   </div>
                 )}
@@ -775,7 +876,9 @@ function CodingArenaPage() {
                 disabled={isMentoring}
                 className="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-all disabled:opacity-50"
               >
-                <Sparkles className={`size-3 text-amber-300 ${isMentoring ? "animate-spin" : ""}`} />
+                <Sparkles
+                  className={`size-3 text-amber-300 ${isMentoring ? "animate-spin" : ""}`}
+                />
                 {isMentoring ? "Analyzing..." : "AI Mentor Feedback"}
               </button>
             </div>
@@ -788,7 +891,9 @@ function CodingArenaPage() {
                 <button
                   onClick={() => setOutputTab("results")}
                   className={`pb-1 border-b-2 flex items-center gap-1.5 transition-colors ${
-                    outputTab === "results" ? "border-coral text-coral" : "border-transparent text-slate-400 hover:text-slate-200"
+                    outputTab === "results"
+                      ? "border-coral text-coral"
+                      : "border-transparent text-slate-400 hover:text-slate-200"
                   }`}
                 >
                   <Terminal className="size-3.5" /> Judge Output
@@ -796,7 +901,9 @@ function CodingArenaPage() {
                 <button
                   onClick={() => setOutputTab("mentor")}
                   className={`pb-1 border-b-2 flex items-center gap-1.5 transition-colors ${
-                    outputTab === "mentor" ? "border-indigo-400 text-indigo-400" : "border-transparent text-slate-400 hover:text-slate-200"
+                    outputTab === "mentor"
+                      ? "border-indigo-400 text-indigo-400"
+                      : "border-transparent text-slate-400 hover:text-slate-200"
                   }`}
                 >
                   <Sparkles className="size-3.5 text-amber-400" /> AI Coding Mentor
@@ -864,15 +971,28 @@ function CodingArenaPage() {
                               <span className="font-semibold text-slate-300">
                                 Case #{tc.testCaseIndex} {tc.isHidden && "(Hidden Case)"}
                               </span>
-                              <span className={tc.passed ? "text-emerald-400 font-bold" : "text-rose-400 font-bold"}>
+                              <span
+                                className={
+                                  tc.passed
+                                    ? "text-emerald-400 font-bold"
+                                    : "text-rose-400 font-bold"
+                                }
+                              >
                                 {tc.passed ? "Passed ✓" : "Failed ✗"}
                               </span>
                             </div>
                             {!tc.isHidden && (
                               <div className="space-y-1 text-slate-400">
-                                <div>Input: <span className="text-slate-200">{tc.input}</span></div>
-                                <div>Expected: <span className="text-emerald-300">{tc.expectedOutput}</span></div>
-                                <div>Output: <span className="text-rose-300">{tc.actualOutput}</span></div>
+                                <div>
+                                  Input: <span className="text-slate-200">{tc.input}</span>
+                                </div>
+                                <div>
+                                  Expected:{" "}
+                                  <span className="text-emerald-300">{tc.expectedOutput}</span>
+                                </div>
+                                <div>
+                                  Output: <span className="text-rose-300">{tc.actualOutput}</span>
+                                </div>
                               </div>
                             )}
                           </div>
@@ -891,26 +1011,46 @@ function CodingArenaPage() {
                   {/* Quality Score & Approach */}
                   <div className="bg-gradient-to-r from-violet-950/40 to-indigo-950/40 border border-violet-800/40 rounded-xl p-3 flex items-center justify-between">
                     <div>
-                      <div className="text-[10px] text-violet-300 uppercase tracking-wider font-semibold">Detected Approach</div>
-                      <div className="text-white font-bold text-sm">{mentorFeedback.detectedApproach}</div>
+                      <div className="text-[10px] text-violet-300 uppercase tracking-wider font-semibold">
+                        Detected Approach
+                      </div>
+                      <div className="text-white font-bold text-sm">
+                        {mentorFeedback.detectedApproach}
+                      </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-[10px] text-violet-300 uppercase tracking-wider font-semibold">Code Score</div>
-                      <div className="text-amber-400 font-extrabold text-lg">{mentorFeedback.codeQualityScore} / 100</div>
+                      <div className="text-[10px] text-violet-300 uppercase tracking-wider font-semibold">
+                        Code Score
+                      </div>
+                      <div className="text-amber-400 font-extrabold text-lg">
+                        {mentorFeedback.codeQualityScore} / 100
+                      </div>
                     </div>
                   </div>
 
                   {/* Complexity Analysis */}
                   <div className="grid grid-cols-2 gap-3 text-xs">
                     <div className="bg-[#0d1117] p-3 rounded-lg border border-slate-800">
-                      <div className="text-slate-500 text-[10px] font-semibold">Time Complexity</div>
-                      <div className="text-emerald-400 font-mono font-bold">{mentorFeedback.timeComplexity}</div>
-                      <div className="text-[10px] text-slate-500 mt-1">Optimal: {mentorFeedback.optimalTimeComplexity}</div>
+                      <div className="text-slate-500 text-[10px] font-semibold">
+                        Time Complexity
+                      </div>
+                      <div className="text-emerald-400 font-mono font-bold">
+                        {mentorFeedback.timeComplexity}
+                      </div>
+                      <div className="text-[10px] text-slate-500 mt-1">
+                        Optimal: {mentorFeedback.optimalTimeComplexity}
+                      </div>
                     </div>
                     <div className="bg-[#0d1117] p-3 rounded-lg border border-slate-800">
-                      <div className="text-slate-500 text-[10px] font-semibold">Space Complexity</div>
-                      <div className="text-amber-400 font-mono font-bold">{mentorFeedback.spaceComplexity}</div>
-                      <div className="text-[10px] text-slate-500 mt-1">Optimal: {mentorFeedback.optimalSpaceComplexity}</div>
+                      <div className="text-slate-500 text-[10px] font-semibold">
+                        Space Complexity
+                      </div>
+                      <div className="text-amber-400 font-mono font-bold">
+                        {mentorFeedback.spaceComplexity}
+                      </div>
+                      <div className="text-[10px] text-slate-500 mt-1">
+                        Optimal: {mentorFeedback.optimalSpaceComplexity}
+                      </div>
                     </div>
                   </div>
 
@@ -918,7 +1058,8 @@ function CodingArenaPage() {
                   {mentorFeedback.betterApproach && (
                     <div className="bg-slate-800/50 p-3 rounded-lg border border-indigo-500/30 space-y-1">
                       <div className="text-indigo-300 font-bold flex items-center gap-1.5">
-                        <Sparkles className="size-3.5 text-amber-400" /> Optimal Direction: {mentorFeedback.betterApproach}
+                        <Sparkles className="size-3.5 text-amber-400" /> Optimal Direction:{" "}
+                        {mentorFeedback.betterApproach}
                       </div>
                       <p className="text-slate-300 text-xs leading-relaxed">
                         {mentorFeedback.betterApproachExplanation}
@@ -927,23 +1068,27 @@ function CodingArenaPage() {
                   )}
 
                   {/* Code Quality Suggestions */}
-                  {mentorFeedback.codeQualitySuggestions && mentorFeedback.codeQualitySuggestions.length > 0 && (
-                    <div className="space-y-1.5">
-                      <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
-                        Mentor Suggestions
+                  {mentorFeedback.codeQualitySuggestions &&
+                    mentorFeedback.codeQualitySuggestions.length > 0 && (
+                      <div className="space-y-1.5">
+                        <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                          Mentor Suggestions
+                        </div>
+                        <ul className="space-y-1 text-slate-300 text-xs list-disc list-inside">
+                          {mentorFeedback.codeQualitySuggestions.map((sug, i) => (
+                            <li key={i}>{sug}</li>
+                          ))}
+                        </ul>
                       </div>
-                      <ul className="space-y-1 text-slate-300 text-xs list-disc list-inside">
-                        {mentorFeedback.codeQualitySuggestions.map((sug, i) => (
-                          <li key={i}>{sug}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
+                    )}
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center py-10 text-slate-500 space-y-2 text-center">
                   <Sparkles className="size-8 text-indigo-400/50" />
-                  <div>Click "AI Mentor Feedback" to get deep algorithmic complexity and architecture analysis.</div>
+                  <div>
+                    Click "AI Mentor Feedback" to get deep algorithmic complexity and architecture
+                    analysis.
+                  </div>
                 </div>
               )}
             </div>

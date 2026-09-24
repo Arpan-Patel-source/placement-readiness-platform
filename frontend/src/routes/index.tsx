@@ -27,7 +27,8 @@ export const Route = createFileRoute("/")({
       { property: "og:title", content: "PlacementAI — From Campus to Career" },
       {
         property: "og:description",
-        content: "Prepare, practice and progress with an AI-powered placement platform built for students.",
+        content:
+          "Prepare, practice and progress with an AI-powered placement platform built for students.",
       },
     ],
   }),

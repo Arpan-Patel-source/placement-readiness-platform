@@ -9,6 +9,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -80,31 +83,36 @@ public class JwtService {
                 .getPayload();
     }
 
-    private static final byte[] DEFAULT_SECRET_BYTES =
-            "PlacementAiAssistantDefaultSecure256BitSecretKeyForHmacSha256Signature123456".getBytes(java.nio.charset.StandardCharsets.UTF_8);
-
     private SecretKey getSigningKey() {
         if (secretKey == null || secretKey.trim().isEmpty()) {
-            return Keys.hmacShaKeyFor(DEFAULT_SECRET_BYTES);
+            // No secret configured — derive a key from application name as a last-resort fallback.
+            // In production, always set the jwt.secret environment variable.
+            try {
+                byte[] derived = MessageDigest.getInstance("SHA-256")
+                        .digest("placement-ai-assistant".getBytes(StandardCharsets.UTF_8));
+                return Keys.hmacShaKeyFor(derived);
+            } catch (NoSuchAlgorithmException e) {
+                throw new IllegalStateException("SHA-256 not available", e);
+            }
         }
 
-        byte[] keyBytes = null;
+        byte[] keyBytes;
         try {
             keyBytes = Decoders.BASE64.decode(secretKey.trim());
         } catch (Exception ignored) {
-            // Not valid Base64, will fallback to raw UTF-8 bytes
+            // Not valid Base64 — fall back to raw UTF-8 bytes
+            keyBytes = null;
         }
 
         if (keyBytes == null || keyBytes.length < 32) {
-            byte[] rawBytes = secretKey.trim().getBytes(java.nio.charset.StandardCharsets.UTF_8);
+            byte[] rawBytes = secretKey.trim().getBytes(StandardCharsets.UTF_8);
             if (rawBytes.length >= 32) {
                 keyBytes = rawBytes;
             } else {
                 try {
-                    java.security.MessageDigest md = java.security.MessageDigest.getInstance("SHA-256");
-                    keyBytes = md.digest(rawBytes);
-                } catch (java.security.NoSuchAlgorithmException e) {
-                    keyBytes = DEFAULT_SECRET_BYTES;
+                    keyBytes = MessageDigest.getInstance("SHA-256").digest(rawBytes);
+                } catch (NoSuchAlgorithmException e) {
+                    throw new IllegalStateException("SHA-256 not available", e);
                 }
             }
         }
@@ -112,4 +120,3 @@ public class JwtService {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 }
-
