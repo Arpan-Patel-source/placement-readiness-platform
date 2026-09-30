@@ -38,5 +38,24 @@ public class AuthController {
     public ResponseEntity<AuthResponse> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
         return ResponseEntity.ok(authService.resetPassword(request));
     }
+
+    /**
+     * POST /api/auth/google
+     * Accepts a Google ID token from the frontend, verifies it, and either
+     * returns a JWT (existing user) or signals that a new account needs to be created.
+     */
+    @PostMapping("/google")
+    public ResponseEntity<GoogleAuthResponse> googleAuth(@Valid @RequestBody GoogleAuthRequest request) {
+        return ResponseEntity.ok(authService.googleAuth(request));
+    }
+
+    /**
+     * POST /api/auth/google/register
+     * Completes registration for a new Google user after they confirm their details.
+     */
+    @PostMapping("/google/register")
+    public ResponseEntity<AuthResponse> googleRegister(@Valid @RequestBody GoogleRegisterRequest request) {
+        return ResponseEntity.ok(authService.googleRegister(request));
+    }
 }
 

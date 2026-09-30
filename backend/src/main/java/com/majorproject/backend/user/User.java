@@ -32,7 +32,12 @@ public class User implements UserDetails {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false)
+    /** Null for email/password users; populated for Google OAuth users. */
+    @Column(unique = true)
+    private String googleId;
+
+    /** BCrypt-hashed password. Null for Google-only accounts. */
+    @Column
     private String password;
 
     @Enumerated(EnumType.STRING)

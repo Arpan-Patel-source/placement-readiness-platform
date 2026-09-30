@@ -152,6 +152,21 @@ export interface AuthResponse {
   role: string;
 }
 
+export interface GoogleAuthResponse {
+  token: string | null;
+  email: string;
+  role: string | null;
+  isNewUser: boolean;
+  name: string;
+}
+
+export interface GoogleRegisterRequest {
+  idToken: string;
+  name: string;
+  email: string;
+  college?: string | undefined;
+}
+
 export interface StudentProfile {
   id?: number;
   fullName?: string;
@@ -420,6 +435,42 @@ export const api = {
 
     const data = await handleResponse<AuthResponse>(response);
     authStorage.setSession(data);
+    return data;
+  },
+
+  /**
+   * Google Sign-In: verify an ID token with the backend.
+   * POST /api/auth/google
+   * Returns isNewUser=true when account doesn't exist yet.
+   */
+  async googleAuth(idToken: string): Promise<GoogleAuthResponse> {
+    const response = await apiFetch(`${API_BASE_URL}/api/auth/google`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ idToken }),
+    });
+    const data = await handleResponse<GoogleAuthResponse>(response);
+    if (data.token) {
+      authStorage.setSession(
+        { token: data.token, email: data.email, role: data.role || "STUDENT" },
+        data.name,
+      );
+    }
+    return data;
+  },
+
+  /**
+   * Complete Google registration (new user confirmed their details).
+   * POST /api/auth/google/register
+   */
+  async googleRegister(request: GoogleRegisterRequest): Promise<AuthResponse> {
+    const response = await apiFetch(`${API_BASE_URL}/api/auth/google/register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(request),
+    });
+    const data = await handleResponse<AuthResponse>(response);
+    authStorage.setSession(data, request.name);
     return data;
   },
 

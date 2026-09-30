@@ -1,5 +1,9 @@
 package com.majorproject.backend.auth;
 
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.gson.GsonFactory;
 import com.majorproject.backend.jwt.JwtService;
 import com.majorproject.backend.profile.StudentProfile;
 import com.majorproject.backend.profile.StudentProfileRepository;
@@ -7,6 +11,7 @@ import com.majorproject.backend.user.Role;
 import com.majorproject.backend.user.User;
 import com.majorproject.backend.user.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -14,6 +19,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -39,6 +46,9 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+
+    @Value("${google.client-id}")
+    private String googleClientId;
 
     @Transactional
     public AuthResponse register(RegisterRequest request) {
@@ -132,4 +142,138 @@ public class AuthService {
                 .role(user.getRole().name())
                 .build();
     }
+
+    /**
+     * Verifies a Google ID token and either:
+     *  - Logs in an existing user (by googleId or email) and returns a JWT, or
+     *  - Returns isNewUser=true with the Google name+email so the frontend can
+     *    show a pre-filled register form (the user will confirm and submit normally).
+     */
+    @Transactional
+    public GoogleAuthResponse googleAuth(GoogleAuthRequest request) {
+        // 1. Verify the ID token with Google's public keys
+        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(
+                new NetHttpTransport(), GsonFactory.getDefaultInstance())
+                .setAudience(Collections.singletonList(googleClientId))
+                .build();
+
+        GoogleIdToken idToken;
+        try {
+            idToken = verifier.verify(request.getIdToken());
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Failed to verify Google ID token: " + e.getMessage());
+        }
+
+        if (idToken == null) {
+            throw new IllegalArgumentException("Invalid or expired Google ID token.");
+        }
+
+        GoogleIdToken.Payload payload = idToken.getPayload();
+        String googleId = payload.getSubject();
+        String email    = payload.getEmail();
+        String name     = (String) payload.get("name");
+
+        // 2. Check if user already linked by googleId
+        Optional<User> byGoogleId = userRepository.findByGoogleId(googleId);
+        if (byGoogleId.isPresent()) {
+            User user = byGoogleId.get();
+            String jwtToken = jwtService.generateToken(user);
+            String displayName = profileRepository.findByUser(user)
+                    .map(StudentProfile::getFullName)
+                    .filter(n -> n != null && !n.isBlank())
+                    .orElse(name != null && !name.isBlank() ? name : user.getEmail().split("@")[0]);
+            return GoogleAuthResponse.builder()
+                    .token(jwtToken)
+                    .email(user.getEmail())
+                    .role(user.getRole().name())
+                    .isNewUser(false)
+                    .name(displayName)
+                    .build();
+        }
+
+        // 3. Check if an existing email/password account uses the same email → link it
+        Optional<User> byEmail = userRepository.findByEmail(email);
+        if (byEmail.isPresent()) {
+            User user = byEmail.get();
+            user.setGoogleId(googleId);
+            userRepository.save(user);
+            String jwtToken = jwtService.generateToken(user);
+            String displayName = profileRepository.findByUser(user)
+                    .map(StudentProfile::getFullName)
+                    .filter(n -> n != null && !n.isBlank())
+                    .orElse(name != null && !name.isBlank() ? name : user.getEmail().split("@")[0]);
+            return GoogleAuthResponse.builder()
+                    .token(jwtToken)
+                    .email(user.getEmail())
+                    .role(user.getRole().name())
+                    .isNewUser(false)
+                    .name(displayName)
+                    .build();
+        }
+
+        // 4. Brand-new Google user — do NOT auto-create; signal frontend to show register form
+        String displayName = (name != null && !name.isBlank()) ? name : email.split("@")[0];
+        return GoogleAuthResponse.builder()
+                .token(null)
+                .email(email)
+                .role(null)
+                .isNewUser(true)
+                .name(displayName)
+                .build();
+    }
+
+    /**
+     * Completes Google registration: creates the account and links the googleId.
+     * Called after the user confirms their details in the register form.
+     */
+    @Transactional
+    public AuthResponse googleRegister(GoogleRegisterRequest request) {
+        // Re-verify the Google ID token to extract the googleId (subject) securely
+        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(
+                new NetHttpTransport(), GsonFactory.getDefaultInstance())
+                .setAudience(Collections.singletonList(googleClientId))
+                .build();
+
+        GoogleIdToken idToken;
+        try {
+            idToken = verifier.verify(request.getIdToken());
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Failed to verify Google ID token: " + e.getMessage());
+        }
+        if (idToken == null) {
+            throw new IllegalArgumentException("Invalid or expired Google ID token.");
+        }
+
+        String googleId = idToken.getPayload().getSubject();
+        String email    = idToken.getPayload().getEmail();
+
+        // Guard: if email already registered, just log them in
+        if (userRepository.findByEmail(email).isPresent()) {
+            throw new IllegalArgumentException("Email is already registered: " + email);
+        }
+
+        User user = User.builder()
+                .email(email)
+                .password(passwordEncoder.encode(UUID.randomUUID().toString()))
+                .googleId(googleId)
+                .role(Role.STUDENT)
+                .build();
+        userRepository.save(user);
+
+        StudentProfile profile = StudentProfile.builder()
+                .user(user)
+                .fullName(request.getName())
+                .collegeName(request.getCollege())
+                .build();
+        profileRepository.save(profile);
+
+        String token = jwtService.generateToken(user);
+        return AuthResponse.builder()
+                .token(token)
+                .email(user.getEmail())
+                .role(user.getRole().name())
+                .build();
+    }
 }
+
+

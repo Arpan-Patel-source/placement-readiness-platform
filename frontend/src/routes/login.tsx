@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 import { api, authStorage, prewarmBackend } from "@/lib/api";
 import { AuthLayout } from "@/components/AuthLayout";
@@ -36,6 +36,8 @@ function LoginPage() {
   const [offlineNotice, setOfflineNotice] = useState(false);
   const [showServerConfig, setShowServerConfig] = useState(false);
   const [customBackendUrl, setCustomBackendUrl] = useState(() => api.getApiBaseUrl());
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const googleBtnRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     prewarmBackend();
@@ -53,6 +55,86 @@ function LoginPage() {
       if (interval) clearInterval(interval);
     };
   }, [loading]);
+
+  // Load Google GSI script and render the official Google button
+  useEffect(() => {
+    const clientId = import.meta.env["VITE_GOOGLE_CLIENT_ID"];
+    if (!clientId || clientId === "YOUR_GOOGLE_CLIENT_ID_HERE") return;
+
+    const scriptId = "google-gsi-script";
+
+    function initGoogleSignIn() {
+      const google = (window as any).google;
+      if (!google || !googleBtnRef.current) return;
+      google.accounts.id.initialize({
+        client_id: clientId,
+        callback: handleGoogleCredential,
+      });
+      google.accounts.id.renderButton(googleBtnRef.current, {
+        type: "standard",
+        shape: "pill",
+        theme: "outline",
+        size: "large",
+        text: "signin_with",
+        width: googleBtnRef.current.offsetWidth || 340,
+      });
+    }
+
+    if (!document.getElementById(scriptId)) {
+      const script = document.createElement("script");
+      script.id = scriptId;
+      script.src = "https://accounts.google.com/gsi/client";
+      script.async = true;
+      script.defer = true;
+      script.onload = () => initGoogleSignIn();
+      document.head.appendChild(script);
+    } else {
+      initGoogleSignIn();
+    }
+  }, []);
+
+  const handleGoogleCredential = async (response: { credential: string }) => {
+    setError(null);
+    setOfflineNotice(false);
+    setGoogleLoading(true);
+    try {
+      const result = await api.googleAuth(response.credential);
+      if (result.token) {
+        navigate({ to: "/dashboard" });
+      } else if (result.isNewUser) {
+        // Fallback for pre-filled registration if token is not issued yet
+        navigate({
+          to: "/register",
+          search: {
+            google: "1",
+            name: result.name,
+            email: result.email,
+            idToken: response.credential,
+          } as any,
+        });
+      } else {
+        navigate({ to: "/dashboard" });
+      }
+    } catch (err: any) {
+      const errMsg = err?.message || "";
+      if (
+        errMsg.includes("Failed to fetch") ||
+        errMsg.includes("NetworkError") ||
+        errMsg.includes("fetch") ||
+        errMsg.includes("timed out") ||
+        errMsg.includes("HTML from server")
+      ) {
+        setOfflineNotice(true);
+      } else {
+        const friendlyMsg = errMsg.includes("violates not-null constraint") || errMsg.includes("could not execute statement")
+          ? "Unable to complete Google sign-in due to a server account setup error. Please try again."
+          : errMsg;
+        setError(friendlyMsg || "Google sign-in failed. Please try again.");
+      }
+    } finally {
+      setGoogleLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -94,6 +176,9 @@ function LoginPage() {
     navigate({ to: "/dashboard" });
   };
 
+  const googleClientId = import.meta.env["VITE_GOOGLE_CLIENT_ID"];
+  const googleEnabled = googleClientId && googleClientId !== "YOUR_GOOGLE_CLIENT_ID_HERE";
+
   return (
     <AuthLayout
       eyebrow="WELCOME BACK"
@@ -116,6 +201,28 @@ function LoginPage() {
           </div>
         )}
 
+        {/* Google Sign-In button */}
+        {googleEnabled && (
+          <div className="space-y-3">
+            <div
+              ref={googleBtnRef}
+              className="flex w-full justify-center"
+              style={{ minHeight: 44 }}
+            />
+            {googleLoading && (
+              <div className="flex items-center justify-center gap-2 text-xs text-ink/60">
+                <Loader2 className="size-3.5 animate-spin" />
+                Signing in with Google...
+              </div>
+            )}
+            <div className="relative flex items-center gap-3">
+              <div className="h-px flex-1 bg-border" />
+              <span className="text-xs text-ink/40 font-medium">or sign in with email</span>
+              <div className="h-px flex-1 bg-border" />
+            </div>
+          </div>
+        )}
+
         {offlineNotice && (
           <div className="space-y-3 rounded-2xl border border-border bg-peach/40 p-4 text-sm text-ink">
             <p className="font-semibold text-coral">Unable to reach backend server</p>
@@ -125,7 +232,7 @@ function LoginPage() {
                   To connect live, start the local Spring Boot app:
                   <br />
                   <code className="mt-1 inline-block rounded bg-background/80 px-2 py-0.5 font-mono text-[11px]">
-                    cd backend && ./mvnw spring-boot:run
+                    cd backend &amp;&amp; ./mvnw spring-boot:run
                   </code>
                 </>
               ) : (

@@ -12,4 +12,7 @@ import java.util.UUID;
 public interface UserRepository extends JpaRepository<User, UUID> {
 
     Optional<User> findByEmail(String email);
+
+    /** Used for Google OAuth — look up a user by their Google account subject ID. */
+    Optional<User> findByGoogleId(String googleId);
 }
