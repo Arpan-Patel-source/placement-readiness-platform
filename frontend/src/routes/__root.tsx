@@ -7,7 +7,8 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { type ReactNode } from "react";
+import { useInactivityLogout } from "@/hooks/use-inactivity-logout";
 
 import appCss from "../styles.css?url";
 
@@ -127,6 +128,9 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+
+  // Auto-logout after 10 minutes of inactivity (only when authenticated)
+  useInactivityLogout();
 
   return (
     <QueryClientProvider client={queryClient}>

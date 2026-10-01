@@ -339,12 +339,12 @@ const USER_KEY = "placement_user";
 export const authStorage = {
   getToken(): string | null {
     if (typeof window === "undefined") return null;
-    return localStorage.getItem(TOKEN_KEY);
+    return sessionStorage.getItem(TOKEN_KEY);
   },
 
   getUser(): UserSession | null {
     if (typeof window === "undefined") return null;
-    const raw = localStorage.getItem(USER_KEY);
+    const raw = sessionStorage.getItem(USER_KEY);
     if (!raw) return null;
     try {
       return JSON.parse(raw);
@@ -355,7 +355,7 @@ export const authStorage = {
 
   setSession(data: AuthResponse, name?: string): void {
     if (typeof window === "undefined") return;
-    localStorage.setItem(TOKEN_KEY, data.token);
+    sessionStorage.setItem(TOKEN_KEY, data.token);
     const fallbackName = data.email ? data.email.split("@")[0] : "Student";
     const session: UserSession = {
       token: data.token,
@@ -363,13 +363,13 @@ export const authStorage = {
       role: data.role,
       name: name || fallbackName || "Student",
     };
-    localStorage.setItem(USER_KEY, JSON.stringify(session));
+    sessionStorage.setItem(USER_KEY, JSON.stringify(session));
   },
 
   clearSession(): void {
     if (typeof window === "undefined") return;
-    localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(USER_KEY);
+    sessionStorage.removeItem(TOKEN_KEY);
+    sessionStorage.removeItem(USER_KEY);
   },
 
   isAuthenticated(): boolean {
